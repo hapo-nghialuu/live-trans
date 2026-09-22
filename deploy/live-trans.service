@@ -1,0 +1,25 @@
+[Unit]
+Description=Live Trans - mobile microphone and web captions
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/live-trans/current
+EnvironmentFile=/etc/live-trans/runtime.env
+ExecStart=/home/ubuntu/.nvm/versions/node/v24.15.0/bin/node server/index.js
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+MemoryMax=256M
+TasksMax=64
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+# Thêm bên trong site assistant.hapo.work hiện có; giữ nguyên các route khác.
+redir /live-trans /live-trans/ 308
+handle_path /live-trans/* {
+    reverse_proxy 127.0.0.1:4317
+}
+
+# Site riêng: chứng chỉ HTTPS được Caddy cấp khi DNS trỏ đúng server.
+# Đặt block này ngoài site assistant.hapo.work.
+live-trans.hapo.work {
+    encode gzip
+    reverse_proxy 127.0.0.1:4317
+}
