@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#f7f6f2">
+  <title>live trans — Bạn nói. Thế giới hiểu.</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="desktop.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Đến nội dung</a>
+  <div class="shell">
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="live trans, trang chủ"><span class="brand-mark" aria-hidden="true">“</span>live trans<span class="brand-dot">.</span></a>
+      <span class="header-note">MỘT GIỌNG NÓI. NHIỀU KẾT NỐI.</span>
+      <span class="language-pill" aria-label="Tiếng Việt sang tiếng Anh và tiếng Nhật">VI <span aria-hidden="true">→</span> EN + JA</span>
+    </header>
+    <main id="main">
+      <div id="notice" class="notice" role="alert" hidden></div>
+      <section id="welcome" class="welcome" aria-labelledby="welcome-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="small-line" aria-hidden="true"></span> PHỤ ĐỀ ĐA NGÔN NGỮ TRỰC TIẾP</p>
+          <h1 id="welcome-title">Bạn nói.<br>Thế giới <span>hiểu.</span></h1>
+          <p class="hero-description">Nói tiếng Việt bằng điện thoại.<br>Tiếng Anh và tiếng Nhật hiện ngay trên màn hình.</p>
+          <form id="create-form" class="create-form">
+            <div id="access-field" class="field" hidden>
+              <label for="access-key">Mã truy cập</label>
+              <input id="access-key" type="password" autocomplete="off" placeholder="Nhập mã để tạo phiên" spellcheck="false">
+            </div>
+            <button id="create-button" class="primary" type="submit" disabled>Tạo phiên mới <span aria-hidden="true">↗</span></button>
+            <p id="config-note" class="helper">Đang kiểm tra kết nối…</p>
+          </form>
+        </div>
+        <div class="flow-card" aria-label="Ba bước bắt đầu">
+          <div class="flow-heading"><span class="eyebrow">BẮT ĐẦU THẬT ĐƠN GIẢN</span><span class="round-arrow" aria-hidden="true">↗</span></div>
+          <ol class="steps">
+            <li><span class="step-number">01</span><div><h2>Mở một phiên</h2><p>Giữ trang này trên màn hình lớn.</p></div></li>
+            <li><span class="step-number">02</span><div><h2>Kết nối điện thoại</h2><p>Quét mã QR và cho phép dùng micro.</p></div></li>
+            <li><span class="step-number">03</span><div><h2>Nói theo cách của bạn</h2><p>Hai ngôn ngữ. Cùng một cuộc trò chuyện.</p></div></li>
+          </ol>
+          <div class="flow-footer"><span class="tiny-dot" aria-hidden="true"></span> Điện thoại thu âm · Màn hình hiển thị</div>
+        </div>
+      </section>
+      <section id="session" class="session" aria-labelledby="session-title" hidden>
+        <div class="session-heading">
+          <div><p class="eyebrow">KHÔNG BỎ LỠ MỘT Ý NÀO</p><h1 id="session-title">Cuộc trò chuyện của bạn.</h1></div>
+          <div class="session-actions"><button id="fullscreen" class="secondary" type="button">Toàn màn hình</button><button id="end-session" class="text-button" type="button">Kết thúc</button></div>
+        </div>
+        <div class="session-layout">
+          <div class="caption-area">
+            <div class="caption-toolbar"><span id="connection-status" class="status" data-state="connecting" role="status">Đang kết nối…</span><button id="reconnect" class="text-button" type="button" hidden>Kết nối lại</button></div>
+            <div class="translation-grid" aria-live="polite" aria-atomic="true">
+              <article class="translation-card"><div class="card-label"><h2>English</h2><span>EN</span></div><p id="caption-en" class="translation-text empty" lang="en">Phụ đề tiếng Anh sẽ hiện ở đây.</p></article>
+              <article class="translation-card japanese"><div class="card-label"><h2>日本語</h2><span>JA</span></div><p id="caption-ja" class="translation-text empty" lang="ja">Phụ đề tiếng Nhật sẽ hiện ở đây.</p></article>
+            </div>
+            <div class="original-card"><span class="eyebrow">TIẾNG VIỆT · LỜI NÓI GỐC</span><p id="caption-vi">Bắt đầu nói trên điện thoại để thấy lời của bạn.</p><p id="translation-status" class="helper" role="status"></p></div>
+            <section id="recent-section" class="recent-section" hidden><h2 class="eyebrow">VỪA NÓI</h2><div id="recent-captions"></div></section>
+          </div>
+          <aside class="phone-panel" aria-labelledby="phone-title">
+            <span class="eyebrow">MICRO CỦA BẠN</span><h2 id="phone-title">Kết nối điện thoại.</h2>
+            <div class="qr-frame"><img id="qr" width="200" height="200" alt="Mã QR mở micro trên điện thoại" hidden><span id="qr-loading" class="helper">Đang tạo mã QR…</span></div>
+            <p>Quét mã bằng camera điện thoại.<br>Sau đó nhấn <strong>Bắt đầu nói</strong>.</p>
+            <span id="mic-status" class="phone-status">Chưa có điện thoại kết nối</span>
+            <button id="copy-link" class="secondary full-width" type="button" disabled>Sao chép liên kết</button>
+            <p id="copy-feedback" class="helper" role="status"></p>
+            <input id="link-fallback" class="link-fallback" aria-label="Liên kết micro; chọn và sao chép" readonly hidden>
+            <div class="phone-tip">Giữ màn hình điện thoại sáng trong khi nói. Bạn có thể dừng bất cứ lúc nào.</div>
+            <button id="pause-mic" class="text-button full-width" type="button" disabled>Dừng thu từ xa</button>
+          </aside>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer"><span>Ít rào cản hơn. Nhiều điều để chia sẻ hơn.</span><span>Tiếng Việt <span aria-hidden="true">↗</span> English · 日本語</span></footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#f7f6f2">
+  <title>Micro của bạn — live trans</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="microphone.js"></script>
+</head>
+<body class="mic-page">
+  <div class="mic-shell">
+    <header class="site-header"><a class="brand" href="./" aria-label="live trans, trang chủ"><span class="brand-mark" aria-hidden="true">“</span>live trans<span class="brand-dot">.</span></a><span class="language-pill">MICRO</span></header>
+    <main class="mic-main">
+      <span id="connection-status" class="status" data-state="connecting" role="status">Đang kết nối…</span>
+      <h1>Chỉ cần nói.<br><span>Để lời đi xa.</span></h1>
+      <p class="mic-description">Nói tiếng Việt. Phụ đề tiếng Anh và tiếng Nhật sẽ xuất hiện trên màn hình lớn.</p>
+      <div id="notice" class="notice" role="alert" hidden></div>
+      <div class="mic-control">
+        <button id="mic-button" class="mic-button" type="button" disabled aria-pressed="false" aria-describedby="mic-guidance">
+          <svg class="mic-symbol" viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="14" y="4" width="12" height="22" rx="6" stroke="currentColor" stroke-width="2"/><path d="M9 19v2a11 11 0 0 0 22 0v-2M20 32v5M14 37h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span id="mic-button-label">Bắt đầu nói</span>
+        </button>
+        <div class="audio-level"><span>Âm lượng micro</span><meter id="audio-level" min="0" max="1" value="0" aria-label="Âm lượng micro"></meter></div>
+        <p id="mic-guidance" class="helper">Cho phép truy cập micro khi trình duyệt hỏi.</p>
+        <button id="reconnect" class="secondary" type="button" hidden>Kết nối lại</button>
+      </div>
+      <section class="mic-preview" aria-labelledby="preview-title"><h2 id="preview-title" class="eyebrow">LỜI CỦA BẠN</h2><p id="caption-vi">Lời nói sẽ hiện ở đây khi bạn bắt đầu.</p></section>
+      <div class="mic-notes"><p><strong>Giữ trang này mở và màn hình sáng.</strong></p><p>Chuyển ứng dụng hoặc khóa màn hình sẽ dừng micro. Mỗi lượt thu tối đa 9 phút; bạn có thể nhấn để bắt đầu lượt tiếp theo.</p><p id="wake-status" class="helper"></p></div>
+    </main>
+    <footer class="mic-footer">Bạn chủ động bắt đầu. Bạn chủ động dừng.</footer>
+  </div>
+</body>
+</html>
