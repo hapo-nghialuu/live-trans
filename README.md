@@ -75,6 +75,16 @@ Restart server kết thúc các phòng trong bộ nhớ.
 - Model: `gemini-3.5-transcribe-live` và `gemini-3.5-flash-lite` (`minimal`).
 - Prompt bảo toàn số và ý; vẫn cần đối chiếu các thông tin quan trọng.
 
+## App điện thoại (React Native)
+
+`mobile/` là app React Native thay thế `mic.html`: dán liên kết mic
+(`…/mic.html#room=…&token=…`, lấy từ QR trên màn hình chính) → Kết nối →
+Bắt đầu nói. App stream PCM16 mono 16 kHz qua cùng WebSocket `/socket`
+với giao thức `join/start/stop` như web. iOS đã bật `audio` background mode
+và `NSMicrophoneUsageDescription`; Android có `RECORD_AUDIO`/`WAKE_LOCK`
+nhưng chưa build thử. Chạy: `cd mobile && npm install && (cd ios && pod
+install) && npx react-native run-ios`.
+
 ## Kiểm chứng
 
 ```sh
