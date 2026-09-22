@@ -1,12 +1,16 @@
 name: android-apk
 
 on:
-  workflow_dispatch:
   push:
-    branches: [main]
-    paths:
-      - mobile/**
-      - .github/workflows/android-apk.yml
+    branches: [build]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apk-release
+  cancel-in-progress: false
 
 jobs:
   apk:
@@ -52,8 +56,27 @@ jobs:
         working-directory: mobile/android
         run: ./gradlew assembleDebug --no-daemon
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: LiveTransMic-debug-apk
-          path: mobile/android/app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 14
+      - name: Compute next version
+        id: ver
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          latest=$(gh release list --limit 20 --json tagName --jq '[.[].tagName | select(test("^v[0-9]+\\.[0-9]+\\.[0-9]+$"))] | .[0] // empty')
+          if [[ "$latest" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            tag="v${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.$((BASH_REMATCH[3]+1))"
+          else
+            tag="v0.1.0"
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.ver.outputs.tag }}
+        working-directory: mobile/android
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk "LiveTransMic-${TAG}.apk"
+          gh release create "$TAG" "LiveTransMic-${TAG}.apk" \
+            --title "LiveTransMic ${TAG} (debug)" \
+            --generate-notes \
+            --prerelease
