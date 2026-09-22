@@ -3,6 +3,8 @@
 Điện thoại thu tiếng Việt; màn hình web hiển thị phụ đề Anh và Nhật.
 Giao diện HTML/CSS/JavaScript thuần, backend Node.js 24. Không cần GPU.
 
+Tài liệu: [tổng quan](docs/project-overview-pdr.md) · [kiến trúc](docs/system-architecture.md).
+
 ## Sử dụng
 
 1. Trên máy tính, mở app, nhập mã truy cập rồi chọn **Tạo phiên dịch**.
@@ -40,14 +42,15 @@ Các biến cấu hình:
 ## Triển khai hiện tại
 
 - SSH: `hapo_gateway_stg`.
-- URL: `https://assistant.hapo.work/live-trans/`.
-- Tên miền riêng: `https://live-trans.hapo.work/`, sau khi thêm DNS `A live-trans → 52.221.187.225`.
+- URL chính: `https://live.hapo.work/`; DNS `A live → 52.221.187.225`.
+- URL ban đầu vẫn dùng được: `https://assistant.hapo.work/live-trans/`.
 - QR tự dùng tên miền đang mở nếu tên miền đã có trong `PUBLIC_ALIASES`.
 - Caddy giữ nguyên các site cũ, thêm route riêng trong `deploy/caddy-snippet.txt`.
 - Release: `/home/ubuntu/live-trans/releases/`; symlink hoạt động: `current`.
 - Service: `live-trans.service`, mẫu trong `deploy/`.
 - Cấu hình: `/etc/live-trans/runtime.env`, quyền `600`, root sở hữu.
-- Thay hostname/path: cập nhật `PUBLIC_URL`, cấu hình Caddy và khởi động lại service.
+- Cấu hình hiện tại giữ `PUBLIC_URL=https://assistant.hapo.work/live-trans/` và đặt `PUBLIC_ALIASES=https://live.hapo.work/` để cả hai URL hoạt động.
+- Thay hostname/path: cập nhật `PUBLIC_URL` hoặc `PUBLIC_ALIASES`, cấu hình Caddy và khởi động lại service.
 
 ```sh
 ssh hapo_gateway_stg 'sudo systemctl status live-trans --no-pager'
@@ -56,7 +59,7 @@ ssh hapo_gateway_stg 'sudo systemctl restart live-trans'
 ```
 
 Rollback: chuyển `current` về release trước, restart `live-trans`, xác nhận
-`/live-trans/api/health`. Mỗi lần đổi Caddy phải sao lưu, validate rồi reload.
+`https://live.hapo.work/api/health`. Mỗi lần đổi Caddy phải sao lưu, validate rồi reload.
 Restart server kết thúc các phòng trong bộ nhớ.
 
 ## Phạm vi và dữ liệu

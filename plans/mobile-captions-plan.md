@@ -6,7 +6,7 @@ Bối cảnh: repo khởi đầu chưa có README.md; kế hoạch này không p
 
 ## Luồng và kiến trúc
 
-- Triển khai qua SSH `hapo_gateway_stg`; Caddy tại `assistant.hapo.work/live-trans/` proxy Node ở `127.0.0.1:4317`, giữ nguyên mọi site/route hiện có.
+- Triển khai qua SSH `hapo_gateway_stg`; Caddy tại `live.hapo.work` và URL ban đầu `assistant.hapo.work/live-trans/` proxy Node ở `127.0.0.1:4317`, giữ nguyên mọi site/route hiện có.
 - Desktop dùng `APP_ACCESS_KEY` qua liên kết riêng `#access` hoặc ô mật khẩu để tạo phòng/QR; giá trị chỉ giữ trong bộ nhớ trình duyệt, server kiểm tra quyền tạo phòng.
 - Điện thoại mở liên kết HTTPS, bấm bắt đầu/dừng và gửi âm thanh qua WebSocket.
 - Server chuyển âm thanh tới Gemini 3.5 Transcribe Live, phát VI interim/final về desktop.
@@ -49,7 +49,6 @@ Bối cảnh: repo khởi đầu chưa có README.md; kế hoạch này không p
 ## Câu hỏi chưa chốt
 
 - Chưa kiểm tra mic trên điện thoại vật lý, phiên kéo dài 9 phút và các tình huống đổi mạng trên iOS/Android.
-- DNS `live-trans.hapo.work` cần người dùng tạo record A tới `52.221.187.225`.
 
 ## Bằng chứng đã chạy (22/09/2026)
 
@@ -59,3 +58,10 @@ Bối cảnh: repo khởi đầu chưa có README.md; kế hoạch này không p
 - Caddy validate PASS; service active; app và site gốc HTTP 200; tạo phòng không có mã HTTP 401.
 - Backend được review độc lập; lỗi malformed Upgrade URL và caption cũ đã có regression tests. Lỗi UI ghép câu interim với bản dịch cũ đã sửa.
 - Các ô kiểm chứng chưa đánh dấu là phạm vi chưa có bằng chứng đầy đủ; không suy ra PASS từ code review hoặc smoke test.
+
+## Đổi tên miền (22/09/2026)
+
+- Theo yêu cầu người dùng, đổi tên miền riêng sang `live.hapo.work`; DNS A đã trỏ tới `52.221.187.225`.
+- Caddy validate thành công; HTTPS xác thực chứng chỉ thành công và trang chính trả HTTP 200.
+- Tạo phòng có mã trả 201, thiếu mã trả 401; URL mic/QR dùng đúng host/path, WebSocket xác thực và kết thúc phòng thành công trên cả tên miền mới lẫn URL ban đầu.
+- Giữ nguyên credential; cập nhật `PUBLIC_ALIASES` và liên kết truy cập riêng. `npm run check && npm test`: exit 0, 19 JS files, 14 tests pass.

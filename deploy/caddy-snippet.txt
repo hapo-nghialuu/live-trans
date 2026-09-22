@@ -6,7 +6,7 @@ handle_path /live-trans/* {
 
 # Site riêng: chứng chỉ HTTPS được Caddy cấp khi DNS trỏ đúng server.
 # Đặt block này ngoài site assistant.hapo.work.
-live-trans.hapo.work {
+live.hapo.work {
     encode gzip
     reverse_proxy 127.0.0.1:4317
 }
