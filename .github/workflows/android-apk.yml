@@ -18,6 +18,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
+          cache: gradle
 
       - uses: actions/setup-node@v4
         with:
@@ -25,7 +26,19 @@ jobs:
           cache: npm
           cache-dependency-path: mobile/package-lock.json
 
+      - name: Cache Android SDK packages
+        uses: actions/cache@v4
+        id: sdk-cache
+        with:
+          path: |
+            /usr/local/lib/android/sdk/ndk
+            /usr/local/lib/android/sdk/platforms/android-37.0
+            /usr/local/lib/android/sdk/build-tools/37.0.0
+            /usr/local/lib/android/sdk/platform-tools
+          key: android-sdk-${{ hashFiles('mobile/android/build.gradle') }}
+
       - name: Android SDK packages
+        if: steps.sdk-cache.outputs.cache-hit != 'true'
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
