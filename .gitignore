@@ -1,0 +1,22 @@
+# Git Ignore
+
+# CafeKit / Ecosystem
+specs/_shared/
+plans/*
+!plans/*.md
+!plans/templates/
+!plans/templates/**
+.cafekit-backup/
+.cafekit.lock
+.claude/
+.codex/
+.omp/
+.agents/
+
+# Runtime / secrets
+node_modules/
+.env
+.env.*
+!.env.example
+.runtime/
+*.log
