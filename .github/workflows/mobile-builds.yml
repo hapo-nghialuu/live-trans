@@ -1,4 +1,4 @@
-name: android-apk
+name: mobile-builds
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: apk-release
+  group: mobile-release
   cancel-in-progress: false
 
 jobs:
@@ -56,6 +56,67 @@ jobs:
         working-directory: mobile/android
         run: ./gradlew assembleDebug --no-daemon
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 5
+
+  ipa:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        id: pods-cache
+        with:
+          path: |
+            mobile/ios/Pods
+            ~/.cocoapods
+          key: pods-${{ hashFiles('mobile/ios/Podfile.lock', 'mobile/package-lock.json') }}
+
+      - name: Install JS deps
+        working-directory: mobile
+        run: npm ci
+
+      - name: Pod install
+        working-directory: mobile/ios
+        run: pod install
+
+      - name: Archive unsigned IPA
+        working-directory: mobile/ios
+        run: |
+          set -o pipefail
+          xcodebuild -workspace LiveTransMic.xcworkspace -scheme LiveTransMic \
+            -configuration Release -destination generic/platform=iOS \
+            -archivePath LiveTransMic.xcarchive archive \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            | tail -25
+          mkdir -p Payload
+          cp -R "LiveTransMic.xcarchive/Products/Applications/LiveTransMic.app" Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload LiveTransMic.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ipa
+          path: mobile/ios/LiveTransMic.ipa
+          retention-days: 5
+
+  release:
+    needs: [apk, ipa]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+
       - name: Compute next version
         id: ver
         env:
@@ -73,10 +134,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.ver.outputs.tag }}
-        working-directory: mobile/android
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk "LiveTransMic-${TAG}.apk"
-          gh release create "$TAG" "LiveTransMic-${TAG}.apk" \
-            --title "LiveTransMic ${TAG} (debug)" \
+          cp dist/apk/app-debug.apk "LiveTransMic-${TAG}.apk"
+          cp dist/ipa/LiveTransMic.ipa "LiveTransMic-${TAG}-unsigned.ipa"
+          gh release create "$TAG" "LiveTransMic-${TAG}.apk" "LiveTransMic-${TAG}-unsigned.ipa" \
+            --title "LiveTransMic ${TAG}" \
             --generate-notes \
             --prerelease
