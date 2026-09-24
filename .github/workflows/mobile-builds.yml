@@ -112,6 +112,8 @@ jobs:
   release:
     needs: [apk, ipa]
     runs-on: ubuntu-latest
+    env:
+      GH_REPO: ${{ github.repository }}
     steps:
       - uses: actions/download-artifact@v4
         with:
