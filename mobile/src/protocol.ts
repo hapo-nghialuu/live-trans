@@ -26,6 +26,14 @@ export function baseFromLink(input: string): string {
   return new URL('.', new URL(input.trim())).href;
 }
 
+/** Normalize a user-entered server address: bare host, base path, or a pasted mic link all work. */
+export function normalizeBase(input: string): string {
+  const url = new URL(input.trim().replace(/[?#].*$/, ''));
+  const last = url.pathname.split('/').pop() || '';
+  if (!last || last.includes('.')) return new URL('.', url).href;
+  return `${url.href}/`;
+}
+
 export interface JoinResult {
   url: string;
   room: string;
@@ -34,7 +42,7 @@ export interface JoinResult {
 
 /** Resolve a 6-digit session code to a join link via the issuing server. */
 export async function lookupMicLink(baseUrl: string, code: string): Promise<JoinResult> {
-  const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  const base = normalizeBase(baseUrl);
   const response = await fetch(new URL(`api/join?code=${encodeURIComponent(code)}`, base).href);
   const data: any = await response.json().catch(() => ({}));
   if (!response.ok || typeof data.url !== 'string') {
@@ -45,7 +53,7 @@ export async function lookupMicLink(baseUrl: string, code: string): Promise<Join
 
 /** Create a new session on the server (same as the web "Tạo phiên" button). */
 export async function createSessionOnServer(baseUrl: string, accessKey = '', code = ''): Promise<{ code: string; micUrl: string }> {
-  const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  const base = normalizeBase(baseUrl);
   const target = new URL('api/rooms', base);
   if (code) target.searchParams.set('code', code);
   const headers: Record<string, string> = { Origin: new URL(base).origin };

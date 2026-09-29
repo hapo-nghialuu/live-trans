@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Clipboard from '@react-native-clipboard/clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Camera, useCameraPermission, useObjectOutput, isScannedCode, type ScannedObject } from 'react-native-vision-camera';
-import { parseMicLink, baseFromLink, lookupMicLink, createSessionOnServer, RoomSocket, MicLink } from './src/protocol';
+import { parseMicLink, baseFromLink, normalizeBase, lookupMicLink, createSessionOnServer, RoomSocket, MicLink } from './src/protocol';
 import { createAudioStreamer, AudioStreamer } from './src/audio';
 
 type Phase = 'idle' | 'starting' | 'recording' | 'finishing';
@@ -204,7 +204,7 @@ export default function App() {
     try {
       const { code: newCode, micUrl } = await createSessionOnServer(serverBase, accessKey.trim(), wanted);
       setSessionCode(newCode); setLinkText(micUrl); setCustomCode('');
-      AsyncStorage.setItem('lt_serverBase', serverBase).catch(() => {});
+      AsyncStorage.setItem('lt_serverBase', normalizeBase(serverBase)).catch(() => {});
       if (accessKey.trim()) AsyncStorage.setItem('lt_accessKey', accessKey.trim()).catch(() => {});
       openSocket(parseMicLink(micUrl));
     } catch (e: any) {
@@ -285,7 +285,7 @@ export default function App() {
     Promise.all([AsyncStorage.getItem('lt_accessKey'), AsyncStorage.getItem('lt_serverBase')])
       .then(([ak, sb]) => {
         if (ak) setAccessKey(ak);
-        if (sb) setServerBase(sb);
+        if (sb) { try { setServerBase(normalizeBase(sb)); } catch { setServerBase(sb); } }
       }).catch(() => {});
   }, []);
 
@@ -371,6 +371,7 @@ export default function App() {
             <Text style={styles.hostLabel}>MÁY CHỦ</Text>
             <TextInput
               style={styles.hostInput} value={serverBase} onChangeText={setServerBase}
+              onBlur={() => { try { setServerBase(normalizeBase(serverBase)); } catch {} }}
               autoCapitalize="none" autoCorrect={false} keyboardType="url" editable={!connecting}
             />
             <Text style={styles.divider}>hoặc dán liên kết</Text>
