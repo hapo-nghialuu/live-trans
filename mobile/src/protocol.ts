@@ -21,6 +21,22 @@ export function parseMicLink(input: string): MicLink {
   return { socketUrl: `${scheme}://${socket.host}${socket.pathname}`, origin: url.origin, room, token };
 }
 
+/** Base URL of the server that issued a mic link (the …/base/ prefix before mic.html). */
+export function baseFromLink(input: string): string {
+  return new URL('.', new URL(input.trim())).href;
+}
+
+/** Resolve a 6-digit session code to a mic link via the issuing server. */
+export async function lookupMicLink(baseUrl: string, code: string): Promise<string> {
+  const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  const response = await fetch(new URL(`api/join?code=${encodeURIComponent(code)}`, base).href);
+  const data: any = await response.json().catch(() => ({}));
+  if (!response.ok || typeof data.url !== 'string') {
+    throw new Error(data.error || 'Không tìm thấy phiên với mã này.');
+  }
+  return data.url;
+}
+
 export type ConnState = 'connecting' | 'open' | 'closed';
 
 /** One WebSocket to /socket: joins the room as mic, relays server events. */

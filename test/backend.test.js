@@ -121,6 +121,19 @@ test('late translation cannot resurrect an evicted caption', async t => {
   assert.equal(room.captions.at(-1).id, 31);
   assert.equal(room.captions[0].id, 2);
 });
+test('numeric session code resolves to mic link, wrong codes are rejected and rate-limited', async t => {
+  const { origin, rooms } = await setup(t);
+  const created = await rooms.create();
+  assert.match(created.code, /^\d{6}$/);
+  const join = await fetch(`${origin}/api/join?code=${created.code}`);
+  assert.equal(join.status, 200);
+  const { url } = await join.json();
+  assert.ok(url.includes(`room=${created.room}`));
+  assert.ok(url.includes('token='));
+  assert.equal((await fetch(`${origin}/api/join?code=000000`)).status === 404, true);
+  for (let i = 0; i < 29; i++) await fetch(`${origin}/api/join?code=${100000 + i}`);
+  assert.equal((await fetch(`${origin}/api/join?code=${created.code}`)).status, 429);
+});
 test('approved alias creates microphone link on that HTTPS hostname only', async t => {
   const { origin, config } = await setup(t);
   config.publicAliases = ['https://live.example/'];

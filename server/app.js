@@ -16,6 +16,7 @@ export function createApp(config) {
   const rooms = new Rooms(config);
   const base = new URL(config.publicUrl).pathname;
   let attempts = 0, reset = Date.now();
+  const joinAttempts = new Map();
   const server = createServer(async (req, res) => {
     const json = (status, value) => {
       res.writeHead(status, { ...headers, 'Content-Type': 'application/json; charset=utf-8' });
@@ -38,6 +39,25 @@ export function createApp(config) {
         const publicUrl = config.publicAliases?.find(u => new URL(u).origin === req.headers.origin) || config.publicUrl;
         try { return json(201, await rooms.create(publicUrl)); }
         catch (error) { return json(409, { error: error.message }); }
+      }
+      if (path === '/api/join' && req.method === 'GET') {
+        const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || '';
+        let bucket = joinAttempts.get(ip);
+        if (!bucket || Date.now() - bucket.reset > 60000) { bucket = { reset: Date.now(), count: 0 }; joinAttempts.set(ip, bucket); }
+        if (++bucket.count > 30) return json(429, { error: 'Quá nhiều lần thử. Vui lòng đợi một phút.' });
+        const code = new URL(req.url, 'http://localhost').searchParams.get('code') || '';
+        const room = rooms.byCode(code.trim());
+        if (!room) return json(404, { error: 'Mã phiên không đúng hoặc phiên đã kết thúc.' });
+        const origin = `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers.host}`;
+        const publicUrl = [config.publicUrl, ...(config.publicAliases || [])]
+          .find(u => { try { return new URL(u).origin === origin; } catch { return false; } });
+        let url = room.micUrl;
+        if (publicUrl) {
+          const mic = new URL('mic.html', publicUrl);
+          mic.hash = new URLSearchParams({ room: room.id, token: room.micToken }).toString();
+          url = mic.href;
+        }
+        return json(200, { url, code: room.code });
       }
       if (path.startsWith('/api/')) return json(404, { error: 'Không tìm thấy chức năng.' });
       if (!['GET', 'HEAD'].includes(req.method)) return json(405, { error: 'Thao tác không được hỗ trợ.' });

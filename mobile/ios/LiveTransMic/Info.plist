@@ -37,6 +37,8 @@
 	<string></string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Live Trans dùng micro để nhận giọng nói tiếng Việt và hiển thị phụ đề trên màn hình chính.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Live Trans dùng camera để quét mã QR kết nối phiên dịch.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UIBackgroundModes</key>

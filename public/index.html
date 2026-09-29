@@ -37,7 +37,7 @@
           <div class="flow-heading"><span class="eyebrow">BẮT ĐẦU THẬT ĐƠN GIẢN</span><span class="round-arrow" aria-hidden="true">↗</span></div>
           <ol class="steps">
             <li><span class="step-number">01</span><div><h2>Mở một phiên</h2><p>Giữ trang này trên màn hình lớn.</p></div></li>
-            <li><span class="step-number">02</span><div><h2>Kết nối điện thoại</h2><p>Quét mã QR và cho phép dùng micro.</p></div></li>
+            <li><span class="step-number">02</span><div><h2>Kết nối điện thoại</h2><p>Quét QR hoặc nhập mã phiên trong app.</p></div></li>
             <li><span class="step-number">03</span><div><h2>Nói theo cách của bạn</h2><p>Hai ngôn ngữ. Cùng một cuộc trò chuyện.</p></div></li>
           </ol>
           <div class="flow-footer"><span class="tiny-dot" aria-hidden="true"></span> Điện thoại thu âm · Màn hình hiển thị</div>
@@ -61,7 +61,8 @@
           <aside class="phone-panel" aria-labelledby="phone-title">
             <span class="eyebrow">MICRO CỦA BẠN</span><h2 id="phone-title">Kết nối điện thoại.</h2>
             <div class="qr-frame"><img id="qr" width="200" height="200" alt="Mã QR mở micro trên điện thoại" hidden><span id="qr-loading" class="helper">Đang tạo mã QR…</span></div>
-            <p>Quét mã bằng camera điện thoại.<br>Sau đó nhấn <strong>Bắt đầu nói</strong>.</p>
+            <div class="session-code-block"><span class="eyebrow">MÃ PHIÊN</span><span id="session-code" class="session-code">··· ···</span></div>
+            <p>Quét QR trong app Live Trans, hoặc nhập mã phiên.<br>Sau đó nhấn <strong>Bắt đầu nói</strong>.</p>
             <span id="mic-status" class="phone-status">Chưa có điện thoại kết nối</span>
             <button id="copy-link" class="secondary full-width" type="button" disabled>Sao chép liên kết</button>
             <p id="copy-feedback" class="helper" role="status"></p>

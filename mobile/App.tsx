@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Animated, FlatList, Image, KeyboardAvoidingView, Platform, Pressable, StatusBar,
-  StyleSheet, Text, TextInput, View,
+  Animated, FlatList, Image, KeyboardAvoidingView, Modal, Platform, Pressable,
+  StatusBar, StyleSheet, Text, TextInput, View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { parseMicLink, RoomSocket, MicLink } from './src/protocol';
+import { Camera, useCameraPermission, useObjectOutput, isScannedCode, type ScannedObject } from 'react-native-vision-camera';
+import { parseMicLink, baseFromLink, lookupMicLink, RoomSocket, MicLink } from './src/protocol';
 import { createAudioStreamer, AudioStreamer } from './src/audio';
 
 type Phase = 'idle' | 'starting' | 'recording' | 'finishing';
@@ -53,6 +54,9 @@ const glyphStyles = StyleSheet.create({
 
 export default function App() {
   const [linkText, setLinkText] = useState('');
+  const [code, setCode] = useState('');
+  const [serverBase, setServerBase] = useState('https://live.hapo.work/');
+  const [scanning, setScanning] = useState(false);
   const [link, setLink] = useState<MicLink>();
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
@@ -131,20 +135,66 @@ export default function App() {
     else { setConnected(false); setConnecting(false); halt('Đã mất kết nối. Kết nối lại rồi nhấn bắt đầu.'); }
   }, [halt]);
 
+  const openSocket = useCallback((parsed: MicLink) => {
+    setLink(parsed);
+    setEnded(false); setCaptions([]); setInterim('');
+    socketRef.current?.close();
+    const socket = new RoomSocket(parsed, onEvent, onState);
+    socketRef.current = socket;
+    socket.connect();
+    setMessage('Đang kết nối phiên…');
+  }, [onEvent, onState]);
+
   const connect = useCallback(() => {
     try {
       const parsed = parseMicLink(linkText);
-      setLink(parsed);
-      setEnded(false); setCaptions([]); setInterim('');
-      socketRef.current?.close();
-      const socket = new RoomSocket(parsed, onEvent, onState);
-      socketRef.current = socket;
-      socket.connect();
-      setMessage('Đang kết nối phiên…');
+      setServerBase(baseFromLink(linkText));
+      openSocket(parsed);
     } catch (e: any) {
       setMessage(e.message || 'Liên kết không hợp lệ.');
     }
-  }, [linkText, onEvent, onState]);
+  }, [linkText, openSocket]);
+
+  const joinByCode = useCallback(async (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    if (digits.length !== 6) return setMessage('Mã phiên gồm đúng 6 chữ số.');
+    setConnecting(true); setMessage('Đang kiểm tra mã phiên…');
+    try {
+      const url = await lookupMicLink(serverBase, digits);
+      setLinkText(url);
+      openSocket(parseMicLink(url));
+    } catch (e: any) {
+      setMessage(e.message || 'Không tìm thấy phiên. Kiểm tra lại mã và máy chủ.');
+    } finally { setConnecting(false); }
+  }, [serverBase, openSocket]);
+
+  const handleScanned = useCallback((raw: string) => {
+    const value = raw.trim();
+    if (/^\d{4,8}$/.test(value)) { setCode(value); joinByCode(value); return; }
+    try {
+      const parsed = parseMicLink(value);
+      setLinkText(value);
+      setServerBase(baseFromLink(value));
+      openSocket(parsed);
+    } catch {
+      setMessage('Mã QR không phải của Live Trans. Hãy quét mã trên màn hình chính.');
+    }
+  }, [joinByCode, openSocket]);
+
+  const { hasPermission, requestPermission } = useCameraPermission();
+  const objectOutput = useObjectOutput({
+    types: ['qr'],
+    onObjectsScanned: useCallback((objects: ScannedObject[]) => {
+      const value = objects.find(isScannedCode)?.value;
+      if (value) { setScanning(false); handleScanned(value); }
+    }, [handleScanned]),
+  });
+
+  const openScanner = useCallback(async () => {
+    const granted = hasPermission || await requestPermission();
+    if (!granted) return setMessage('Chưa có quyền camera. Cấp quyền trong Cài đặt để quét mã QR.');
+    setScanning(true);
+  }, [hasPermission, requestPermission]);
 
   const paste = useCallback(async () => {
     const text = await Clipboard.getString();
@@ -233,7 +283,31 @@ export default function App() {
         {!connected && (
           <View style={styles.card}>
             <Image source={require('./assets/logo-mark.png')} style={styles.hero} />
-            <Text style={styles.label}>Liên kết micro</Text>
+            <Pressable
+              style={({ pressed }) => [styles.primaryBtn, styles.firstBtn, pressed && styles.btnDim]}
+              onPress={openScanner} accessibilityLabel="Quét mã QR">
+              <Text style={styles.primaryBtnText}>Quét mã QR</Text>
+            </Pressable>
+            <Text style={styles.divider}>hoặc nhập mã phiên</Text>
+            <View style={styles.inputRow}>
+              <TextInput
+                style={styles.codeInput} value={code}
+                onChangeText={v => setCode(v.replace(/\D/g, '').slice(0, 6))}
+                placeholder="123456" placeholderTextColor={C.muted}
+                keyboardType="number-pad" maxLength={6} editable={!connecting}
+              />
+              <Pressable
+                style={({ pressed }) => [styles.pasteBtn, pressed && styles.pressed]}
+                onPress={() => joinByCode(code)} disabled={connecting} accessibilityLabel="Vào phiên bằng mã">
+                <Text style={styles.pasteText}>Vào phiên</Text>
+              </Pressable>
+            </View>
+            <Text style={styles.hostLabel}>MÁY CHỦ</Text>
+            <TextInput
+              style={styles.hostInput} value={serverBase} onChangeText={setServerBase}
+              autoCapitalize="none" autoCorrect={false} keyboardType="url" editable={!connecting}
+            />
+            <Text style={styles.divider}>hoặc dán liên kết</Text>
             <View style={styles.inputRow}>
               <TextInput
                 style={styles.input} value={linkText} onChangeText={setLinkText}
@@ -327,6 +401,22 @@ export default function App() {
           )}
         />
       </KeyboardAvoidingView>
+
+      <Modal visible={scanning} animationType="slide" onRequestClose={() => setScanning(false)}>
+        <View style={styles.scannerRoot}>
+          <Camera
+            style={StyleSheet.absoluteFill} device="back"
+            isActive={scanning} outputs={[objectOutput]}
+          />
+          <View style={styles.scanFrame} />
+          <Text style={styles.scanHint}>Đưa mã QR trên màn hình vào khung</Text>
+          <Pressable
+            style={({ pressed }) => [styles.scanClose, pressed && styles.pressed]}
+            onPress={() => setScanning(false)} accessibilityLabel="Đóng camera">
+            <Text style={styles.scanCloseText}>Đóng</Text>
+          </Pressable>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -366,6 +456,28 @@ const styles = StyleSheet.create({
     borderRadius: 12, paddingHorizontal: 16, minHeight: 46, justifyContent: 'center',
   },
   pasteText: { color: C.accent, fontSize: 14, fontWeight: '700' },
+  divider: { color: C.muted, fontSize: 12, textAlign: 'center', marginVertical: 12 },
+  codeInput: {
+    flex: 1, backgroundColor: C.surface2, borderWidth: 1, borderColor: C.border,
+    borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10,
+    color: C.text, fontSize: 22, fontWeight: '800', letterSpacing: 8,
+    minHeight: 46, textAlign: 'center',
+  },
+  hostLabel: { color: C.muted, fontSize: 11, fontWeight: '700', letterSpacing: 0.6, marginTop: 12, marginBottom: 6 },
+  hostInput: {
+    backgroundColor: C.surface2, borderWidth: 1, borderColor: C.border,
+    borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8,
+    color: C.muted, fontSize: 12.5,
+  },
+  firstBtn: { marginTop: 0 },
+  scannerRoot: { flex: 1, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center' },
+  scanFrame: { width: 230, height: 230, borderWidth: 3, borderColor: '#fff', borderRadius: 20, opacity: 0.9 },
+  scanHint: { color: '#fff', marginTop: 26, fontSize: 14 },
+  scanClose: {
+    position: 'absolute', bottom: 60, paddingHorizontal: 30, paddingVertical: 12,
+    backgroundColor: 'rgba(255,255,255,0.18)', borderRadius: 999,
+  },
+  scanCloseText: { color: '#fff', fontSize: 16, fontWeight: '600' },
   primaryBtn: {
     backgroundColor: C.accent, borderRadius: 12, minHeight: 48,
     alignItems: 'center', justifyContent: 'center', marginTop: 12,

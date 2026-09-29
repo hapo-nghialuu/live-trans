@@ -20,6 +20,7 @@ function showPhone(event) {
     $('qr').hidden = false;
     $('qr-loading').hidden = true;
   }
+  if (event.code) $('session-code').textContent = `${event.code.slice(0, 3)} ${event.code.slice(3)}`;
   $('copy-link').disabled = !micUrl;
 }
 

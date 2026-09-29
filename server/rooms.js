@@ -1,4 +1,4 @@
-import { randomBytes, timingSafeEqual } from 'node:crypto';
+import { randomBytes, randomInt, timingSafeEqual } from 'node:crypto';
 import QRCode from 'qrcode';
 import { Transcriber } from './transcriber.js';
 import { translate, TranslationQueue } from './translation.js';
@@ -28,6 +28,8 @@ export class Rooms {
     const room = { id: randomBytes(9).toString('base64url'), viewerToken: token(), micToken: token(),
       viewers: new Set(), mic: null, status: 'waiting', message: 'Quét QR bằng điện thoại để kết nối.',
       captions: [], interim: '', sequence: 0, expires: Date.now() + 2 * 60 * 60 * 1000 };
+    do room.code = String(randomInt(0, 1000000)).padStart(6, '0');
+    while ([...this.rooms.values()].some(r => r.code === room.code));
     const url = new URL('mic.html', publicUrl);
     url.hash = new URLSearchParams({ room: room.id, token: room.micToken }).toString();
     room.micUrl = url.href;
@@ -36,7 +38,11 @@ export class Rooms {
     this.rooms.set(room.id, room);
     try { room.qr = await QRCode.toDataURL(url.href, { width: 264, margin: 2, errorCorrectionLevel: 'M' }); }
     catch { this.rooms.delete(room.id); room.queue.close(); throw new Error('Không tạo được mã QR.'); }
-    return { room: room.id, token: room.viewerToken, micUrl: room.micUrl, qr: room.qr };
+    return { room: room.id, token: room.viewerToken, micUrl: room.micUrl, qr: room.qr, code: room.code };
+  }
+  byCode(code) {
+    for (const room of this.rooms.values()) if (room.code === code && room.expires > Date.now()) return room;
+    return null;
   }
   authenticate(id, role, value) {
     const room = this.rooms.get(id);
@@ -51,7 +57,7 @@ export class Rooms {
   snapshot(room, role) {
     return { type: 'snapshot', room: room.id, status: room.status, message: room.message,
       micConnected: Boolean(room.mic), interim: room.interim, captions: room.captions,
-      ...(role === 'viewer' ? { micUrl: room.micUrl, qr: room.qr } : {}) };
+      ...(role === 'viewer' ? { micUrl: room.micUrl, qr: room.qr, code: room.code } : {}) };
   }
   attach(room, role, ws) {
     if (role === 'mic') {

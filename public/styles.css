@@ -91,6 +91,8 @@ input{width:100%; border:1px solid #bcbeb3; background:var(--white); border-radi
 .phone-panel h2{font-size:20px; font-weight:560; margin-top:9px}
 .qr-frame{display:flex; align-items:center; justify-content:center; background:white; min-height:210px; margin:23px 0 16px; padding:6px; border:1px solid var(--line); border-radius:8px}
 .qr-frame img{display:block; width:100%; height:auto; image-rendering:pixelated}
+.session-code-block{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px}
+.session-code{font-size:30px; font-weight:800; letter-spacing:4px; font-variant-numeric:tabular-nums}
 .phone-panel>p{font-size:12px; color:var(--muted); line-height:1.8}
 .phone-panel strong{font-weight:600; color:var(--ink)}
 .phone-status{display:block; margin:15px 0; font-size:11px; color:var(--muted)}
