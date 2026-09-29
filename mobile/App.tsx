@@ -218,7 +218,7 @@ export default function App() {
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.header}>
           <View style={styles.brandRow}>
-            <Image source={require('../assets/logo-mark.png')} style={styles.logo} />
+            <Image source={require('./assets/logo-mark.png')} style={styles.logo} />
             <View>
               <Text style={styles.brand}>Live Trans</Text>
               <Text style={styles.brandSub}>Micro điện thoại</Text>
@@ -232,7 +232,7 @@ export default function App() {
 
         {!connected && (
           <View style={styles.card}>
-            <Image source={require('../assets/logo-mark.png')} style={styles.hero} />
+            <Image source={require('./assets/logo-mark.png')} style={styles.hero} />
             <Text style={styles.label}>Liên kết micro</Text>
             <View style={styles.inputRow}>
               <TextInput
