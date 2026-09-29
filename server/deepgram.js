@@ -15,7 +15,8 @@ export class DeepgramTranscriber {
       handshakeTimeout: 10000, maxPayload: 1024 * 1024 });
     this.ws.on('open', () => console.log('[deepgram] upstream open'));
     this.ws.on('unexpected-response', (req, res) => console.error(`[deepgram] http ${res.statusCode}`));
-    this.timeout = setTimeout(() => this.fail('Không kết nối được dịch vụ nhận giọng nói.'), 12000);
+    // Deepgram edge có thể mất ~13s mới gửi Metadata đầu tiên — cần dưới timer 25s phía client.
+    this.timeout = setTimeout(() => this.fail('Không kết nối được dịch vụ nhận giọng nói.'), 20000);
     this.keepalive = setInterval(() => this.send({ type: 'KeepAlive' }), 8000).unref();
     this.ws.on('message', (data, isBinary) => {
       if (this.closed || isBinary) return;
