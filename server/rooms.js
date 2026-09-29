@@ -1,6 +1,7 @@
 import { randomBytes, randomInt, timingSafeEqual } from 'node:crypto';
 import QRCode from 'qrcode';
 import { Transcriber } from './transcriber.js';
+import { DeepgramTranscriber } from './deepgram.js';
 import { translate, TranslationQueue } from './translation.js';
 
 const token = () => randomBytes(24).toString('base64url');
@@ -27,9 +28,13 @@ export class Rooms {
       }
     }, 30000).unref();
   }
-  async create(publicUrl = this.config.publicUrl, code = '') {
+  async create(publicUrl = this.config.publicUrl, code = '', provider = '') {
+    provider = provider || this.config.provider || 'gemini';
+    if (!['gemini', 'deepgram'].includes(provider)) throw new Error('Nhà cung cấp nhận giọng nói không hợp lệ.');
+    if (provider === 'deepgram' && !this.config.deepgramKey) throw new Error('Deepgram chưa được cấu hình API key.');
+    if (provider === 'gemini' && !this.config.apiKey) throw new Error('Máy chủ chưa được cấu hình Gemini key.');
     if (this.rooms.size >= 3) throw new Error('Đang có 3 phiên. Hãy kết thúc một phiên trước.');
-    const room = { id: randomBytes(9).toString('base64url'), viewerToken: token(), micToken: token(),
+    const room = { id: randomBytes(9).toString('base64url'), viewerToken: token(), micToken: token(), provider,
       viewers: new Set(), mic: null, status: 'waiting', message: 'Quét QR bằng điện thoại để kết nối.',
       captions: [], interim: '', sequence: 0, created: Date.now(), expires: Date.now() + 2 * 60 * 60 * 1000 };
     if (code) {
@@ -65,7 +70,7 @@ export class Rooms {
     this.broadcast(room, { type: 'status', status, message, micConnected: Boolean(room.mic) });
   }
   snapshot(room, role) {
-    return { type: 'snapshot', room: room.id, status: room.status, message: room.message,
+    return { type: 'snapshot', room: room.id, status: room.status, message: room.message, provider: room.provider,
       micConnected: Boolean(room.mic), interim: room.interim, captions: room.captions,
       ...(role === 'viewer' ? { micUrl: room.micUrl, qr: room.qr, code: room.code } : {}) };
   }
@@ -99,11 +104,12 @@ export class Rooms {
     room.audioBytes = 0; room.audioWindow = Date.now();
     this.status(room, 'connecting', 'Đang kết nối nhận giọng nói…');
     const current = () => room.session === identity && this.rooms.has(room.id);
-    identity.asr = new Transcriber(this.config, {
+    const ASR = room.provider === 'deepgram' ? DeepgramTranscriber : Transcriber;
+    identity.asr = new ASR(this.config, {
       ready: () => {
         if (!current()) return;
         this.status(room, 'listening', 'Đang nghe tiếng Việt');
-        send(room.mic, { type: 'ready' });
+        send(room.mic, { type: 'ready', provider: room.provider, maxMinutes: room.provider === 'gemini' ? 9 : 0 });
       },
       interim: text => {
         if (!current()) return;
@@ -119,7 +125,7 @@ export class Rooms {
         this.status(room, 'paused', 'Đã dừng thu âm. Có thể bấm bắt đầu để tiếp tục.');
       }
     });
-    identity.limit = setTimeout(() => {
+    if (room.provider === 'gemini') identity.limit = setTimeout(() => {
       if (!current()) return;
       this.broadcast(room, { type: 'error', message: 'Đã thu 9 phút. Bấm bắt đầu để mở lượt thu mới.' });
       this.stop(room);

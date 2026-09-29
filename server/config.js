@@ -7,6 +7,17 @@ export function loadConfig(env = process.env) {
     if (!matches || new Set(matches).size !== 1) throw new Error('File phải chứa đúng một Gemini key.');
     apiKey = matches.at(0);
   }
+  let deepgramKey = String(env.DEEPGRAM_API_KEY || '').trim();
+  if (!deepgramKey && env.DEEPGRAM_API_KEY_FILE) {
+    const matches = readFileSync(env.DEEPGRAM_API_KEY_FILE, 'utf8').match(/[A-Za-z0-9_-]{20,}/g);
+    if (!matches || new Set(matches).size !== 1) throw new Error('File phải chứa đúng một Deepgram key.');
+    deepgramKey = matches.at(0);
+  }
+  let provider = String(env.TRANSCRIBE_PROVIDER || '').toLowerCase();
+  if (provider && !['gemini', 'deepgram'].includes(provider)) {
+    throw new Error('TRANSCRIBE_PROVIDER chỉ hỗ trợ gemini hoặc deepgram.');
+  }
+  if (!provider) provider = apiKey ? 'gemini' : 'deepgram';
   const port = Number(env.PORT || 4317);
   const publicUrl = new URL(env.PUBLIC_URL || `http://localhost:${port}/`);
   if (!publicUrl.pathname.endsWith('/')) publicUrl.pathname += '/';
@@ -20,7 +31,8 @@ export function loadConfig(env = process.env) {
   if (accessKey && accessKey.length < 24) {
     throw new Error('APP_ACCESS_KEY cần ít nhất 24 ký tự (hoặc bỏ trống để mở tạo phiên).');
   }
-  return { port, apiKey, accessKey, publicUrl: publicUrl.href, publicAliases,
+  return { port, apiKey, deepgramKey, provider, accessKey, publicUrl: publicUrl.href, publicAliases,
     origins: new Set([publicUrl.origin, ...publicAliases.map(u => new URL(u).origin), `http://localhost:${port}`, `http://127.0.0.1:${port}`]),
-    transcribeModel: 'gemini-3.5-transcribe-live', translateModel: 'gemini-3.5-flash-lite' };
+    transcribeModel: 'gemini-3.5-transcribe-live', translateModel: 'gemini-3.5-flash-lite',
+    deepgramModel: env.DEEPGRAM_MODEL || 'nova-3', deepgramUrl: env.DEEPGRAM_URL || 'wss://api.deepgram.com/v1/listen' };
 }

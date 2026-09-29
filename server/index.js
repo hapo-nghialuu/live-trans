@@ -8,6 +8,7 @@ try {
     console.log(`Live Trans listening on 127.0.0.1:${config.port}`);
     console.log(`Public URL: ${config.publicUrl}`);
     console.log(`Gemini: ${config.apiKey ? 'configured' : 'not configured'}`);
+    console.log(`Deepgram: ${config.deepgramKey ? 'configured' : 'not configured'} (default provider: ${config.provider})`);
   });
   app.server.on('error', error => {
     console.error(error.code === 'EADDRINUSE' ? 'Port đang được sử dụng.' : 'Không khởi động được server.');

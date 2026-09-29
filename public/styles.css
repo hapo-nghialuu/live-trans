@@ -39,7 +39,7 @@ img{max-width:100%}
 .create-form>.helper{margin-top:11px}
 .field{max-width:340px; margin-bottom:18px}
 .field label{display:block; font-size:13px; font-weight:600; margin-bottom:7px}
-input{width:100%; border:1px solid #bcbeb3; background:var(--white); border-radius:6px; padding:12px 14px; color:var(--ink); min-height:46px}
+input,select{width:100%; border:1px solid #bcbeb3; background:var(--white); border-radius:6px; padding:12px 14px; color:var(--ink); min-height:46px}
 .join-form{margin-top:26px; padding-top:20px; border-top:1px solid var(--line); max-width:340px}
 .join-form>label{display:block; font-size:12px; color:var(--muted); margin-bottom:9px}
 .join-row{display:flex; gap:9px}

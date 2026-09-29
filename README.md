@@ -35,6 +35,10 @@ Các biến cấu hình:
 |---|---|
 | `GOOGLE_API_KEY` | Gemini key chỉ dùng trên backend |
 | `GOOGLE_API_KEY_FILE` | Thay thế key trực tiếp; file phải chứa đúng một key |
+| `DEEPGRAM_API_KEY` | Deepgram key chỉ dùng trên backend (provider thay thế) |
+| `DEEPGRAM_API_KEY_FILE` | Thay thế key trực tiếp; file phải chứa đúng một key |
+| `TRANSCRIBE_PROVIDER` | Provider mặc định `gemini`/`deepgram`; người tạo phiên chọn lại ở web khi cả hai đều có key |
+| `DEEPGRAM_MODEL` | Mặc định `nova-3` |
 | `APP_ACCESS_KEY` | Tùy chọn — khoá việc tạo phiên (≥24 ký tự); bỏ trống = ai cũng tạo được (đã giới hạn 30 phiên/giờ/IP) |
 | `PUBLIC_URL` | URL HTTPS đầy đủ, gồm base path và dấu `/` cuối |
 | `PUBLIC_ALIASES` | Tên miền HTTPS bổ sung ở đường dẫn gốc, phân cách bằng dấu phẩy |
@@ -70,11 +74,11 @@ Restart server kết thúc các phòng trong bộ nhớ.
 - Transcript giữ trong RAM tối đa 30 câu/phòng. Kết thúc/hết hạn/restart xóa phòng.
 - Liên kết QR chứa quyền thu âm cho phòng đó; không chia sẻ cho người không tham gia.
 - Tối đa 3 phòng, mỗi phòng 1 mic và 5 màn hình, thời hạn 2 giờ.
-- Mỗi lượt thu dừng sau 9 phút (giới hạn upstream 10 phút); bấm bắt đầu để tiếp tục.
+- Với Gemini, mỗi lượt thu dừng sau 9 phút (giới hạn upstream 10 phút); Deepgram không giới hạn lượt thu (chỉ còn giới hạn phiên 2 giờ). Bấm bắt đầu để tiếp tục.
 - Hàng đợi dịch hữu hạn, lỗi quota/mạng hiển thị rõ; không tạo bản dịch giả.
 - Mất màn hình xem trong 10 giây sẽ dừng nhận âm thanh.
-- Key Gemini không gửi xuống browser. Mã truy cập và token phòng không lưu localStorage.
-- Model: `gemini-3.5-transcribe-live` và `gemini-3.5-flash-lite` (`minimal`).
+- Key Gemini/Deepgram không gửi xuống browser. Mã truy cập và token phòng không lưu localStorage.
+- Model: `gemini-3.5-transcribe-live` và `gemini-3.5-flash-lite` (`minimal`); hoặc Deepgram `nova-3` khi chọn provider đó — việc dịch vẫn qua Gemini.
 - Prompt bảo toàn số và ý; vẫn cần đối chiếu các thông tin quan trọng.
 
 ## App điện thoại (React Native)

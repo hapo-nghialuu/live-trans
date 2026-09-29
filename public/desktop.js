@@ -27,6 +27,10 @@ function showPhone(event) {
 
 function updateStatus(event) {
   showStatus(event.status, event.message);
+  if (event.provider) {
+    $('provider-badge').hidden = false;
+    $('provider-badge').textContent = event.provider === 'deepgram' ? 'Deepgram' : 'Gemini';
+  }
   $('mic-status').textContent = event.micConnected ? 'Điện thoại đã kết nối' : 'Chưa có điện thoại kết nối';
   $('mic-status').classList.toggle('connected', Boolean(event.micConnected));
   $('pause-mic').disabled = !['listening', 'connecting'].includes(event.status);
@@ -84,6 +88,11 @@ async function configure() {
     if (!response.ok) throw new Error('Không kiểm tra được máy chủ. Tải lại trang để thử lại.');
     const config = await response.json();
     $('access-field').hidden = !config.requiresAccess || Boolean(accessKey);
+    const available = Object.entries(config.providers || {}).filter(([, ok]) => ok).map(([name]) => name);
+    $('provider-field').hidden = available.length < 2;
+    $('provider-pick').innerHTML = available.map(name =>
+      `<option value="${name}">${name === 'deepgram' ? 'Deepgram' : 'Gemini'}</option>`).join('');
+    if (available.includes(config.defaultProvider)) $('provider-pick').value = config.defaultProvider;
     $('create-button').disabled = !config.ready;
     $('config-note').textContent = config.ready ? 'Một phiên mới. Một cuộc trò chuyện bắt đầu.' : 'Máy chủ chưa sẵn sàng. Vui lòng kiểm tra cấu hình dịch vụ.';
   } catch (error) {
@@ -105,7 +114,11 @@ $('create-form').addEventListener('submit', async (event) => {
     return showNotice('Mã phiên tự chọn cần đúng 6 chữ số, hoặc để trống để tự sinh.');
   }
   try {
-    const response = await fetch(`api/rooms${wanted ? `?code=${wanted}` : ''}`, {
+    const provider = $('provider-pick').value || '';
+    const params = new URLSearchParams();
+    if (wanted) params.set('code', wanted);
+    if (provider) params.set('provider', provider);
+    const response = await fetch(`api/rooms${params.size ? `?${params}` : ''}`, {
       method: 'POST', headers: accessKey ? { 'x-access-key': accessKey } : {},
       signal: AbortSignal.timeout(15000),
     });

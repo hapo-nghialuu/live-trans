@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import WebSocket from 'ws';
+import WebSocket, { WebSocketServer } from 'ws';
 import { createConnection } from 'node:net';
 import { createApp } from '../server/app.js';
 import { equalSecret } from '../server/rooms.js';
 import { TranslationQueue } from '../server/translation.js';
+import { DeepgramTranscriber } from '../server/deepgram.js';
 
 async function setup(t) {
   const config = { publicUrl: 'https://test.example/live-trans/', accessKey: 'private-test-access',
@@ -42,7 +43,8 @@ test('room creation needs valid access key AND allowed origin; path cannot read 
   assert.ok(room.micUrl.startsWith('https://test.example/live-trans/mic.html#'));
   assert.equal((await fetch(origin + '/%2e%2e%2f.env')).status, 404);
   const publicConfig = await (await fetch(origin + '/api/config')).json();
-  assert.deepEqual(publicConfig, { ready: true, requiresAccess: true });
+  assert.deepEqual(publicConfig, { ready: true, requiresAccess: true,
+    providers: { gemini: true, deepgram: false } });
 });
 test('tokens are scoped by room and role, expire, and revoke on end', async t => {
   const { rooms } = await setup(t);
@@ -159,4 +161,44 @@ test('approved alias creates microphone link on that HTTPS hostname only', async
     headers: { Origin: 'https://live.example', 'x-access-key': config.accessKey } });
   assert.equal(response.status, 201);
   assert.ok((await response.json()).micUrl.startsWith('https://live.example/mic.html#'));
+});
+test('provider param validates configured keys and is stored per room', async t => {
+  const { origin, rooms, config } = await setup(t);
+  const post = qs => fetch(`${origin}/api/rooms${qs}`, { method: 'POST',
+    headers: { Origin: origin, 'x-access-key': config.accessKey } });
+  assert.equal((await post('?provider=deepgram')).status, 409);
+  assert.equal((await post('?provider=bogus')).status, 409);
+  config.deepgramKey = 'dg-test';
+  const ok = await post('?provider=deepgram');
+  assert.equal(ok.status, 201);
+  const created = await ok.json();
+  assert.equal(rooms.rooms.get(created.room).provider, 'deepgram');
+  const fallback = await post('');
+  assert.equal(fallback.status, 201);
+  assert.equal(rooms.rooms.get((await fallback.json()).room).provider, 'gemini');
+});
+test('deepgram transcriber maps metadata/results into ready/interim/final callbacks', async () => {
+  const wss = new WebSocketServer({ port: 0, host: '127.0.0.1' });
+  await new Promise(resolve => wss.once('listening', resolve));
+  let auth = '';
+  const events = [];
+  wss.on('connection', (ws, req) => {
+    auth = req.headers.authorization;
+    ws.send(JSON.stringify({ type: 'Metadata' }));
+    ws.send(JSON.stringify({ type: 'Results', is_final: false, channel: { alternatives: [{ transcript: 'xin chào' }] } }));
+    ws.send(JSON.stringify({ type: 'Results', is_final: true, speech_final: false, channel: { alternatives: [{ transcript: 'xin chào' }] } }));
+    ws.send(JSON.stringify({ type: 'Results', is_final: true, speech_final: true, channel: { alternatives: [{ transcript: 'mọi người' }] } }));
+  });
+  const asr = new DeepgramTranscriber({ deepgramUrl: `ws://127.0.0.1:${wss.address().port}/v1/listen`,
+    deepgramKey: 'dg-test', deepgramModel: 'nova-3' }, {
+    ready: () => events.push('ready'),
+    interim: text => events.push(`i:${text}`),
+    final: text => events.push(`f:${text}`),
+    error: message => events.push(`e:${message}`),
+    closed: () => events.push('closed'),
+  });
+  await new Promise(resolve => setTimeout(resolve, 300));
+  assert.equal(auth, 'Token dg-test');
+  assert.deepEqual(events, ['ready', 'i:xin chào', 'f:xin chào mọi người']);
+  asr.close(); wss.close();
 });

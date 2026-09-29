@@ -33,6 +33,10 @@
               <label for="session-code-pick">Mã phiên 6 số <span class="helper">(tùy chọn — để trống tự sinh)</span></label>
               <input id="session-code-pick" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="Ví dụ: 123456" autocomplete="off" spellcheck="false">
             </div>
+            <div id="provider-field" class="field" hidden>
+              <label for="provider-pick">Nhận giọng nói bằng</label>
+              <select id="provider-pick"></select>
+            </div>
             <button id="create-button" class="primary" type="submit" disabled>Tạo phiên mới <span aria-hidden="true">↗</span></button>
             <p id="config-note" class="helper">Đang kiểm tra kết nối…</p>
           </form>
@@ -61,7 +65,7 @@
         </div>
         <div class="session-layout">
           <div class="caption-area">
-            <div class="caption-toolbar"><span id="connection-status" class="status" data-state="connecting" role="status">Đang kết nối…</span><button id="reconnect" class="text-button" type="button" hidden>Kết nối lại</button></div>
+            <div class="caption-toolbar"><span id="connection-status" class="status" data-state="connecting" role="status">Đang kết nối…</span><span id="provider-badge" class="helper" hidden></span><button id="reconnect" class="text-button" type="button" hidden>Kết nối lại</button></div>
             <div class="translation-grid" aria-live="polite" aria-atomic="true">
               <article class="translation-card"><div class="card-label"><h2>English</h2><span>EN</span></div><p id="caption-en" class="translation-text empty" lang="en">Phụ đề tiếng Anh sẽ hiện ở đây.</p></article>
               <article class="translation-card japanese"><div class="card-label"><h2>日本語</h2><span>JA</span></div><p id="caption-ja" class="translation-text empty" lang="ja">Phụ đề tiếng Nhật sẽ hiện ở đây.</p></article>

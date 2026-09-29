@@ -27,7 +27,9 @@ export function createApp(config) {
       let path = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
       if (base !== '/' && path.startsWith(base)) path = `/${path.slice(base.length)}`;
       if (path === '/api/health' && req.method === 'GET') return json(200, { ok: true });
-      if (path === '/api/config' && req.method === 'GET') return json(200, { ready: Boolean(config.apiKey), requiresAccess: Boolean(config.accessKey) });
+      if (path === '/api/config' && req.method === 'GET') return json(200, { ready: Boolean(config.apiKey || config.deepgramKey),
+        requiresAccess: Boolean(config.accessKey), defaultProvider: config.provider,
+        providers: { gemini: Boolean(config.apiKey), deepgram: Boolean(config.deepgramKey) } });
       if (path === '/api/rooms' && req.method === 'POST') {
         req.resume();
         // Reject only a wrong Origin — absent Origin is how native apps call us.
@@ -41,10 +43,11 @@ export function createApp(config) {
         if (config.accessKey && !equalSecret(req.headers['x-access-key'], config.accessKey)) {
           return json(401, { error: 'Mã truy cập chưa đúng.' });
         }
-        if (!config.apiKey) return json(503, { error: 'Máy chủ chưa được cấu hình Gemini key.' });
+        if (!config.apiKey && !config.deepgramKey) return json(503, { error: 'Máy chủ chưa được cấu hình key nhận giọng nói.' });
         const publicUrl = config.publicAliases?.find(u => new URL(u).origin === req.headers.origin) || config.publicUrl;
-        const requested = new URL(req.url, 'http://localhost').searchParams.get('code') || '';
-        try { return json(201, await rooms.create(publicUrl, requested.trim())); }
+        const params = new URL(req.url, 'http://localhost').searchParams;
+        const requested = params.get('code') || '';
+        try { return json(201, await rooms.create(publicUrl, requested.trim(), (params.get('provider') || '').toLowerCase())); }
         catch (error) { return json(409, { error: error.message }); }
       }
       if (path === '/api/join' && req.method === 'GET') {

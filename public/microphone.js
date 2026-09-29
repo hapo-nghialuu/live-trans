@@ -105,7 +105,7 @@ function onEvent(event) {
     phase = 'recording';
     capture.record();
     showStatus('listening');
-    limitTimer = setTimeout(() => halt('Đã đủ 9 phút. Micro đã dừng; nhấn Bắt đầu nói để mở lượt thu tiếp theo.', true, true), 9 * 60 * 1000);
+    if (event.maxMinutes) limitTimer = setTimeout(() => halt(`Đã đủ ${event.maxMinutes} phút. Micro đã dừng; nhấn Bắt đầu nói để mở lượt thu tiếp theo.`, true, true), event.maxMinutes * 60000);
     render();
   } else if (event.type === 'interim' || (event.type === 'caption' && event.caption?.vi)) {
     preview.update(event);
