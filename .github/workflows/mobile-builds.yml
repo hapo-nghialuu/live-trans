@@ -3,6 +3,9 @@ name: mobile-builds
 on:
   push:
     branches: [build]
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/mobile-builds.yml'
   workflow_dispatch:
 
 permissions:
