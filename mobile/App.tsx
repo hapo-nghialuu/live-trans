@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Animated, FlatList, KeyboardAvoidingView, Platform, Pressable, StatusBar,
+  Animated, FlatList, Image, KeyboardAvoidingView, Platform, Pressable, StatusBar,
   StyleSheet, Text, TextInput, View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -217,9 +217,12 @@ export default function App() {
       <StatusBar barStyle="light-content" />
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.header}>
-          <View>
-            <Text style={styles.brand}>Live Trans</Text>
-            <Text style={styles.brandSub}>Micro điện thoại</Text>
+          <View style={styles.brandRow}>
+            <Image source={require('../assets/logo-mark.png')} style={styles.logo} />
+            <View>
+              <Text style={styles.brand}>Live Trans</Text>
+              <Text style={styles.brandSub}>Micro điện thoại</Text>
+            </View>
           </View>
           <View style={styles.pill}>
             <View style={[styles.dot, { backgroundColor: tone }]} />
@@ -229,6 +232,7 @@ export default function App() {
 
         {!connected && (
           <View style={styles.card}>
+            <Image source={require('../assets/logo-mark.png')} style={styles.hero} />
             <Text style={styles.label}>Liên kết micro</Text>
             <View style={styles.inputRow}>
               <TextInput
@@ -334,8 +338,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     paddingTop: 8, paddingBottom: 16,
   },
+  brandRow: { flexDirection: 'row', alignItems: 'center' },
+  logo: { width: 40, height: 40, marginRight: 12 },
   brand: { color: C.text, fontSize: 22, fontWeight: '800', letterSpacing: 0.3 },
   brandSub: { color: C.muted, fontSize: 12, marginTop: 2 },
+  hero: { width: 120, height: 120, alignSelf: 'center', marginBottom: 14 },
   pill: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface,
     borderWidth: 1, borderColor: C.border, borderRadius: 999,
