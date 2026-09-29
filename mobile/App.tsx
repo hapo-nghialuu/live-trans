@@ -148,10 +148,14 @@ export default function App() {
     }
   }, [halt, stopAudio]);
 
-  const onState = useCallback((state: 'connecting' | 'open' | 'closed') => {
+  const onState = useCallback((state: 'connecting' | 'open' | 'closed', info?: { code?: number; reason?: string }) => {
     if (state === 'connecting') setConnecting(true);
-    else if (state === 'open') setConnecting(false);
-    else { setConnected(false); setConnecting(false); halt(lastNotice.current || 'Đã mất kết nối. Kết nối lại rồi nhấn bắt đầu.'); }
+    else if (state === 'open') { setConnecting(false); note('Đã kết nối máy chủ — đang vào phiên…'); }
+    else {
+      setConnected(false); setConnecting(false);
+      const detail = info?.code || info?.reason ? ` (mã ${info?.code ?? '—'}: ${info?.reason || 'không rõ'})` : '';
+      halt(lastNotice.current || `Đã mất kết nối${detail}. Kết nối lại rồi nhấn bắt đầu.`);
+    }
   }, [halt]);
 
   const openSocket = useCallback((parsed: MicLink) => {

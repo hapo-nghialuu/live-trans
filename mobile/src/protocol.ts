@@ -61,16 +61,18 @@ export async function createSessionOnServer(baseUrl: string, accessKey = '', cod
 }
 
 export type ConnState = 'connecting' | 'open' | 'closed';
+export interface CloseInfo { code?: number; reason?: string }
 
 /** One WebSocket to /socket: joins the room as mic, relays server events. */
 export class RoomSocket {
   private ws?: WebSocket;
   private disposed = false;
+  private lastError = '';
 
   constructor(
     private link: MicLink,
     private onEvent: (event: any) => void,
-    private onState: (state: ConnState) => void,
+    private onState: (state: ConnState, info?: CloseInfo) => void,
   ) {}
 
   get open() {
@@ -100,7 +102,11 @@ export class RoomSocket {
     ws.onopen = () => {
       clearTimeout(handshake);
       this.onState('open');
-      ws.send(JSON.stringify({ type: 'join', room: this.link.room, role: 'mic', token: this.link.token }));
+      try {
+        ws.send(JSON.stringify({ type: 'join', room: this.link.room, role: 'mic', token: this.link.token }));
+      } catch (error: any) {
+        this.onEvent({ type: 'error', message: `Không gửi được yêu cầu tham gia phiên: ${error?.message || error}` });
+      }
     };
     ws.onmessage = event => {
       try {
@@ -109,10 +115,14 @@ export class RoomSocket {
         this.onEvent({ type: 'error', message: 'Dữ liệu không hợp lệ.' });
       }
     };
-    ws.onerror = () => {};
-    ws.onclose = () => {
+    ws.onerror = (event: any) => {
+      if (!this.disposed) this.lastError = event?.message || '';
+    };
+    ws.onclose = (event: any) => {
       clearTimeout(handshake);
-      if (!this.disposed) this.onState('closed');
+      if (!this.disposed) this.onState('closed', {
+        code: event?.code, reason: event?.reason || this.lastError,
+      });
     };
   }
 
