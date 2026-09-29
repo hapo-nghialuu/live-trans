@@ -8,6 +8,9 @@ giao diện đơn giản và xử lý trên dịch vụ AI, không cần GPU t�
 
 - Desktop tạo phòng (có thể chọn mã phiên 6 số hoặc để server tự sinh), hiện QR
   và mã phiên để ghép điện thoại hoặc màn hình xem khác.
+- Web dùng giao diện sáng đồng nhất với app mobile: trang chính tách rõ tạo/xem
+  phiên, màn hình phiên ưu tiên phụ đề và hướng dẫn ghép micro, trang mic có
+  nút bắt đầu/dừng nổi bật, trang cài đặt cho nhập mã truy cập ngay tại chỗ.
 - App React Native trong `mobile/` có thể quét QR, nhập mã phiên, dán liên kết
   mic, hoặc tự tạo phòng rồi vào vai trò mic; nó thay thế `mic.html` khi cần app
   cài trên điện thoại.
@@ -54,9 +57,11 @@ Mức trễ thực tế phụ thuộc mạng, cách ngắt câu và dịch vụ 
 
 Mobile có test render cơ bản và test URL dùng URL shim của React Native;
 camera, clipboard, storage và HTTP dùng mock, không kiểm chứng mic/Google thật.
-Đối chiếu ngày 2026-09-29: `npm run check` kiểm tra 19 file JavaScript và
-`npm test` chạy 16 test, đều exit 0. Lần này chưa chạy test mobile, build native,
-gọi Gemini hoặc kiểm tra server triển khai trực tiếp.
+Đối chiếu ngày 2026-09-29: `npm run check` kiểm tra 21 file JavaScript và
+`npm test` chạy 20 test, đều exit 0. Chrome headless kiểm tra giao diện web ở
+desktop 1440 px và mobile 320/390 px không tràn ngang; tạo phiên và đổi
+provider với mã truy cập giả hoạt động trên server local. Lần này chưa chạy
+test mobile, gọi AI thật hoặc kiểm tra server triển khai trực tiếp.
 
 Kiến trúc: [system-architecture.md](system-architecture.md).
 `.sync_hash` ghi revision mã nguồn đã đối chiếu với tài liệu, không phải bằng

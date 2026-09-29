@@ -31,6 +31,11 @@
 | `public/` | Trang desktop/mobile và xử lý âm thanh trong trình duyệt |
 | `mobile/` | React Native mic: quét QR, nhập mã, stream PCM16 và hiển thị phụ đề |
 
+Giao diện web dùng chung `public/styles.css`: `index.html` tạo/xem phiên,
+`mic.html` điều khiển micro trên trình duyệt, `settings.html` đổi provider mặc
+định cho phiên mới. Mỗi trang giữ ID DOM mà module JavaScript tương ứng dùng;
+đổi bố cục không đổi giao thức phòng hay luồng âm thanh.
+
 ## Kết nối mobile
 
 `mobile/src/protocol.ts` lấy room/token từ fragment của liên kết mic và dựng
@@ -43,6 +48,10 @@ Socket gửi `join` sau khi mở; app chỉ đánh dấu đã tham gia khi nhậ
 và chỉ bật stream mic sau sự kiện `ready` từ server. Kết nối socket có timeout
 12 giây; lỗi đóng có mã/reason khi runtime cung cấp. Lỗi server được hiển thị
 và dừng mic; kết nối lại cần bấm bắt đầu.
+
+Ở backend, Gemini và Deepgram chờ tối đa 20 giây để nhận tín hiệu sẵn sàng từ
+dịch vụ nhận giọng nói; thời gian này nằm dưới giới hạn khởi động 25 giây ở
+trang mic.
 
 ## Giới hạn và vòng đời
 

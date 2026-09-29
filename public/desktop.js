@@ -33,6 +33,10 @@ function updateStatus(event) {
   }
   $('mic-status').textContent = event.micConnected ? 'Điện thoại đã kết nối' : 'Chưa có điện thoại kết nối';
   $('mic-status').classList.toggle('connected', Boolean(event.micConnected));
+  $('phone-panel').classList.toggle('is-connected', Boolean(event.micConnected));
+  $('phone-instruction').textContent = event.micConnected
+    ? 'Điện thoại đã kết nối. Bắt đầu nói trên điện thoại để hiện phụ đề.'
+    : 'Quét QR trong app Live Trans hoặc nhập mã phiên bên dưới.';
   $('pause-mic').disabled = !['listening', 'connecting'].includes(event.status);
 }
 
@@ -105,7 +109,7 @@ $('create-form').addEventListener('submit', async (event) => {
   const wanted = $('session-code-pick').value.replace(/\D/g, '');
   if (wanted && wanted.length !== 6) {
     $('create-button').disabled = false;
-    $('create-button').textContent = 'Tạo phiên mới ↗';
+    $('create-button').textContent = 'Tạo phiên mới';
     return showNotice('Mã phiên tự chọn cần đúng 6 chữ số, hoặc để trống để tự sinh.');
   }
   try {
@@ -129,7 +133,7 @@ $('create-form').addEventListener('submit', async (event) => {
   } catch (error) {
     showNotice(error.message);
     $('create-button').disabled = false;
-    $('create-button').textContent = 'Tạo phiên mới ↗';
+    $('create-button').textContent = 'Tạo phiên mới';
   }
 });
 
