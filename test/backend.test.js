@@ -177,6 +177,35 @@ test('provider param validates configured keys and is stored per room', async t 
   assert.equal(fallback.status, 201);
   assert.equal(rooms.rooms.get((await fallback.json()).room).provider, 'gemini');
 });
+test('POST /api/provider switches the global default for new rooms', async t => {
+  const { origin, rooms, config } = await setup(t);
+  config.deepgramKey = 'dg-test';
+  const post = (body, headers = {}) => fetch(`${origin}/api/provider`, { method: 'POST',
+    headers: { Origin: origin, 'Content-Type': 'application/json', 'x-access-key': config.accessKey, ...headers },
+    body: JSON.stringify(body) });
+  assert.equal((await post({ provider: 'deepgram' }, { 'x-access-key': 'wrong' })).status, 401);
+  assert.equal((await post({ provider: 'bogus' })).status, 400);
+  const ok = await post({ provider: 'deepgram' });
+  assert.equal(ok.status, 200);
+  assert.equal((await (await fetch(`${origin}/api/config`)).json()).defaultProvider, 'deepgram');
+  const created = await rooms.create();
+  assert.equal(rooms.rooms.get(created.room).provider, 'deepgram');
+  assert.equal((await post({ provider: 'gemini' })).status, 200);
+});
+test('loadConfig reads persisted provider from settings file', async t => {
+  const { loadConfig } = await import('../server/config.js');
+  const { writeFileSync, mkdtempSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const dir = mkdtempSync(join(tmpdir(), 'lt-'));
+  const file = join(dir, 'settings.json');
+  writeFileSync(file, JSON.stringify({ provider: 'deepgram' }));
+  const env = { PUBLIC_URL: 'https://t.example/', GOOGLE_API_KEY: 'AIza' + 'x'.repeat(35),
+    DEEPGRAM_API_KEY: 'dg-test', SETTINGS_FILE: file };
+  assert.equal(loadConfig(env).provider, 'deepgram');
+  writeFileSync(file, JSON.stringify({ provider: 'gemini' }));
+  assert.equal(loadConfig({ ...env, GOOGLE_API_KEY: '' }).provider, 'deepgram');
+});
 test('deepgram transcriber maps metadata/results into ready/interim/final callbacks', async () => {
   const wss = new WebSocketServer({ port: 0, host: '127.0.0.1' });
   await new Promise(resolve => wss.once('listening', resolve));

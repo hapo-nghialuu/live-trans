@@ -1,6 +1,9 @@
 import { $, showNotice } from './shared.js';
 
-const KEY = 'lt-provider';
+const hash = new URLSearchParams(location.hash.slice(1));
+const accessKey = hash.get('access') || '';
+if (accessKey) history.replaceState(null, '', location.pathname);
+
 const names = { gemini: 'Gemini', deepgram: 'Deepgram' };
 
 async function load() {
@@ -16,17 +19,30 @@ async function load() {
     }
     pick.innerHTML = available.map(name =>
       `<option value="${name}">${names[name] || name}</option>`).join('');
-    const saved = localStorage.getItem(KEY);
-    pick.value = available.includes(saved) ? saved : (config.defaultProvider || available[0]);
+    if (available.includes(config.defaultProvider)) pick.value = config.defaultProvider;
     pick.disabled = false;
-    $('settings-note').textContent = 'Lựa chọn được lưu ngay khi đổi.';
-    pick.addEventListener('change', () => {
-      localStorage.setItem(KEY, pick.value);
-      $('settings-note').textContent = `Đã lưu: ${names[pick.value] || pick.value}. Áp dụng cho phiên tạo sau.`;
-    });
+    $('settings-note').textContent = config.requiresAccess && !accessKey
+      ? 'Máy chủ yêu cầu mã truy cập — mở trang với #access=…'
+      : 'Lựa chọn áp dụng trên máy chủ cho mọi phiên mới.';
+    pick.addEventListener('change', save);
   } catch (error) {
     $('settings-note').textContent = 'Không kết nối được. Tải lại trang để thử lại.';
     showNotice(error.message);
+  }
+}
+
+async function save() {
+  const provider = $('provider-pick').value;
+  $('settings-note').textContent = 'Đang lưu…';
+  try {
+    const response = await fetch('api/provider', { method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(accessKey ? { 'x-access-key': accessKey } : {}) },
+      body: JSON.stringify({ provider }), signal: AbortSignal.timeout(15000) });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Lưu thất bại.');
+    $('settings-note').textContent = `Đã lưu ${names[provider] || provider} — mọi phiên mới sẽ dùng nhà cung cấp này.`;
+  } catch (error) {
+    $('settings-note').textContent = error.message;
   }
 }
 

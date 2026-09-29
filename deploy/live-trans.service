@@ -8,6 +8,7 @@ Type=simple
 User=ubuntu
 Group=ubuntu
 WorkingDirectory=/home/ubuntu/live-trans/current
+StateDirectory=live-trans
 EnvironmentFile=/etc/live-trans/runtime.env
 ExecStart=/home/ubuntu/.nvm/versions/node/v24.15.0/bin/node server/index.js
 Restart=on-failure

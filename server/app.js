@@ -1,5 +1,5 @@
 import { createServer } from 'node:http';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve, extname, sep } from 'node:path';
 import { Rooms, equalSecret } from './rooms.js';
@@ -11,6 +11,16 @@ const mime = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; cha
 const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'no-referrer', 'Permissions-Policy': 'microphone=(self), camera=()',
   'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'" };
+
+const readBody = req => new Promise((resolve, reject) => {
+  let data = '';
+  req.on('data', chunk => {
+    data += chunk;
+    if (data.length > 4096) { req.destroy(); reject(new Error('Nội dung quá lớn.')); }
+  });
+  req.on('end', () => resolve(data));
+  req.on('error', reject);
+});
 
 export function createApp(config) {
   const rooms = new Rooms(config);
@@ -30,6 +40,23 @@ export function createApp(config) {
       if (path === '/api/config' && req.method === 'GET') return json(200, { ready: Boolean(config.apiKey || config.deepgramKey),
         requiresAccess: Boolean(config.accessKey), defaultProvider: config.provider,
         providers: { gemini: Boolean(config.apiKey), deepgram: Boolean(config.deepgramKey) } });
+      if (path === '/api/provider' && req.method === 'POST') {
+        if (req.headers.origin && !config.origins.has(req.headers.origin)) {
+          req.resume(); return json(403, { error: 'Nguồn yêu cầu không hợp lệ.' });
+        }
+        if (config.accessKey && !equalSecret(req.headers['x-access-key'], config.accessKey)) {
+          req.resume(); return json(401, { error: 'Mã truy cập chưa đúng.' });
+        }
+        let provider = '';
+        try { provider = String(JSON.parse(await readBody(req)).provider || '').toLowerCase(); }
+        catch { return json(400, { error: 'Yêu cầu không hợp lệ.' }); }
+        if (!['gemini', 'deepgram'].includes(provider)) return json(400, { error: 'Nhà cung cấp nhận giọng nói không hợp lệ.' });
+        if (provider === 'deepgram' && !config.deepgramKey) return json(409, { error: 'Deepgram chưa được cấu hình API key.' });
+        if (provider === 'gemini' && !config.apiKey) return json(409, { error: 'Máy chủ chưa được cấu hình Gemini key.' });
+        config.provider = provider;
+        if (config.settingsFile) await writeFile(config.settingsFile, JSON.stringify({ provider }), 'utf8').catch(() => {});
+        return json(200, { ok: true, provider });
+      }
       if (path === '/api/rooms' && req.method === 'POST') {
         req.resume();
         // Reject only a wrong Origin — absent Origin is how native apps call us.

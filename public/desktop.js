@@ -9,7 +9,6 @@ if (hash.has('access')) {
   history.replaceState(null, '', `${location.pathname}${location.search}${hash.size ? `#${hash}` : ''}`);
 }
 let peer;
-let providerList = [];
 let micUrl = '';
 let ended = false;
 let joined = false;
@@ -89,7 +88,6 @@ async function configure() {
     if (!response.ok) throw new Error('Không kiểm tra được máy chủ. Tải lại trang để thử lại.');
     const config = await response.json();
     $('access-field').hidden = !config.requiresAccess || Boolean(accessKey);
-    providerList = Object.entries(config.providers || {}).filter(([, ok]) => ok).map(([name]) => name);
     $('create-button').disabled = !config.ready;
     $('config-note').textContent = config.ready ? 'Một phiên mới. Một cuộc trò chuyện bắt đầu.' : 'Máy chủ chưa sẵn sàng. Vui lòng kiểm tra cấu hình dịch vụ.';
   } catch (error) {
@@ -111,10 +109,8 @@ $('create-form').addEventListener('submit', async (event) => {
     return showNotice('Mã phiên tự chọn cần đúng 6 chữ số, hoặc để trống để tự sinh.');
   }
   try {
-    const provider = localStorage.getItem('lt-provider') || '';
     const params = new URLSearchParams();
     if (wanted) params.set('code', wanted);
-    if (provider && providerList.includes(provider)) params.set('provider', provider);
     const response = await fetch(`api/rooms${params.size ? `?${params}` : ''}`, {
       method: 'POST', headers: accessKey ? { 'x-access-key': accessKey } : {},
       signal: AbortSignal.timeout(15000),

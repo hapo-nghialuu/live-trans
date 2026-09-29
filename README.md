@@ -37,7 +37,7 @@ Các biến cấu hình:
 | `GOOGLE_API_KEY_FILE` | Thay thế key trực tiếp; file phải chứa đúng một key |
 | `DEEPGRAM_API_KEY` | Deepgram key chỉ dùng trên backend (provider thay thế) |
 | `DEEPGRAM_API_KEY_FILE` | Thay thế key trực tiếp; file phải chứa đúng một key |
-| `TRANSCRIBE_PROVIDER` | Provider mặc định `gemini`/`deepgram`; trình duyệt chọn lại ở `settings.html` (không link, lưu localStorage) |
+| `TRANSCRIBE_PROVIDER` | Provider mặc định `gemini`/`deepgram`; `settings.html` đổi toàn cục qua `POST /api/provider`, lưu `$SETTINGS_FILE` hoặc `$STATE_DIRECTORY/settings.json` |
 | `DEEPGRAM_MODEL` | Mặc định `nova-3` |
 | `APP_ACCESS_KEY` | Tùy chọn — khoá việc tạo phiên (≥24 ký tự); bỏ trống = ai cũng tạo được (đã giới hạn 30 phiên/giờ/IP) |
 | `PUBLIC_URL` | URL HTTPS đầy đủ, gồm base path và dấu `/` cuối |
