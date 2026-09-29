@@ -17,7 +17,6 @@ export class DeepgramTranscriber {
     this.ws.on('unexpected-response', (req, res) => console.error(`[deepgram] http ${res.statusCode}`));
     // Deepgram edge có thể mất ~13s mới gửi Metadata đầu tiên — cần dưới timer 25s phía client.
     this.timeout = setTimeout(() => this.fail('Không kết nối được dịch vụ nhận giọng nói.'), 20000);
-    this.keepalive = setInterval(() => this.send({ type: 'KeepAlive' }), 8000).unref();
     this.ws.on('message', (data, isBinary) => {
       if (this.closed || isBinary) return;
       try {
@@ -25,6 +24,8 @@ export class DeepgramTranscriber {
         if (event.type === 'Metadata' && !this.ready) {
           clearTimeout(this.timeout);
           this.ready = true;
+          // KeepAlive chỉ được gửi sau khi stream sẵn sàng — gửi sớm làm Deepgram không bao giờ trả Metadata.
+          this.keepalive = setInterval(() => this.send({ type: 'KeepAlive' }), 8000).unref();
           if (!this.stopping) callbacks.ready();
         } else if (event.type === 'Results') {
           const text = String(event.channel?.alternatives?.[0]?.transcript || '').trim();
