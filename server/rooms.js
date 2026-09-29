@@ -93,7 +93,10 @@ export class Rooms {
       if (!room.session) this.status(room, 'waiting', 'Điện thoại đã ngắt kết nối.');
     } else if (role === 'viewer') {
       room.viewers.delete(ws);
-      if (!room.viewers.size) room.noViewerTimer = setTimeout(() => this.stop(room), 10000).unref();
+      if (!room.viewers.size) room.noViewerTimer = setTimeout(() => {
+        console.log(`[room ${room.code}] stop: no viewers left`);
+        this.stop(room);
+      }, 10000).unref();
     }
   }
   start(room) {
@@ -105,6 +108,7 @@ export class Rooms {
     this.status(room, 'connecting', 'Đang kết nối nhận giọng nói…');
     const current = () => room.session === identity && this.rooms.has(room.id);
     const ASR = room.provider === 'deepgram' ? DeepgramTranscriber : Transcriber;
+    console.log(`[room ${room.code}] start asr=${room.provider} viewers=${room.viewers.size}`);
     identity.asr = new ASR(this.config, {
       ready: () => {
         if (!current()) return;
@@ -127,6 +131,7 @@ export class Rooms {
     });
     if (room.provider === 'gemini') identity.limit = setTimeout(() => {
       if (!current()) return;
+      console.log(`[room ${room.code}] stop: gemini 9-minute limit`);
       this.broadcast(room, { type: 'error', message: 'Đã thu 9 phút. Bấm bắt đầu để mở lượt thu mới.' });
       this.stop(room);
     }, 9 * 60 * 1000).unref();

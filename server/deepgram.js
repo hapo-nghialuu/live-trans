@@ -34,8 +34,12 @@ export class DeepgramTranscriber {
         else if (event.type === 'Error' || event.err_code) this.fail('Dịch vụ nhận giọng nói đang không khả dụng.');
       } catch { this.fail('Không đọc được phản hồi nhận giọng nói.'); }
     });
-    this.ws.on('error', () => this.fail('Mất kết nối tới dịch vụ nhận giọng nói.'));
-    this.ws.on('close', () => {
+    this.ws.on('error', error => {
+      console.error('[deepgram] error:', error.message);
+      this.fail('Mất kết nối tới dịch vụ nhận giọng nói.');
+    });
+    this.ws.on('close', (code, reason) => {
+      console.log(`[deepgram] closed code=${code} reason=${String(reason).slice(0, 200)} ready=${this.ready} stopping=${this.stopping}`);
       if (!this.closed && !this.stopping) this.fail('Phiên nhận giọng nói đã ngắt. Bấm bắt đầu để kết nối lại.');
       this.close();
     });

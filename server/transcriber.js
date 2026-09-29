@@ -26,8 +26,12 @@ export class Transcriber {
         if (content?.inputTranscription?.text) callbacks.final(content.inputTranscription.text);
       } catch { this.fail('Không đọc được phản hồi nhận giọng nói.'); }
     });
-    this.ws.on('error', () => this.fail('Mất kết nối tới dịch vụ nhận giọng nói.'));
-    this.ws.on('close', () => {
+    this.ws.on('error', error => {
+      console.error('[gemini] error:', error.message);
+      this.fail('Mất kết nối tới dịch vụ nhận giọng nói.');
+    });
+    this.ws.on('close', (code, reason) => {
+      console.log(`[gemini] closed code=${code} reason=${String(reason).slice(0, 200)} ready=${this.ready} stopping=${this.stopping}`);
       if (!this.closed && !this.stopping) this.fail('Phiên nhận giọng nói đã ngắt. Bấm bắt đầu để kết nối lại.');
       this.close();
     });

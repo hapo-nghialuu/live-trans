@@ -42,11 +42,15 @@ export function attachSockets(server, rooms, config) {
         else if (message.type === 'end' && role === 'viewer') rooms.end(room);
         else throw new Error('Thao tác không hợp lệ.');
       } catch (error) {
+        console.error(`[socket] room=${room?.id || '-'} role=${role || '-'} error: ${error.message} binary=${binary} len=${data.length}`);
         send(ws, { type: 'error', message: error instanceof SyntaxError ? 'Dữ liệu không hợp lệ.' : error.message });
         ws.close(1008, 'Invalid request');
       }
     });
-    ws.on('close', () => { clearTimeout(authTimeout); if (room) rooms.detach(room, role, ws); });
+    ws.on('close', (code, reason) => {
+      console.log(`[socket] closed room=${room?.id || '-'} role=${role || '-'} code=${code} reason=${String(reason).slice(0, 120)}`);
+      clearTimeout(authTimeout); if (room) rooms.detach(room, role, ws);
+    });
   });
   const heartbeat = setInterval(() => {
     for (const ws of wss.clients) {
