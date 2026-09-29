@@ -5,6 +5,11 @@ export interface MicLink {
   token: string;
 }
 
+/** Directory part of a URL path: '/a/b/mic.html' → '/a/b/'. RN's URL is a concat shim, never resolve relative refs with new URL(rel, base). */
+function dirOf(pathname: string): string {
+  return pathname.endsWith('/') ? pathname : pathname.slice(0, pathname.lastIndexOf('/') + 1);
+}
+
 /** Parse the mic link encoded in the desktop QR: https://host/base/mic.html#room=..&token=.. */
 export function parseMicLink(input: string): MicLink {
   const url = new URL(input.trim());
@@ -16,22 +21,23 @@ export function parseMicLink(input: string): MicLink {
     if (params.get('access')) throw new Error('Đây là liên kết truy cập màn hình chính. Hãy dán liên kết mic dưới mã QR (…/mic.html#room=…&token=…).');
     throw new Error('Liên kết thiếu room hoặc token. Hãy quét/dán đúng liên kết mic.');
   }
-  const socket = new URL('socket', url);
   const scheme = url.protocol === 'https:' ? 'wss' : 'ws';
-  return { socketUrl: `${scheme}://${socket.host}${socket.pathname}`, origin: url.origin, room, token };
+  return { socketUrl: `${scheme}://${url.host}${dirOf(url.pathname)}socket`, origin: url.origin, room, token };
 }
 
 /** Base URL of the server that issued a mic link (the …/base/ prefix before mic.html). */
 export function baseFromLink(input: string): string {
-  return new URL('.', new URL(input.trim())).href;
+  const url = new URL(input.trim());
+  return `${url.protocol}//${url.host}${dirOf(url.pathname)}`;
 }
 
 /** Normalize a user-entered server address: bare host, base path, or a pasted mic link all work. */
 export function normalizeBase(input: string): string {
   const url = new URL(input.trim().replace(/[?#].*$/, ''));
   const last = url.pathname.split('/').pop() || '';
-  if (!last || last.includes('.')) return new URL('.', url).href;
-  return `${url.href}/`;
+  const path = !last || last.includes('.') ? dirOf(url.pathname)
+    : url.pathname.endsWith('/') ? url.pathname : `${url.pathname}/`;
+  return `${url.protocol}//${url.host}${path}`;
 }
 
 export interface JoinResult {
@@ -43,7 +49,7 @@ export interface JoinResult {
 /** Resolve a 6-digit session code to a join link via the issuing server. */
 export async function lookupMicLink(baseUrl: string, code: string): Promise<JoinResult> {
   const base = normalizeBase(baseUrl);
-  const response = await fetch(new URL(`api/join?code=${encodeURIComponent(code)}`, base).href);
+  const response = await fetch(`${base}api/join?code=${encodeURIComponent(code)}`);
   const data: any = await response.json().catch(() => ({}));
   if (!response.ok || typeof data.url !== 'string') {
     throw new Error(data.error || 'Không tìm thấy phiên với mã này.');
@@ -54,11 +60,10 @@ export async function lookupMicLink(baseUrl: string, code: string): Promise<Join
 /** Create a new session on the server (same as the web "Tạo phiên" button). */
 export async function createSessionOnServer(baseUrl: string, accessKey = '', code = ''): Promise<{ code: string; micUrl: string }> {
   const base = normalizeBase(baseUrl);
-  const target = new URL('api/rooms', base);
-  if (code) target.searchParams.set('code', code);
+  const target = `${base}api/rooms${code ? `?code=${encodeURIComponent(code)}` : ''}`;
   const headers: Record<string, string> = { Origin: new URL(base).origin };
   if (accessKey) headers['x-access-key'] = accessKey;
-  const response = await fetch(target.href, { method: 'POST', headers });
+  const response = await fetch(target, { method: 'POST', headers });
   const data: any = await response.json().catch(() => ({}));
   if (!response.ok || typeof data.micUrl !== 'string') {
     const error = new Error(data.error || 'Không tạo được phiên.') as Error & { status?: number };
