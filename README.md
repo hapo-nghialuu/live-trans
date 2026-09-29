@@ -8,7 +8,8 @@ Tài liệu: [tổng quan](docs/project-overview-pdr.md) · [kiến trúc](docs/
 ## Sử dụng
 
 1. Trên máy tính, mở app, nhập mã truy cập rồi chọn **Tạo phiên dịch**.
-2. Quét QR bằng điện thoại. Chọn **Bắt đầu**, cho phép dùng micro.
+2. Trên điện thoại, mở app Live Trans → **Quét mã QR** hoặc nhập **mã phiên 6 số**
+   (hiển thị dưới QR). Chọn **Bắt đầu**, cho phép dùng micro.
 3. Giữ màn hình điện thoại mở và nói tiếng Việt, ngắt ngắn giữa các câu.
 4. Web hiện tiếng Việt trong lúc nói; câu đã nhận xong được dịch đồng thời ra Anh/Nhật.
 5. **Dừng** tắt mic và hoàn tất câu cuối. **Kết thúc phiên** thu hồi liên kết phòng.
@@ -77,9 +78,10 @@ Restart server kết thúc các phòng trong bộ nhớ.
 
 ## App điện thoại (React Native)
 
-`mobile/` là app React Native thay thế `mic.html`: dán liên kết mic
-(`…/mic.html#room=…&token=…`, lấy từ QR trên màn hình chính) → Kết nối →
-Bắt đầu nói. App stream PCM16 mono 16 kHz qua cùng WebSocket `/socket`
+`mobile/` là app React Native thay thế `mic.html`. Ba cách kết nối:
+quét QR trong app (camera), nhập mã phiên 6 số (server tra cứu qua
+`GET /api/join?code=…`, giới hạn 30 lần/phút/IP), hoặc dán liên kết mic
+(`…/mic.html#room=…&token=…`). App stream PCM16 mono 16 kHz qua cùng WebSocket `/socket`
 với giao thức `join/start/stop` như web. iOS đã bật `audio` background mode
 và `NSMicrophoneUsageDescription`; Android có `RECORD_AUDIO`/`WAKE_LOCK`
 nhưng chưa build thử. Chạy: `cd mobile && npm install && (cd ios && pod
