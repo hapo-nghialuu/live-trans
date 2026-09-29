@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
-    <device id="retina4_7" orientation="portrait" appearance="dark"/>
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
@@ -26,11 +26,11 @@
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Live Trans" textAlignment="center" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="GJd-Yh-RWb">
                                 <rect key="frame" x="0.0" y="413.5" width="375" height="43"/>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="34"/>
-                                <color key="textColor" red="0.90980392156862744" green="0.92941176470588238" blue="0.95686274509803926" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="textColor" red="0.09019607843137255" green="0.1411764705882353" blue="0.23137254901960785" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
-                        <color key="backgroundColor" red="0.043137254901960784" green="0.054901960784313725" blue="0.078431372549019607" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" red="0.9647058823529412" green="0.9764705882352941" blue="0.9921568627450981" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="LM1-go-Logo" firstAttribute="centerX" secondItem="Bcu-3y-fUS" secondAttribute="centerX" id="LMcx-0-ccc"/>
                             <constraint firstItem="LM1-go-Logo" firstAttribute="bottom" secondItem="GJd-Yh-RWb" secondAttribute="top" constant="-20" id="LMbt-0-ddd"/>

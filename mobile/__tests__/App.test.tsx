@@ -19,8 +19,19 @@ jest.mock('react-native-vision-camera', () => ({
   isScannedCode: () => false,
 }));
 
-test('renders correctly', async () => {
-  await ReactTestRenderer.act(() => {
-    ReactTestRenderer.create(<App />);
+test('shows quick join first and reveals optional mic link on demand', async () => {
+  let screen: ReactTestRenderer.ReactTestRenderer;
+  await ReactTestRenderer.act(async () => {
+    screen = ReactTestRenderer.create(<App />);
   });
+
+  expect(screen!.root.findAllByProps({ accessibilityLabel: 'Quét mã QR để vào phiên' }).length).toBeGreaterThan(0);
+  expect(screen!.root.findAllByProps({ accessibilityLabel: 'Mã phiên 6 số' }).length).toBeGreaterThan(0);
+  expect(screen!.root.findAllByProps({ accessibilityLabel: 'Liên kết mic' })).toHaveLength(0);
+
+  await ReactTestRenderer.act(async () => {
+    screen!.root.findAllByProps({ accessibilityLabel: 'Tùy chọn liên kết mic' })
+      .find(node => typeof node.props.onPress === 'function')!.props.onPress();
+  });
+  expect(screen!.root.findAllByProps({ accessibilityLabel: 'Liên kết mic' }).length).toBeGreaterThan(0);
 });
