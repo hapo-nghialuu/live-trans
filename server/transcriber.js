@@ -9,8 +9,11 @@ export class Transcriber {
     this.ws = new WebSocket('wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent', {
       headers: { 'x-goog-api-key': String(config.apiKey) }, handshakeTimeout: 10000, maxPayload: 1024 * 1024 });
     this.timeout = setTimeout(() => this.fail('Không kết nối được dịch vụ nhận giọng nói.'), 12000);
-    this.ws.on('open', () => this.send({ setup: { model: `models/${config.transcribeModel}`,
-      generationConfig: { responseModalities: ['TEXT'] }, inputAudioTranscription: { languageCodes: ['vi-VN'] } } }));
+    this.ws.on('open', () => {
+      console.log('[gemini] upstream open');
+      this.send({ setup: { model: `models/${config.transcribeModel}`,
+        generationConfig: { responseModalities: ['TEXT'] }, inputAudioTranscription: { languageCodes: ['vi-VN'] } } });
+    });
     this.ws.on('message', data => {
       if (this.closed) return;
       try {
