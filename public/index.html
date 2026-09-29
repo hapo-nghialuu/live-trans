@@ -32,6 +32,13 @@
             <button id="create-button" class="primary" type="submit" disabled>Tạo phiên mới <span aria-hidden="true">↗</span></button>
             <p id="config-note" class="helper">Đang kiểm tra kết nối…</p>
           </form>
+          <form id="join-form" class="join-form" aria-label="Xem phiên đang diễn ra bằng mã">
+            <label for="join-code">Đã có phiên? Nhập mã 6 số để xem phụ đề.</label>
+            <div class="join-row">
+              <input id="join-code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="123 456" autocomplete="off" spellcheck="false">
+              <button id="join-button" class="secondary" type="submit">Xem phiên</button>
+            </div>
+          </form>
         </div>
         <div class="flow-card" aria-label="Ba bước bắt đầu">
           <div class="flow-heading"><span class="eyebrow">BẮT ĐẦU THẬT ĐƠN GIẢN</span><span class="round-arrow" aria-hidden="true">↗</span></div>

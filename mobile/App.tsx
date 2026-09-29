@@ -5,8 +5,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Clipboard from '@react-native-clipboard/clipboard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Camera, useCameraPermission, useObjectOutput, isScannedCode, type ScannedObject } from 'react-native-vision-camera';
-import { parseMicLink, baseFromLink, lookupMicLink, RoomSocket, MicLink } from './src/protocol';
+import { parseMicLink, baseFromLink, lookupMicLink, createSessionOnServer, RoomSocket, MicLink } from './src/protocol';
 import { createAudioStreamer, AudioStreamer } from './src/audio';
 
 type Phase = 'idle' | 'starting' | 'recording' | 'finishing';
@@ -56,6 +57,9 @@ export default function App() {
   const [linkText, setLinkText] = useState('');
   const [code, setCode] = useState('');
   const [serverBase, setServerBase] = useState('https://live.hapo.work/');
+  const [accessKey, setAccessKey] = useState('');
+  const [sessionCode, setSessionCode] = useState('');
+  const [creating, setCreating] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [link, setLink] = useState<MicLink>();
   const [connected, setConnected] = useState(false);
@@ -149,6 +153,7 @@ export default function App() {
     try {
       const parsed = parseMicLink(linkText);
       setServerBase(baseFromLink(linkText));
+      setSessionCode('');
       openSocket(parsed);
     } catch (e: any) {
       setMessage(e.message || 'Liên kết không hợp lệ.');
@@ -160,13 +165,27 @@ export default function App() {
     if (digits.length !== 6) return setMessage('Mã phiên gồm đúng 6 chữ số.');
     setConnecting(true); setMessage('Đang kiểm tra mã phiên…');
     try {
-      const url = await lookupMicLink(serverBase, digits);
-      setLinkText(url);
+      const { url } = await lookupMicLink(serverBase, digits);
+      setSessionCode(digits); setLinkText(url);
       openSocket(parseMicLink(url));
     } catch (e: any) {
       setMessage(e.message || 'Không tìm thấy phiên. Kiểm tra lại mã và máy chủ.');
     } finally { setConnecting(false); }
   }, [serverBase, openSocket]);
+
+  const createNewSession = useCallback(async () => {
+    if (!accessKey.trim()) return setMessage('Nhập mã truy cập để tạo phiên mới.');
+    setCreating(true); setMessage('Đang tạo phiên mới…');
+    try {
+      const { code: newCode, micUrl } = await createSessionOnServer(serverBase, accessKey.trim());
+      setSessionCode(newCode); setLinkText(micUrl);
+      AsyncStorage.setItem('lt_accessKey', accessKey.trim()).catch(() => {});
+      AsyncStorage.setItem('lt_serverBase', serverBase).catch(() => {});
+      openSocket(parseMicLink(micUrl));
+    } catch (e: any) {
+      setMessage(e.message || 'Không tạo được phiên. Kiểm tra lại mã truy cập và máy chủ.');
+    } finally { setCreating(false); }
+  }, [accessKey, serverBase, openSocket]);
 
   const handleScanned = useCallback((raw: string) => {
     const value = raw.trim();
@@ -175,6 +194,7 @@ export default function App() {
       const parsed = parseMicLink(value);
       setLinkText(value);
       setServerBase(baseFromLink(value));
+      setSessionCode('');
       openSocket(parsed);
     } catch {
       setMessage('Mã QR không phải của Live Trans. Hãy quét mã trên màn hình chính.');
@@ -235,6 +255,14 @@ export default function App() {
     }, 20000);
   }, [stopAudio]);
 
+  useEffect(() => {
+    Promise.all([AsyncStorage.getItem('lt_accessKey'), AsyncStorage.getItem('lt_serverBase')])
+      .then(([ak, sb]) => {
+        if (ak) setAccessKey(ak);
+        if (sb) setServerBase(sb);
+      }).catch(() => {});
+  }, []);
+
   useEffect(() => () => {
     stopAudio();
     audioRef.current?.dispose();
@@ -279,6 +307,13 @@ export default function App() {
             <Text style={[styles.pillText, { color: tone }]}>{STATUS_LABEL[status] || status}</Text>
           </View>
         </View>
+
+        {!!sessionCode && (
+          <View style={styles.codeBanner}>
+            <Text style={styles.codeBannerLabel}>MÃ PHIÊN</Text>
+            <Text style={styles.codeBannerValue}>{sessionCode.slice(0, 3)} {sessionCode.slice(3)}</Text>
+          </View>
+        )}
 
         {!connected && (
           <View style={styles.card}>
@@ -327,6 +362,25 @@ export default function App() {
                 {connecting ? 'Đang kết nối…' : ended ? 'Kết nối phiên mới' : 'Kết nối'}
               </Text>
             </Pressable>
+          </View>
+        )}
+
+        {!connected && (
+          <View style={styles.card}>
+            <Text style={styles.label}>Tạo phiên mới trên máy chủ</Text>
+            <TextInput
+              style={styles.input} value={accessKey} onChangeText={setAccessKey}
+              placeholder="Mã truy cập máy chủ" placeholderTextColor={C.muted}
+              autoCapitalize="none" autoCorrect={false} secureTextEntry editable={!creating}
+            />
+            <Pressable
+              style={({ pressed }) => [styles.primaryBtn, (creating || pressed) && styles.btnDim]}
+              onPress={createNewSession} disabled={creating}>
+              <Text style={styles.primaryBtnText}>{creating ? 'Đang tạo…' : 'Tạo phiên mới'}</Text>
+            </Pressable>
+            <Text style={styles.createHint}>
+              App tự vào vai trò mic. Đọc mã 6 số cho người ở màn hình web nhập vào để xem phụ đề.
+            </Text>
           </View>
         )}
 
@@ -463,6 +517,14 @@ const styles = StyleSheet.create({
     color: C.text, fontSize: 22, fontWeight: '800', letterSpacing: 8,
     minHeight: 46, textAlign: 'center',
   },
+  codeBanner: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: C.surface, borderWidth: 1, borderColor: C.accent,
+    borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, marginBottom: 12,
+  },
+  codeBannerLabel: { color: C.muted, fontSize: 11, fontWeight: '700', letterSpacing: 0.8 },
+  codeBannerValue: { color: C.text, fontSize: 22, fontWeight: '800', letterSpacing: 5 },
+  createHint: { color: C.muted, fontSize: 11.5, marginTop: 10, lineHeight: 16 },
   hostLabel: { color: C.muted, fontSize: 11, fontWeight: '700', letterSpacing: 0.6, marginTop: 12, marginBottom: 6 },
   hostInput: {
     backgroundColor: C.surface2, borderWidth: 1, borderColor: C.border,

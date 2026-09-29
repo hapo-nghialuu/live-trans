@@ -45,19 +45,24 @@ export function createApp(config) {
         let bucket = joinAttempts.get(ip);
         if (!bucket || Date.now() - bucket.reset > 60000) { bucket = { reset: Date.now(), count: 0 }; joinAttempts.set(ip, bucket); }
         if (++bucket.count > 30) return json(429, { error: 'Quá nhiều lần thử. Vui lòng đợi một phút.' });
-        const code = new URL(req.url, 'http://localhost').searchParams.get('code') || '';
+        const params = new URL(req.url, 'http://localhost').searchParams;
+        const code = params.get('code') || '';
+        const role = params.get('role') === 'viewer' ? 'viewer' : 'mic';
         const room = rooms.byCode(code.trim());
         if (!room) return json(404, { error: 'Mã phiên không đúng hoặc phiên đã kết thúc.' });
         const origin = `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers.host}`;
         const publicUrl = [config.publicUrl, ...(config.publicAliases || [])]
           .find(u => { try { return new URL(u).origin === origin; } catch { return false; } });
-        let url = room.micUrl;
-        if (publicUrl) {
-          const mic = new URL('mic.html', publicUrl);
-          mic.hash = new URLSearchParams({ room: room.id, token: room.micToken }).toString();
-          url = mic.href;
+        let url;
+        if (role === 'viewer') {
+          url = new URL(publicUrl || config.publicUrl);
+          url.hash = new URLSearchParams({ room: room.id, token: room.viewerToken }).toString();
+        } else {
+          url = new URL('mic.html', publicUrl || config.publicUrl);
+          url.hash = new URLSearchParams({ room: room.id, token: room.micToken }).toString();
         }
-        return json(200, { url, code: room.code });
+        return json(200, { url: url.href, code: room.code, room: room.id,
+          token: role === 'viewer' ? room.viewerToken : room.micToken });
       }
       if (path.startsWith('/api/')) return json(404, { error: 'Không tìm thấy chức năng.' });
       if (!['GET', 'HEAD'].includes(req.method)) return json(405, { error: 'Thao tác không được hỗ trợ.' });

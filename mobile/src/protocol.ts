@@ -26,15 +26,35 @@ export function baseFromLink(input: string): string {
   return new URL('.', new URL(input.trim())).href;
 }
 
-/** Resolve a 6-digit session code to a mic link via the issuing server. */
-export async function lookupMicLink(baseUrl: string, code: string): Promise<string> {
+export interface JoinResult {
+  url: string;
+  room: string;
+  token: string;
+}
+
+/** Resolve a 6-digit session code to a join link via the issuing server. */
+export async function lookupMicLink(baseUrl: string, code: string): Promise<JoinResult> {
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
   const response = await fetch(new URL(`api/join?code=${encodeURIComponent(code)}`, base).href);
   const data: any = await response.json().catch(() => ({}));
   if (!response.ok || typeof data.url !== 'string') {
     throw new Error(data.error || 'Không tìm thấy phiên với mã này.');
   }
-  return data.url;
+  return { url: data.url, room: data.room, token: data.token };
+}
+
+/** Create a new session on the server (same as the web "Tạo phiên" button). */
+export async function createSessionOnServer(baseUrl: string, accessKey: string): Promise<{ code: string; micUrl: string }> {
+  const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  const response = await fetch(new URL('api/rooms', base).href, {
+    method: 'POST',
+    headers: { 'x-access-key': accessKey, Origin: new URL(base).origin },
+  });
+  const data: any = await response.json().catch(() => ({}));
+  if (!response.ok || typeof data.micUrl !== 'string') {
+    throw new Error(data.error || 'Không tạo được phiên. Kiểm tra lại mã truy cập.');
+  }
+  return { code: data.code, micUrl: data.micUrl };
 }
 
 export type ConnState = 'connecting' | 'open' | 'closed';

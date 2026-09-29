@@ -10,6 +10,8 @@ jest.mock('@react-native-clipboard/clipboard', () =>
   require('@react-native-clipboard/clipboard/jest/clipboard-mock.js'),
 );
 
+jest.mock('@react-native-async-storage/async-storage');
+
 jest.mock('react-native-vision-camera', () => ({
   Camera: 'Camera',
   useCameraPermission: () => ({ hasPermission: false, requestPermission: jest.fn() }),

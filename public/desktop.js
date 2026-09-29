@@ -115,6 +115,26 @@ $('create-form').addEventListener('submit', async (event) => {
   }
 });
 
+$('join-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const code = $('join-code').value.replace(/\D/g, '');
+  if (code.length !== 6) return showNotice('Mã phiên gồm đúng 6 chữ số.');
+  $('join-button').disabled = true;
+  showNotice();
+  try {
+    const response = await fetch(`api/join?code=${code}&role=viewer`, { signal: AbortSignal.timeout(15000) });
+    const result = await response.json();
+    if (!response.ok || !result.room || !result.token) throw new Error(result.error || 'Không tìm thấy phiên với mã này.');
+    const roomHash = new URLSearchParams({ room: result.room, token: result.token });
+    history.replaceState(null, '', `${location.pathname}${location.search}#${roomHash}`);
+    openRoom({ room: result.room, token: result.token });
+  } catch (error) {
+    showNotice(error.message);
+  } finally {
+    $('join-button').disabled = false;
+  }
+});
+
 $('copy-link').addEventListener('click', async () => {
   try {
     await navigator.clipboard.writeText(micUrl);

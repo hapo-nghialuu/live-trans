@@ -40,6 +40,11 @@ img{max-width:100%}
 .field{max-width:340px; margin-bottom:18px}
 .field label{display:block; font-size:13px; font-weight:600; margin-bottom:7px}
 input{width:100%; border:1px solid #bcbeb3; background:var(--white); border-radius:6px; padding:12px 14px; color:var(--ink); min-height:46px}
+.join-form{margin-top:26px; padding-top:20px; border-top:1px solid var(--line); max-width:340px}
+.join-form>label{display:block; font-size:12px; color:var(--muted); margin-bottom:9px}
+.join-row{display:flex; gap:9px}
+.join-row input{flex:1; letter-spacing:3px; font-weight:700; text-align:center; font-size:17px}
+.join-row .secondary{flex-shrink:0; font-weight:600}
 .flow-card{border:1px solid var(--line); border-radius:16px; padding:32px 32px 0; background:#fbfaf7}
 .flow-heading{display:flex; align-items:center; justify-content:space-between; gap:14px}
 .flow-heading .eyebrow{font-size:10px}

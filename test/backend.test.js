@@ -130,6 +130,12 @@ test('numeric session code resolves to mic link, wrong codes are rejected and ra
   const { url } = await join.json();
   assert.ok(url.includes(`room=${created.room}`));
   assert.ok(url.includes('token='));
+  const viewerJoin = await fetch(`${origin}/api/join?code=${created.code}&role=viewer`);
+  assert.equal(viewerJoin.status, 200);
+  const vj = await viewerJoin.json();
+  assert.equal(vj.room, created.room);
+  assert.equal(vj.token, rooms.rooms.get(created.room).viewerToken);
+  assert.ok(vj.url.includes(`room=${created.room}`));
   assert.equal((await fetch(`${origin}/api/join?code=000000`)).status === 404, true);
   for (let i = 0; i < 29; i++) await fetch(`${origin}/api/join?code=${100000 + i}`);
   assert.equal((await fetch(`${origin}/api/join?code=${created.code}`)).status, 429);
