@@ -8,7 +8,9 @@ export function attachSockets(server, rooms, config) {
     try { pathname = new URL(req.url, 'http://localhost').pathname; }
     catch { socket.end('HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n'); return; }
     const base = new URL(config.publicUrl).pathname;
-    if (![`${base}socket`, '/socket'].includes(pathname) || !config.origins.has(req.headers.origin)) {
+    // Browsers always send Origin and cannot omit it — native clients may skip it entirely.
+    const badOrigin = req.headers.origin && !config.origins.has(req.headers.origin);
+    if (![`${base}socket`, '/socket'].includes(pathname) || badOrigin) {
       socket.end('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n'); return;
     }
     wss.handleUpgrade(req, socket, head, ws => wss.emit('connection', ws));

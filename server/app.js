@@ -30,7 +30,8 @@ export function createApp(config) {
       if (path === '/api/config' && req.method === 'GET') return json(200, { ready: Boolean(config.apiKey), requiresAccess: Boolean(config.accessKey) });
       if (path === '/api/rooms' && req.method === 'POST') {
         req.resume();
-        if (!config.origins.has(req.headers.origin)) return json(403, { error: 'Nguồn yêu cầu không hợp lệ.' });
+        // Reject only a wrong Origin — absent Origin is how native apps call us.
+        if (req.headers.origin && !config.origins.has(req.headers.origin)) return json(403, { error: 'Nguồn yêu cầu không hợp lệ.' });
         const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || '';
         let createBucket = createAttempts.get(ip);
         if (!createBucket || Date.now() - createBucket.reset > 3600000) { createBucket = { reset: Date.now(), count: 0 }; createAttempts.set(ip, createBucket); }

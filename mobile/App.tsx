@@ -337,6 +337,11 @@ export default function App() {
           </View>
         )}
 
+        <Animated.Text
+          style={[styles.message, noticeError && styles.messageError, { opacity: flash }]}>
+          {noticeError ? `Lỗi: ${message}` : message}
+        </Animated.Text>
+
         {!connected && (
           <View style={styles.card}>
             <Image source={require('./assets/logo-mark.png')} style={styles.hero} />
@@ -413,11 +418,6 @@ export default function App() {
             </Text>
           </View>
         )}
-
-        <Animated.Text
-          style={[styles.message, noticeError && styles.messageError, { opacity: flash }]}>
-          {noticeError ? `Lỗi: ${message}` : message}
-        </Animated.Text>
 
         {connected && (
           <View style={styles.micArea}>
