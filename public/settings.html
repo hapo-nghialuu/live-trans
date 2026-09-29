@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#f7f6f2">
+  <title>live trans — Cài đặt</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="settings.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="live trans, trang chủ"><span class="brand-mark" aria-hidden="true">“</span>live trans<span class="brand-dot">.</span></a>
+      <span class="header-note">CÀI ĐẶT</span>
+    </header>
+    <main id="main">
+      <div id="notice" class="notice" role="alert" hidden></div>
+      <section class="welcome" aria-labelledby="settings-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="small-line" aria-hidden="true"></span> TÙY CHỌN TRÌNH DUYỆT NÀY</p>
+          <h1 id="settings-title">Nhận giọng nói.</h1>
+          <p class="hero-description">Lựa chọn áp dụng cho các phiên tạo từ trình duyệt này.<br>Chỉ lưu trong trình duyệt, không gửi lên máy chủ.</p>
+          <form id="settings-form" class="create-form">
+            <div class="field">
+              <label for="provider-pick">Nhà cung cấp</label>
+              <select id="provider-pick" disabled></select>
+            </div>
+            <p id="settings-note" class="helper" role="status">Đang kiểm tra máy chủ…</p>
+          </form>
+        </div>
+        <div class="flow-card" aria-label="So sánh nhà cung cấp">
+          <div class="flow-heading"><span class="eyebrow">SO SÁNH</span></div>
+          <ol class="steps">
+            <li><span class="step-number">01</span><div><h2>Gemini</h2><p>Lượt thu tối đa 9 phút mỗi lần bấm bắt đầu.</p></div></li>
+            <li><span class="step-number">02</span><div><h2>Deepgram</h2><p>Không giới hạn thời lượng lượt thu.</p></div></li>
+          </ol>
+          <div class="flow-footer"><span class="tiny-dot" aria-hidden="true"></span> Việc dịch phụ đề luôn qua Gemini</div>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer"><span>Ít rào cản hơn. Nhiều điều để chia sẻ hơn.</span></footer>
+  </div>
+</body>
+</html>
