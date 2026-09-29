@@ -111,6 +111,15 @@ function onEvent(event) {
     preview.update(event);
   } else if (event.type === 'error') {
     connectionError = event.message || 'Có lỗi xảy ra. Micro đã dừng.';
+    if (!connected) {
+      ended = true;
+      void halt('', false);
+      peer.close();
+      showStatus('closed', 'Phiên không hợp lệ');
+      showNotice(`${connectionError} Hãy quét lại mã QR của phiên mới.`);
+      render();
+      return;
+    }
     void halt(connectionError, ['connecting', 'listening'].includes(serverStatus));
   } else if (event.type === 'closed') {
     ended = true;

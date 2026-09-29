@@ -72,6 +72,7 @@ export default function App() {
   const [captions, setCaptions] = useState<Caption[]>([]);
   const socketRef = useRef<RoomSocket | undefined>(undefined);
   const audioRef = useRef<AudioStreamer | undefined>(undefined);
+  const lastNotice = useRef('');
   const finishTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const listRef = useRef<FlatList<Caption>>(null);
   const pulse = useRef(new Animated.Value(0)).current;
@@ -85,12 +86,13 @@ export default function App() {
   const halt = useCallback((notice?: string) => {
     stopAudio();
     setPhase('idle');
-    if (notice) setMessage(notice);
+    if (notice) { lastNotice.current = notice; setMessage(notice); }
   }, [stopAudio]);
 
   const onEvent = useCallback((event: any) => {
     switch (event.type) {
       case 'snapshot':
+        lastNotice.current = '';
         setConnected(true);
         setConnecting(false);
         setInterim(event.interim || '');
@@ -126,7 +128,7 @@ export default function App() {
         halt(event.message || 'Có lỗi xảy ra. Micro đã dừng.');
         break;
       case 'closed':
-        setEnded(true); setConnected(false); setStatus('closed');
+        setEnded(true); setConnected(false); setStatus('closed'); setSessionCode('');
         halt(event.message || 'Phiên đã kết thúc. Tạo phiên mới trên màn hình chính.');
         socketRef.current?.close();
         break;
@@ -136,10 +138,11 @@ export default function App() {
   const onState = useCallback((state: 'connecting' | 'open' | 'closed') => {
     if (state === 'connecting') setConnecting(true);
     else if (state === 'open') setConnecting(false);
-    else { setConnected(false); setConnecting(false); halt('Đã mất kết nối. Kết nối lại rồi nhấn bắt đầu.'); }
+    else { setConnected(false); setConnecting(false); halt(lastNotice.current || 'Đã mất kết nối. Kết nối lại rồi nhấn bắt đầu.'); }
   }, [halt]);
 
   const openSocket = useCallback((parsed: MicLink) => {
+    lastNotice.current = '';
     setLink(parsed);
     setEnded(false); setCaptions([]); setInterim('');
     socketRef.current?.close();

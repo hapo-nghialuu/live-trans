@@ -11,6 +11,7 @@ if (hash.has('access')) {
 let peer;
 let micUrl = '';
 let ended = false;
+let joined = false;
 let connectionError = '';
 
 function showPhone(event) {
@@ -31,8 +32,20 @@ function updateStatus(event) {
   $('pause-mic').disabled = !['listening', 'connecting'].includes(event.status);
 }
 
+function backToWelcome(message) {
+  ended = true;
+  peer?.close();
+  history.replaceState(null, '', `${location.pathname}${location.search}`);
+  $('session').hidden = true;
+  $('welcome').hidden = false;
+  $('join-code').value = '';
+  if (message) showNotice(message);
+  configure();
+}
+
 function onEvent(event) {
   if (event.type === 'snapshot') {
+    joined = true;
     connectionError = '';
     showNotice();
     $('reconnect').hidden = true;
@@ -44,20 +57,11 @@ function onEvent(event) {
   else if (event.type === 'interim') captions.setInterim(event.text);
   else if (event.type === 'error') {
     connectionError = event.message || 'Có lỗi xảy ra. Vui lòng thử lại.';
+    if (!joined) return backToWelcome(connectionError);
     showNotice(connectionError);
   }
   else if (event.type === 'closed') {
-    ended = true;
-    peer.close();
-    showStatus('closed', event.message);
-    showNotice('Phiên đã kết thúc. Mở trang chủ để tạo phiên mới.');
-    $('reconnect').hidden = true;
-    $('end-session').disabled = true;
-    $('pause-mic').disabled = true;
-    $('copy-link').disabled = true;
-    $('qr').hidden = true;
-    $('qr-loading').textContent = 'Phiên đã kết thúc';
-    $('qr-loading').hidden = false;
+    backToWelcome(event.message || 'Phiên đã kết thúc.');
   }
 }
 
