@@ -70,6 +70,7 @@ export default function App() {
   const [phase, setPhase] = useState<Phase>('idle');
   const [status, setStatus] = useState('idle');
   const [message, setMessage] = useState('Quét QR trên màn hình chính → sao chép liên kết → dán vào đây.');
+  const [noticeError, setNoticeError] = useState(false);
   const [interim, setInterim] = useState('');
   const [captions, setCaptions] = useState<Caption[]>([]);
   const socketRef = useRef<RoomSocket | undefined>(undefined);
@@ -85,11 +86,17 @@ export default function App() {
     clearTimeout(finishTimer.current);
   }, []);
 
+  const note = useCallback((text: string, error = false) => {
+    lastNotice.current = error ? text : '';
+    setMessage(text);
+    setNoticeError(error);
+  }, []);
+
   const halt = useCallback((notice?: string) => {
     stopAudio();
     setPhase('idle');
-    if (notice) { lastNotice.current = notice; setMessage(notice); }
-  }, [stopAudio]);
+    if (notice) note(notice, true);
+  }, [stopAudio, note]);
 
   const onEvent = useCallback((event: any) => {
     switch (event.type) {
@@ -99,10 +106,10 @@ export default function App() {
         setConnecting(false);
         setInterim(event.interim || '');
         if (Array.isArray(event.captions)) setCaptions(event.captions.slice(-30));
-        setStatus(event.status); if (event.message) setMessage(event.message);
+        setStatus(event.status); if (event.message) note(event.message);
         break;
       case 'status':
-        setStatus(event.status); if (event.message) setMessage(event.message);
+        setStatus(event.status); if (event.message) note(event.message);
         if (event.status === 'finishing') { stopAudio(); setPhase(p => (p === 'idle' ? p : 'finishing')); }
         else if (['paused', 'idle', 'ready', 'error'].includes(event.status)) {
           clearTimeout(finishTimer.current); stopAudio(); setPhase('idle');
@@ -151,37 +158,41 @@ export default function App() {
     const socket = new RoomSocket(parsed, onEvent, onState);
     socketRef.current = socket;
     socket.connect();
-    setMessage('Đang kết nối phiên…');
+    note('Đang kết nối phiên…');
   }, [onEvent, onState]);
-
-  const connect = useCallback(() => {
-    try {
-      const parsed = parseMicLink(linkText);
-      setServerBase(baseFromLink(linkText));
-      setSessionCode('');
-      openSocket(parsed);
-    } catch (e: any) {
-      setMessage(e.message || 'Liên kết không hợp lệ.');
-    }
-  }, [linkText, openSocket]);
 
   const joinByCode = useCallback(async (value: string) => {
     const digits = value.replace(/\D/g, '');
-    if (digits.length !== 6) return setMessage('Mã phiên gồm đúng 6 chữ số.');
-    setConnecting(true); setMessage('Đang kiểm tra mã phiên…');
+    if (digits.length !== 6) return note('Mã phiên gồm đúng 6 chữ số.', true);
+    setConnecting(true); note('Đang kiểm tra mã phiên…');
     try {
       const { url } = await lookupMicLink(serverBase, digits);
       setSessionCode(digits); setLinkText(url);
       openSocket(parseMicLink(url));
     } catch (e: any) {
-      setMessage(e.message || 'Không tìm thấy phiên. Kiểm tra lại mã và máy chủ.');
+      note(e.message || 'Không tìm thấy phiên. Kiểm tra lại mã và máy chủ.', true);
     } finally { setConnecting(false); }
   }, [serverBase, openSocket]);
 
+  const connect = useCallback(() => {
+    const input = linkText.trim();
+    if (!input && code.trim()) return void joinByCode(code);
+    if (!input) return note('Nhập mã 6 số, quét QR, hoặc dán liên kết mic trước.', true);
+    if (/^\d{4,8}$/.test(input)) { setCode(input); return void joinByCode(input); }
+    try {
+      const parsed = parseMicLink(input);
+      setServerBase(baseFromLink(input));
+      setSessionCode('');
+      openSocket(parsed);
+    } catch (e: any) {
+      note(e.message || 'Liên kết không hợp lệ.', true);
+    }
+  }, [linkText, code, joinByCode, openSocket]);
+
   const createNewSession = useCallback(async () => {
     const wanted = customCode.replace(/\D/g, '');
-    if (wanted && wanted.length !== 6) return setMessage('Mã phiên tự chọn cần đúng 6 chữ số, hoặc để trống để tự sinh.');
-    setCreating(true); setMessage('Đang tạo phiên mới…');
+    if (wanted && wanted.length !== 6) return note('Mã phiên tự chọn cần đúng 6 chữ số, hoặc để trống để tự sinh.', true);
+    setCreating(true); note('Đang tạo phiên mới…');
     try {
       const { code: newCode, micUrl } = await createSessionOnServer(serverBase, accessKey.trim(), wanted);
       setSessionCode(newCode); setLinkText(micUrl); setCustomCode('');
@@ -190,7 +201,7 @@ export default function App() {
       openSocket(parseMicLink(micUrl));
     } catch (e: any) {
       if (e.status === 401) setNeedsKey(true);
-      setMessage(e.message || 'Không tạo được phiên. Kiểm tra lại máy chủ.');
+      note(e.message || 'Không tạo được phiên. Kiểm tra lại máy chủ.', true);
     } finally { setCreating(false); }
   }, [accessKey, customCode, serverBase, openSocket]);
 
@@ -204,7 +215,7 @@ export default function App() {
       setSessionCode('');
       openSocket(parsed);
     } catch {
-      setMessage('Mã QR không phải của Live Trans. Hãy quét mã trên màn hình chính.');
+      note('Mã QR không phải của Live Trans. Hãy quét mã trên màn hình chính.', true);
     }
   }, [joinByCode, openSocket]);
 
@@ -219,7 +230,7 @@ export default function App() {
 
   const openScanner = useCallback(async () => {
     const granted = hasPermission || await requestPermission();
-    if (!granted) return setMessage('Chưa có quyền camera. Cấp quyền trong Cài đặt để quét mã QR.');
+    if (!granted) return note('Chưa có quyền camera. Cấp quyền trong Cài đặt để quét mã QR.', true);
     setScanning(true);
   }, [hasPermission, requestPermission]);
 
@@ -237,7 +248,7 @@ export default function App() {
   }, [link, onEvent, onState]);
 
   const start = useCallback(() => {
-    if (!socketRef.current?.open) return setMessage('Chưa kết nối. Hãy kết nối lại.');
+    if (!socketRef.current?.open) return note('Chưa kết nối. Hãy kết nối lại.', true);
     try {
       audioRef.current?.dispose();
       const socket = socketRef.current;
@@ -258,7 +269,7 @@ export default function App() {
     socketRef.current?.send({ type: 'stop' });
     finishTimer.current = setTimeout(() => {
       setPhase('idle');
-      setMessage('Chưa nhận được xác nhận dừng. Kết nối lại trước khi bắt đầu lượt mới.');
+      note('Chưa nhận được xác nhận dừng. Kết nối lại trước khi bắt đầu lượt mới.', true);
     }, 20000);
   }, [stopAudio]);
 
@@ -399,7 +410,7 @@ export default function App() {
           </View>
         )}
 
-        <Text style={styles.message}>{message}</Text>
+        <Text style={[styles.message, noticeError && styles.messageError]}>{message}</Text>
 
         {connected && (
           <View style={styles.micArea}>
@@ -562,6 +573,7 @@ const styles = StyleSheet.create({
   primaryBtnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
   btnDim: { opacity: 0.55 },
   pressed: { opacity: 0.7 },
+  messageError: { color: '#ff8a80' },
   message: { color: C.muted, fontSize: 13, lineHeight: 19, marginBottom: 4 },
   micArea: { alignItems: 'center', paddingVertical: 18 },
   micWrap: { width: 168, height: 168, alignItems: 'center', justifyContent: 'center' },
