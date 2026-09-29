@@ -86,11 +86,15 @@ export default function App() {
     clearTimeout(finishTimer.current);
   }, []);
 
+  const flash = useRef(new Animated.Value(1)).current;
+
   const note = useCallback((text: string, error = false) => {
     lastNotice.current = error ? text : '';
     setMessage(text);
     setNoticeError(error);
-  }, []);
+    flash.setValue(0.15);
+    Animated.timing(flash, { toValue: 1, duration: 350, useNativeDriver: true }).start();
+  }, [flash]);
 
   const halt = useCallback((notice?: string) => {
     stopAudio();
@@ -410,7 +414,10 @@ export default function App() {
           </View>
         )}
 
-        <Text style={[styles.message, noticeError && styles.messageError]}>{message}</Text>
+        <Animated.Text
+          style={[styles.message, noticeError && styles.messageError, { opacity: flash }]}>
+          {noticeError ? `Lỗi: ${message}` : message}
+        </Animated.Text>
 
         {connected && (
           <View style={styles.micArea}>
@@ -573,7 +580,10 @@ const styles = StyleSheet.create({
   primaryBtnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
   btnDim: { opacity: 0.55 },
   pressed: { opacity: 0.7 },
-  messageError: { color: '#ff8a80' },
+  messageError: {
+    color: '#ff8a80', backgroundColor: 'rgba(255,80,60,0.12)',
+    borderRadius: 10, paddingHorizontal: 12, paddingVertical: 9, overflow: 'hidden',
+  },
   message: { color: C.muted, fontSize: 13, lineHeight: 19, marginBottom: 4 },
   micArea: { alignItems: 'center', paddingVertical: 18 },
   micWrap: { width: 168, height: 168, alignItems: 'center', justifyContent: 'center' },

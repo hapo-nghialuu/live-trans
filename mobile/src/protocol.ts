@@ -87,7 +87,18 @@ export class RoomSocket {
     const ws = new WebSocket(this.link.socketUrl, null, { headers: { Origin: this.link.origin } });
     this.ws = ws;
     this.onState('connecting');
+    // iOS can swallow onclose after a failed handshake — force failure state
+    // so the UI never sits on "Đang kết nối…" forever.
+    const handshake = setTimeout(() => {
+      if (ws.readyState !== WebSocket.OPEN && this.ws === ws) {
+        this.disposed = true;
+        try { ws.close(); } catch {}
+        this.onEvent({ type: 'error', message: 'Không kết nối được tới máy chủ. Kiểm tra mạng và địa chỉ máy chủ.' });
+        this.onState('closed');
+      }
+    }, 12000);
     ws.onopen = () => {
+      clearTimeout(handshake);
       this.onState('open');
       ws.send(JSON.stringify({ type: 'join', room: this.link.room, role: 'mic', token: this.link.token }));
     };
@@ -100,6 +111,7 @@ export class RoomSocket {
     };
     ws.onerror = () => {};
     ws.onclose = () => {
+      clearTimeout(handshake);
       if (!this.disposed) this.onState('closed');
     };
   }
