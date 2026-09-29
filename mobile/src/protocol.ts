@@ -44,15 +44,18 @@ export async function lookupMicLink(baseUrl: string, code: string): Promise<Join
 }
 
 /** Create a new session on the server (same as the web "Tạo phiên" button). */
-export async function createSessionOnServer(baseUrl: string, accessKey: string): Promise<{ code: string; micUrl: string }> {
+export async function createSessionOnServer(baseUrl: string, accessKey = '', code = ''): Promise<{ code: string; micUrl: string }> {
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-  const response = await fetch(new URL('api/rooms', base).href, {
-    method: 'POST',
-    headers: { 'x-access-key': accessKey, Origin: new URL(base).origin },
-  });
+  const target = new URL('api/rooms', base);
+  if (code) target.searchParams.set('code', code);
+  const headers: Record<string, string> = { Origin: new URL(base).origin };
+  if (accessKey) headers['x-access-key'] = accessKey;
+  const response = await fetch(target.href, { method: 'POST', headers });
   const data: any = await response.json().catch(() => ({}));
   if (!response.ok || typeof data.micUrl !== 'string') {
-    throw new Error(data.error || 'Không tạo được phiên. Kiểm tra lại mã truy cập.');
+    const error = new Error(data.error || 'Không tạo được phiên.') as Error & { status?: number };
+    error.status = response.status;
+    throw error;
   }
   return { code: data.code, micUrl: data.micUrl };
 }

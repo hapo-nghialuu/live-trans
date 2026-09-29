@@ -7,7 +7,8 @@ Tài liệu: [tổng quan](docs/project-overview-pdr.md) · [kiến trúc](docs/
 
 ## Sử dụng
 
-1. Trên máy tính, mở app, nhập mã truy cập rồi chọn **Tạo phiên dịch**.
+1. Trên máy tính mở app chọn **Tạo phiên mới** (có thể tự chọn mã 6 số,
+   để trống thì tự sinh), hoặc tạo ngay từ app điện thoại.
 2. Trên điện thoại, mở app Live Trans → **Quét mã QR** hoặc nhập **mã phiên 6 số**
    (hiển thị dưới QR). Chọn **Bắt đầu**, cho phép dùng micro.
 3. Giữ màn hình điện thoại mở và nói tiếng Việt, ngắt ngắn giữa các câu.
@@ -34,7 +35,7 @@ Các biến cấu hình:
 |---|---|
 | `GOOGLE_API_KEY` | Gemini key chỉ dùng trên backend |
 | `GOOGLE_API_KEY_FILE` | Thay thế key trực tiếp; file phải chứa đúng một key |
-| `APP_ACCESS_KEY` | Mã riêng để tạo phiên; production yêu cầu ít nhất 24 ký tự |
+| `APP_ACCESS_KEY` | Tùy chọn — khoá việc tạo phiên (≥24 ký tự); bỏ trống = ai cũng tạo được (đã giới hạn 30 phiên/giờ/IP) |
 | `PUBLIC_URL` | URL HTTPS đầy đủ, gồm base path và dấu `/` cuối |
 | `PUBLIC_ALIASES` | Tên miền HTTPS bổ sung ở đường dẫn gốc, phân cách bằng dấu phẩy |
 | `PORT` | Cổng loopback, mặc định `4317` |

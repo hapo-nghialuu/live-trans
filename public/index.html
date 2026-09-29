@@ -29,6 +29,10 @@
               <label for="access-key">Mã truy cập</label>
               <input id="access-key" type="password" autocomplete="off" placeholder="Nhập mã để tạo phiên" spellcheck="false">
             </div>
+            <div class="field">
+              <label for="session-code-pick">Mã phiên 6 số <span class="helper">(tùy chọn — để trống tự sinh)</span></label>
+              <input id="session-code-pick" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="Ví dụ: 123456" autocomplete="off" spellcheck="false">
+            </div>
             <button id="create-button" class="primary" type="submit" disabled>Tạo phiên mới <span aria-hidden="true">↗</span></button>
             <p id="config-note" class="helper">Đang kiểm tra kết nối…</p>
           </form>

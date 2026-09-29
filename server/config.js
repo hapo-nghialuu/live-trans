@@ -17,8 +17,8 @@ export function loadConfig(env = process.env) {
     return alias.href;
   });
   const accessKey = env.APP_ACCESS_KEY || '';
-  if (env.NODE_ENV === 'production' && accessKey.length < 24) {
-    throw new Error('Production yêu cầu APP_ACCESS_KEY ít nhất 24 ký tự.');
+  if (accessKey && accessKey.length < 24) {
+    throw new Error('APP_ACCESS_KEY cần ít nhất 24 ký tự (hoặc bỏ trống để mở tạo phiên).');
   }
   return { port, apiKey, accessKey, publicUrl: publicUrl.href, publicAliases,
     origins: new Set([publicUrl.origin, ...publicAliases.map(u => new URL(u).origin), `http://localhost:${port}`, `http://127.0.0.1:${port}`]),

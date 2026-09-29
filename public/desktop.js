@@ -98,13 +98,22 @@ $('create-form').addEventListener('submit', async (event) => {
   $('create-button').textContent = 'Đang tạo phiên…';
   showNotice();
   accessKey = $('access-key').value || accessKey;
+  const wanted = $('session-code-pick').value.replace(/\D/g, '');
+  if (wanted && wanted.length !== 6) {
+    $('create-button').disabled = false;
+    $('create-button').textContent = 'Tạo phiên mới ↗';
+    return showNotice('Mã phiên tự chọn cần đúng 6 chữ số, hoặc để trống để tự sinh.');
+  }
   try {
-    const response = await fetch('api/rooms', {
+    const response = await fetch(`api/rooms${wanted ? `?code=${wanted}` : ''}`, {
       method: 'POST', headers: accessKey ? { 'x-access-key': accessKey } : {},
       signal: AbortSignal.timeout(15000),
     });
     const result = await response.json();
-    if (!response.ok) throw new Error(result.error || 'Không tạo được phiên. Vui lòng thử lại.');
+    if (!response.ok) {
+      if (response.status === 401) $('access-field').hidden = false;
+      throw new Error(result.error || 'Không tạo được phiên. Vui lòng thử lại.');
+    }
     if (!result.room || !result.token) throw new Error('Máy chủ trả về phiên không hợp lệ.');
     $('access-key').value = '';
     const roomHash = new URLSearchParams({ room: result.room, token: result.token });
@@ -113,7 +122,6 @@ $('create-form').addEventListener('submit', async (event) => {
     openRoom({ room: result.room, token: result.token });
   } catch (error) {
     showNotice(error.message);
-    $('access-field').hidden = false;
     $('create-button').disabled = false;
     $('create-button').textContent = 'Tạo phiên mới ↗';
   }

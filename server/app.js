@@ -17,6 +17,7 @@ export function createApp(config) {
   const base = new URL(config.publicUrl).pathname;
   let attempts = 0, reset = Date.now();
   const joinAttempts = new Map();
+  const createAttempts = new Map();
   const server = createServer(async (req, res) => {
     const json = (status, value) => {
       res.writeHead(status, { ...headers, 'Content-Type': 'application/json; charset=utf-8' });
@@ -30,6 +31,10 @@ export function createApp(config) {
       if (path === '/api/rooms' && req.method === 'POST') {
         req.resume();
         if (!config.origins.has(req.headers.origin)) return json(403, { error: 'Nguồn yêu cầu không hợp lệ.' });
+        const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || '';
+        let createBucket = createAttempts.get(ip);
+        if (!createBucket || Date.now() - createBucket.reset > 3600000) { createBucket = { reset: Date.now(), count: 0 }; createAttempts.set(ip, createBucket); }
+        if (++createBucket.count > 30) return json(429, { error: 'Tạo quá nhiều phiên. Vui lòng đợi rồi thử lại.' });
         if (Date.now() - reset > 60000) { reset = Date.now(); attempts = 0; }
         if (++attempts > 20) return json(429, { error: 'Quá nhiều lần thử. Vui lòng đợi một phút.' });
         if (config.accessKey && !equalSecret(req.headers['x-access-key'], config.accessKey)) {
@@ -37,7 +42,8 @@ export function createApp(config) {
         }
         if (!config.apiKey) return json(503, { error: 'Máy chủ chưa được cấu hình Gemini key.' });
         const publicUrl = config.publicAliases?.find(u => new URL(u).origin === req.headers.origin) || config.publicUrl;
-        try { return json(201, await rooms.create(publicUrl)); }
+        const requested = new URL(req.url, 'http://localhost').searchParams.get('code') || '';
+        try { return json(201, await rooms.create(publicUrl, requested.trim())); }
         catch (error) { return json(409, { error: error.message }); }
       }
       if (path === '/api/join' && req.method === 'GET') {

@@ -58,6 +58,8 @@ export default function App() {
   const [code, setCode] = useState('');
   const [serverBase, setServerBase] = useState('https://live.hapo.work/');
   const [accessKey, setAccessKey] = useState('');
+  const [needsKey, setNeedsKey] = useState(false);
+  const [customCode, setCustomCode] = useState('');
   const [sessionCode, setSessionCode] = useState('');
   const [creating, setCreating] = useState(false);
   const [scanning, setScanning] = useState(false);
@@ -177,18 +179,20 @@ export default function App() {
   }, [serverBase, openSocket]);
 
   const createNewSession = useCallback(async () => {
-    if (!accessKey.trim()) return setMessage('Nhập mã truy cập để tạo phiên mới.');
+    const wanted = customCode.replace(/\D/g, '');
+    if (wanted && wanted.length !== 6) return setMessage('Mã phiên tự chọn cần đúng 6 chữ số, hoặc để trống để tự sinh.');
     setCreating(true); setMessage('Đang tạo phiên mới…');
     try {
-      const { code: newCode, micUrl } = await createSessionOnServer(serverBase, accessKey.trim());
-      setSessionCode(newCode); setLinkText(micUrl);
-      AsyncStorage.setItem('lt_accessKey', accessKey.trim()).catch(() => {});
+      const { code: newCode, micUrl } = await createSessionOnServer(serverBase, accessKey.trim(), wanted);
+      setSessionCode(newCode); setLinkText(micUrl); setCustomCode('');
       AsyncStorage.setItem('lt_serverBase', serverBase).catch(() => {});
+      if (accessKey.trim()) AsyncStorage.setItem('lt_accessKey', accessKey.trim()).catch(() => {});
       openSocket(parseMicLink(micUrl));
     } catch (e: any) {
-      setMessage(e.message || 'Không tạo được phiên. Kiểm tra lại mã truy cập và máy chủ.');
+      if (e.status === 401) setNeedsKey(true);
+      setMessage(e.message || 'Không tạo được phiên. Kiểm tra lại máy chủ.');
     } finally { setCreating(false); }
-  }, [accessKey, serverBase, openSocket]);
+  }, [accessKey, customCode, serverBase, openSocket]);
 
   const handleScanned = useCallback((raw: string) => {
     const value = raw.trim();
@@ -372,17 +376,25 @@ export default function App() {
           <View style={styles.card}>
             <Text style={styles.label}>Tạo phiên mới trên máy chủ</Text>
             <TextInput
-              style={styles.input} value={accessKey} onChangeText={setAccessKey}
-              placeholder="Mã truy cập máy chủ" placeholderTextColor={C.muted}
-              autoCapitalize="none" autoCorrect={false} secureTextEntry editable={!creating}
+              style={styles.codeInput} value={customCode}
+              onChangeText={v => setCustomCode(v.replace(/\D/g, '').slice(0, 6))}
+              placeholder="Mã phiên tùy chọn — để trống tự sinh" placeholderTextColor={C.muted}
+              keyboardType="number-pad" maxLength={6} editable={!creating}
             />
+            {needsKey && (
+              <TextInput
+                style={[styles.input, { marginTop: 8 }]} value={accessKey} onChangeText={setAccessKey}
+                placeholder="Mã truy cập máy chủ (bắt buộc)" placeholderTextColor={C.muted}
+                autoCapitalize="none" autoCorrect={false} secureTextEntry editable={!creating}
+              />
+            )}
             <Pressable
               style={({ pressed }) => [styles.primaryBtn, (creating || pressed) && styles.btnDim]}
               onPress={createNewSession} disabled={creating}>
               <Text style={styles.primaryBtnText}>{creating ? 'Đang tạo…' : 'Tạo phiên mới'}</Text>
             </Pressable>
             <Text style={styles.createHint}>
-              App tự vào vai trò mic. Đọc mã 6 số cho người ở màn hình web nhập vào để xem phụ đề.
+              Bấm là tạo luôn — app tự vào vai trò mic. Đọc mã 6 số cho người ở màn hình web nhập vào để xem phụ đề.
             </Text>
           </View>
         )}

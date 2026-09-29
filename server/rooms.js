@@ -20,16 +20,26 @@ export class Rooms {
     this.config = config;
     this.rooms = new Map();
     this.sweep = setInterval(() => {
-      for (const room of this.rooms.values()) if (room.expires < Date.now()) this.end(room, 'Phiên đã hết hạn.');
+      const now = Date.now();
+      for (const room of this.rooms.values()) {
+        if (room.expires < now) this.end(room, 'Phiên đã hết hạn.');
+        else if (!room.mic && !room.session && room.created + 15 * 60 * 1000 < now) this.end(room, 'Phiên chờ quá lâu không có điện thoại.');
+      }
     }, 30000).unref();
   }
-  async create(publicUrl = this.config.publicUrl) {
+  async create(publicUrl = this.config.publicUrl, code = '') {
     if (this.rooms.size >= 3) throw new Error('Đang có 3 phiên. Hãy kết thúc một phiên trước.');
     const room = { id: randomBytes(9).toString('base64url'), viewerToken: token(), micToken: token(),
       viewers: new Set(), mic: null, status: 'waiting', message: 'Quét QR bằng điện thoại để kết nối.',
-      captions: [], interim: '', sequence: 0, expires: Date.now() + 2 * 60 * 60 * 1000 };
-    do room.code = String(randomInt(0, 1000000)).padStart(6, '0');
-    while ([...this.rooms.values()].some(r => r.code === room.code));
+      captions: [], interim: '', sequence: 0, created: Date.now(), expires: Date.now() + 2 * 60 * 60 * 1000 };
+    if (code) {
+      if (!/^\d{6}$/.test(code)) throw new Error('Mã phiên cần đúng 6 chữ số.');
+      if ([...this.rooms.values()].some(r => r.code === code)) {
+        const error = new Error('Mã phiên đang được dùng. Chọn số khác.'); error.conflict = true; throw error;
+      }
+      room.code = code;
+    } else do room.code = String(randomInt(0, 1000000)).padStart(6, '0');
+      while ([...this.rooms.values()].some(r => r.code === room.code));
     const url = new URL('mic.html', publicUrl);
     url.hash = new URLSearchParams({ room: room.id, token: room.micToken }).toString();
     room.micUrl = url.href;

@@ -140,6 +140,17 @@ test('numeric session code resolves to mic link, wrong codes are rejected and ra
   for (let i = 0; i < 29; i++) await fetch(`${origin}/api/join?code=${100000 + i}`);
   assert.equal((await fetch(`${origin}/api/join?code=${created.code}`)).status, 429);
 });
+test('custom session code is used when free, conflicts rejected', async t => {
+  const { origin, config } = await setup(t);
+  const create = code => fetch(`${origin}/api/rooms${code ? `?code=${code}` : ''}`, { method: 'POST',
+    headers: { Origin: origin, 'x-access-key': config.accessKey } });
+  const first = await create('424242');
+  assert.equal(first.status, 201);
+  assert.equal((await first.json()).code, '424242');
+  assert.equal((await create('424242')).status, 409);
+  assert.equal((await create('12345')).status, 409);
+  assert.equal((await create('777777')).status, 201);
+});
 test('approved alias creates microphone link on that HTTPS hostname only', async t => {
   const { origin, config } = await setup(t);
   config.publicAliases = ['https://live.example/'];
