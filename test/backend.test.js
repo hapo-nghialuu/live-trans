@@ -231,6 +231,53 @@ test('deepgram transcriber maps metadata/results into ready/interim/final callba
   assert.deepEqual(events, ['ready', 'i:xin chào', 'f:xin chào mọi người']);
   asr.close(); wss.close();
 });
+async function until(fn, ms = 3000) {
+  const began = Date.now();
+  while (!fn() && Date.now() - began < ms) await new Promise(r => setTimeout(r, 15));
+  assert.ok(fn(), 'timed out waiting for condition');
+}
+async function fakeDeepgramRoom(t, options = {}) {
+  const upstream = new WebSocketServer({ port: 0, host: '127.0.0.1' });
+  t.after(() => upstream.close());
+  const conns = [];
+  upstream.on('connection', ws => { ws.received = []; ws.on('message', d => ws.received.push(d)); conns.push(ws); });
+  const { origin, rooms, config } = await setup(t);
+  config.deepgramKey = 'dg-test';
+  config.deepgramUrl = `ws://127.0.0.1:${upstream.address().port}/v1/listen`;
+  const created = await rooms.create(undefined, '', 'deepgram');
+  const room = rooms.rooms.get(created.room);
+  const micToken = new URLSearchParams(new URL(created.micUrl).hash.slice(1)).get('token');
+  const viewer = await socket(origin, { type: 'join', room: created.room, role: 'viewer', token: created.token });
+  const mic = await socket(origin, { type: 'join', room: created.room, role: 'mic', token: micToken });
+  mic.ws.send(JSON.stringify({ type: 'start' }));
+  await until(() => room.status === 'listening' && conns.length === 1);
+  return { conns, room, mic, viewer, rooms };
+}
+test('upstream reconnects after unexpected close without pausing the room', async t => {
+  const { conns, room, mic } = await fakeDeepgramRoom(t);
+  assert.ok(mic.events.some(e => e.type === 'ready' && e.maxMinutes === 0));
+  conns[0].terminate();
+  await until(() => conns.length === 2);   // retry ~800ms
+  await until(() => room.session?.asr && !room.session.asr.closed);
+  assert.equal(room.session.failures, 0);  // reset sau ready
+  assert.equal(room.status, 'listening');
+  assert.ok(!mic.events.some(e => e.status === 'paused'));
+  mic.ws.send(Buffer.alloc(320, 1));
+  await until(() => conns[1].received.some(d => Buffer.isBuffer(d) && d.length === 320));
+});
+test('asr rotation swaps upstream connections without re-announcing to the mic', async t => {
+  const { conns, room, mic, rooms } = await fakeDeepgramRoom(t);
+  const first = room.session.asr;
+  rooms.connectAsr(room, room.session);    // giả lập timer xoay 8.5 phút
+  await until(() => conns.length === 2 && room.session.asr !== first);
+  assert.equal(room.session.pending, null);
+  assert.equal(room.session.chain, 1);
+  assert.equal(first.closed, true);        // session cũ được đóng sau khi swap
+  assert.equal(mic.events.filter(e => e.type === 'ready').length, 1);
+  mic.ws.send(Buffer.alloc(320, 2));
+  await until(() => conns[1].received.some(d => Buffer.isBuffer(d) && d.length === 320));
+  assert.ok(!conns[0].received.some(d => Buffer.isBuffer(d)));
+});
 test('deepgram transcriber is ready on open without waiting for an upstream frame', async () => {
   // Deepgram thật không gửi gì khi chưa có audio, còn mic chỉ thu sau khi nhận ready.
   const wss = new WebSocketServer({ port: 0, host: '127.0.0.1' });

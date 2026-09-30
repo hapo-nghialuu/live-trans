@@ -102,39 +102,71 @@ export class Rooms {
   start(room) {
     if (room.session || !room.mic) return;
     if (!room.viewers.size) return send(room.mic, { type: 'error', message: 'Hãy mở màn hình phụ đề trước khi thu âm.' });
-    const identity = {};
+    const identity = { chain: 0, announced: false, failures: 0, stopping: false };
     room.session = identity; room.interim = '';
     room.audioBytes = 0; room.audioWindow = Date.now();
     this.status(room, 'connecting', 'Đang kết nối nhận giọng nói…');
-    const current = () => room.session === identity && this.rooms.has(room.id);
-    const ASR = room.provider === 'deepgram' ? DeepgramTranscriber : Transcriber;
     console.log(`[room ${room.code}] start asr=${room.provider} viewers=${room.viewers.size}`);
-    identity.asr = new ASR(this.config, {
+    this.connectAsr(room, identity);
+  }
+  // Mở một upstream ASR mới. Nếu session cũ còn sống (xoay Gemini trước giới hạn 10 phút),
+  // cái mới đi vào `pending` và chỉ nhận quyền khi ready — audio chảy liên tục, không mất lời.
+  connectAsr(room, identity) {
+    const current = () => room.session === identity && this.rooms.has(room.id);
+    const retry = delay => {
+      clearTimeout(identity.retryTimer);
+      identity.retryTimer = setTimeout(() => { if (current() && !identity.stopping) this.connectAsr(room, identity); }, delay).unref();
+    };
+    const ASR = room.provider === 'deepgram' ? DeepgramTranscriber : Transcriber;
+    const asr = new ASR(this.config, {
       ready: () => {
-        if (!current()) return;
-        this.status(room, 'listening', 'Đang nghe tiếng Việt');
-        send(room.mic, { type: 'ready', provider: room.provider, maxMinutes: room.provider === 'gemini' ? 9 : 0 });
+        if (!current()) return asr.close();
+        if (identity.pending === asr) {
+          const prev = identity.asr;
+          identity.asr = asr; identity.pending = null;
+          prev?.close();
+          console.log(`[room ${room.code}] asr chained #${++identity.chain}`);
+        }
+        identity.failures = 0;
+        if (!identity.announced) {
+          identity.announced = true;
+          this.status(room, 'listening', 'Đang nghe tiếng Việt');
+          send(room.mic, { type: 'ready', provider: room.provider, maxMinutes: 0 });
+        }
+        if (room.provider === 'gemini') {
+          clearTimeout(identity.rotate);
+          identity.rotate = setTimeout(() => this.connectAsr(room, identity), 8.5 * 60 * 1000).unref();
+        }
       },
       interim: text => {
-        if (!current()) return;
+        if (!current() || identity.asr !== asr) return;
         room.interim = text.slice(0, 4000);
         this.broadcast(room, { type: 'interim', text: room.interim });
       },
-      final: text => { if (current()) this.final(room, text); },
-      error: message => { if (current()) this.broadcast(room, { type: 'error', message }); },
+      final: text => { if (current() && identity.asr === asr) this.final(room, text); },
+      error: message => { identity.lastError = message; },
       closed: () => {
         if (!current()) return;
-        clearTimeout(identity.limit); room.session = null; room.interim = '';
-        this.broadcast(room, { type: 'interim', text: '' });
-        this.status(room, 'paused', 'Đã dừng thu âm. Có thể bấm bắt đầu để tiếp tục.');
+        if (identity.pending === asr) {
+          identity.pending = null;
+          if (identity.asr && !identity.stopping && ++identity.failures <= 3) retry(3000);
+          return;
+        }
+        if (identity.asr !== asr) return;
+        identity.asr = null;
+        clearTimeout(identity.rotate);
+        const pause = message => {
+          room.session = null; room.interim = '';
+          this.broadcast(room, { type: 'interim', text: '' });
+          this.status(room, 'paused', message);
+        };
+        if (identity.stopping) return pause('Đã dừng thu âm. Có thể bấm bắt đầu để tiếp tục.');
+        console.log(`[room ${room.code}] asr closed unexpectedly, reconnecting (${identity.failures + 1})`);
+        if (++identity.failures > 3) return pause(identity.lastError || 'Kết nối nhận giọng nói bị gián đoạn. Bấm bắt đầu để thử lại.');
+        retry(800);
       }
     });
-    if (room.provider === 'gemini') identity.limit = setTimeout(() => {
-      if (!current()) return;
-      console.log(`[room ${room.code}] stop: gemini 9-minute limit`);
-      this.broadcast(room, { type: 'error', message: 'Đã thu 9 phút. Bấm bắt đầu để mở lượt thu mới.' });
-      this.stop(room);
-    }, 9 * 60 * 1000).unref();
+    if (identity.asr) identity.pending = asr; else identity.asr = asr;
   }
   audio(room, data) {
     if (!room.session) return;
@@ -142,12 +174,17 @@ export class Rooms {
     if (Date.now() - room.audioWindow >= 1000) { room.audioWindow = Date.now(); room.audioBytes = 0; }
     room.audioBytes += data.length;
     if (room.audioBytes > 96000) throw new Error('Âm thanh gửi quá nhanh. Hãy kết nối lại.');
-    room.session.asr.audio(data);
+    room.session.asr?.audio(data);
   }
   stop(room) {
-    if (!room.session || room.session.asr.stopping) return;
+    const s = room.session;
+    if (!s || s.stopping || s.asr?.stopping) return;
+    s.stopping = true;
+    clearTimeout(s.rotate); clearTimeout(s.retryTimer);
     this.status(room, 'finishing', 'Đã tắt mic. Đang hoàn tất câu cuối…');
-    room.session.asr.stop();
+    s.pending?.close();
+    if (s.asr) s.asr.stop();
+    else { room.session = null; this.status(room, 'paused', 'Đã dừng thu âm. Có thể bấm bắt đầu để tiếp tục.'); }
   }
   final(room, text) {
     const vi = text.trim();
@@ -170,8 +207,10 @@ export class Rooms {
   }
   end(room, message = 'Phiên dịch đã kết thúc.') {
     if (!this.rooms.delete(room.id)) return;
-    clearTimeout(room.noViewerTimer); clearTimeout(room.session?.limit);
-    room.queue.close(); room.session?.asr.close();
+    clearTimeout(room.noViewerTimer);
+    const s = room.session;
+    if (s) { clearTimeout(s.rotate); clearTimeout(s.retryTimer); s.stopping = true; }
+    room.queue.close(); s?.pending?.close(); s?.asr?.close();
     this.broadcast(room, { type: 'closed', message });
     for (const ws of [...room.viewers, room.mic].filter(Boolean)) ws.close(1000, 'Room closed');
   }
