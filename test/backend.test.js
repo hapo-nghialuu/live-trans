@@ -231,3 +231,23 @@ test('deepgram transcriber maps metadata/results into ready/interim/final callba
   assert.deepEqual(events, ['ready', 'i:xin chào', 'f:xin chào mọi người']);
   asr.close(); wss.close();
 });
+test('deepgram transcriber is ready on open without waiting for an upstream frame', async () => {
+  // Deepgram thật không gửi gì khi chưa có audio, còn mic chỉ thu sau khi nhận ready.
+  const wss = new WebSocketServer({ port: 0, host: '127.0.0.1' });
+  await new Promise(resolve => wss.once('listening', resolve));
+  const received = [];
+  wss.on('connection', ws => ws.on('message', data => received.push(data)));
+  const events = [];
+  const asr = new DeepgramTranscriber({ deepgramUrl: `ws://127.0.0.1:${wss.address().port}/v1/listen`,
+    deepgramKey: 'dg-test', deepgramModel: 'nova-3' }, {
+    ready: () => events.push('ready'), interim: () => {}, final: () => {},
+    error: message => events.push(`e:${message}`), closed: () => events.push('closed'),
+  });
+  await new Promise(resolve => setTimeout(resolve, 300));
+  assert.deepEqual(events, ['ready']);
+  asr.audio(Buffer.alloc(320, 1));
+  await new Promise(resolve => setTimeout(resolve, 100));
+  assert.equal(received.length, 1);
+  assert.equal(received[0].length, 320);
+  asr.close(); wss.close();
+});

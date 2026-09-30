@@ -13,26 +13,26 @@ export class DeepgramTranscriber {
       smart_format: 'true', endpointing: '400', vad_events: 'true', utterance_end_ms: '1000' }).toString();
     this.ws = new WebSocket(url, { headers: { authorization: `Token ${config.deepgramKey}` },
       handshakeTimeout: 10000, maxPayload: 1024 * 1024 });
-    this.ws.on('open', () => console.log('[deepgram] upstream open'));
     this.ws.on('unexpected-response', (req, res) => console.error(`[deepgram] http ${res.statusCode}`));
-    // Deepgram đóng nếu ~12s không nhận data, nhưng frame đầu có thể mất ~13s —
-    // đẩy silence PCM giữ kết nối trong lúc chờ (text KeepAlive sớm sẽ chặn frame đầu).
-    this.warmup = setInterval(() => {
-      if (this.ws.readyState === WebSocket.OPEN && !this.ready) this.ws.send(Buffer.alloc(3200));
-    }, 1000).unref();
     this.timeout = setTimeout(() => this.fail('Không kết nối được dịch vụ nhận giọng nói.'), 20000);
+    // Deepgram không gửi frame nào khi mở (Metadata chỉ đến sau CloseStream, Results cần ~1s audio),
+    // nên stream sẵn sàng ngay khi WS mở. Deepgram đóng sau ~10s không có audio — KeepAlive
+    // chỉ gửi khi mic đang im, ví dụ lúc điện thoại còn chờ quyền micro.
+    this.ws.on('open', () => {
+      console.log('[deepgram] upstream open');
+      clearTimeout(this.timeout);
+      this.ready = true;
+      this.lastAudio = Date.now();
+      this.keepalive = setInterval(() => {
+        if (Date.now() - this.lastAudio >= 4000) this.send({ type: 'KeepAlive' });
+      }, 4000).unref();
+      if (!this.stopping) callbacks.ready();
+    });
     this.ws.on('message', (data, isBinary) => {
       if (this.closed || isBinary) return;
       try {
         const event = JSON.parse(data.toString());
         if (event.type === 'Error' || event.err_code) return this.fail('Dịch vụ nhận giọng nói đang không khả dụng.');
-        // Frame đầu tiên có thể là Metadata hoặc Results — cả hai đều báo stream đã sẵn sàng.
-        if (!this.ready) {
-          clearTimeout(this.timeout); clearInterval(this.warmup);
-          this.ready = true;
-          this.keepalive = setInterval(() => this.send({ type: 'KeepAlive' }), 8000).unref();
-          if (!this.stopping) callbacks.ready();
-        }
         if (event.type === 'Results') {
           const text = String(event.channel?.alternatives?.[0]?.transcript || '').trim();
           if (!text) return;
@@ -57,6 +57,7 @@ export class DeepgramTranscriber {
   audio(buffer) {
     if (!this.ready || this.closed || this.stopping) return;
     if (this.ws.bufferedAmount > 128000) return this.fail('Kết nối chậm. Thu âm đã dừng để tránh mất lời nói.');
+    this.lastAudio = Date.now();
     this.ws.send(buffer);
   }
   flush() {
@@ -78,7 +79,7 @@ export class DeepgramTranscriber {
   close() {
     if (this.closed) return;
     this.closed = true;
-    clearTimeout(this.timeout); clearTimeout(this.drainTimer); clearInterval(this.keepalive); clearInterval(this.warmup);
+    clearTimeout(this.timeout); clearTimeout(this.drainTimer); clearInterval(this.keepalive);
     if (this.ws.readyState === WebSocket.OPEN) this.ws.close();
     else if (this.ws.readyState === WebSocket.CONNECTING) this.ws.terminate();
     this.flush();
