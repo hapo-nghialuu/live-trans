@@ -231,6 +231,28 @@ test('deepgram transcriber maps metadata/results into ready/interim/final callba
   assert.deepEqual(events, ['ready', 'i:xin chào', 'f:xin chào mọi người']);
   asr.close(); wss.close();
 });
+test('translate falls back to the secondary model after a quota 429 and skips the exhausted model', async t => {
+  const { translate } = await import('../server/translation.js');
+  const calls = [];
+  const original = globalThis.fetch;
+  t.after(() => { globalThis.fetch = original; });
+  globalThis.fetch = async url => {
+    calls.push(String(url));
+    if (String(url).includes('quota-dead-model')) {
+      return new Response(JSON.stringify({ error: { code: 429,
+        details: [{ '@type': 'type.googleapis.com/google.rpc.RetryInfo', retryDelay: '120s' }] } }), { status: 429 });
+    }
+    return new Response(JSON.stringify({ candidates: [{ finishReason: 'STOP',
+      content: { parts: [{ text: '{"en":"hi","ja":"やあ"}' }] } }] }), { status: 200 });
+  };
+  const config = { apiKey: 'k', translateModel: 'quota-dead-model', translateFallbackModel: 'backup-model' };
+  const run = () => translate(config, 'xin chào', '', new AbortController().signal);
+  assert.deepEqual(await run(), { en: 'hi', ja: 'やあ' });
+  assert.equal(calls.length, 2);
+  await run();
+  assert.equal(calls.length, 3);                    // model hết quota bị bỏ qua, không thử lại
+  assert.ok(calls.every(u => !u.includes('quota-dead-model') || u === calls[0]));
+});
 async function until(fn, ms = 3000) {
   const began = Date.now();
   while (!fn() && Date.now() - began < ms) await new Promise(r => setTimeout(r, 15));

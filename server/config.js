@@ -44,5 +44,6 @@ export function loadConfig(env = process.env) {
   return { port, apiKey, deepgramKey, provider, accessKey, settingsFile, publicUrl: publicUrl.href, publicAliases,
     origins: new Set([publicUrl.origin, ...publicAliases.map(u => new URL(u).origin), `http://localhost:${port}`, `http://127.0.0.1:${port}`]),
     transcribeModel: 'gemini-3.5-transcribe-live', translateModel: 'gemini-3.5-flash-lite',
+    translateFallbackModel: env.TRANSLATE_FALLBACK_MODEL || 'gemini-3.1-flash-lite',
     deepgramModel: env.DEEPGRAM_MODEL || 'nova-3', deepgramUrl: env.DEEPGRAM_URL || 'wss://api.deepgram.com/v1/listen' };
 }
