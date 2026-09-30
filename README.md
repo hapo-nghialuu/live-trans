@@ -12,8 +12,9 @@ Tài liệu: [tổng quan](docs/project-overview-pdr.md) · [kiến trúc](docs/
 2. Trên điện thoại, mở app Live Trans → **Quét mã QR** hoặc nhập **mã phiên 6 số**
    (hiển thị dưới QR). Chọn **Bắt đầu**, cho phép dùng micro.
 3. Giữ màn hình điện thoại mở và nói tiếng Việt, ngắt ngắn giữa các câu.
-4. Trên web bấm **Trình chiếu**: nền trắng, phụ đề Anh phía trên và Nhật phía dưới.
-   Bản dịch trước được giữ khi MC đang nói câu mới; đoạn dài tự chia trang.
+4. Trên web bấm **Trình chiếu**: nền trắng, phụ đề Anh bên trái và Nhật bên phải.
+   Mỗi cột giữ tối đa 30 câu dịch và tự cuộn đến câu mới nhất. Có thể cuộn lại
+   để đọc câu cũ; lời đang nhận dạng không kéo vị trí cuộn.
    Nhấn **Esc** hoặc **Thoát trình chiếu** để trở lại điều khiển.
    Lời gốc tiếng Việt và câu trước nằm trong mục mở rộng.
 5. **Dừng** tắt mic và hoàn tất câu cuối. **Kết thúc phiên** thu hồi liên kết phòng.

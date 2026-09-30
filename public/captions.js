@@ -30,12 +30,13 @@ export class Captions {
     const listening = Boolean(this.interim);
     for (const lang of ['en', 'ja']) {
       const node = $(`caption-${lang}`);
-      // Keep the last available translation visible while the next sentence arrives.
-      const translated = this.items.findLast(item => item[lang])?.[lang];
+      // Show retained translations in speaking order, including earlier sentences.
+      const translated = this.items.filter(item => item[lang]).map(item => item[lang]).join('\n\n');
       const empty = lang === 'en' ? 'Waiting for the speaker…' : '開始までお待ちください…';
       const pending = lang === 'en' ? 'Preparing captions…' : '字幕を準備しています…';
       const error = lang === 'en' ? 'Translation temporarily unavailable.' : '翻訳は一時的に利用できません。';
-      node.textContent = translated || (latest?.status === 'error' ? error : latest || listening ? pending : empty);
+      const content = translated || (latest?.status === 'error' ? error : latest || listening ? pending : empty);
+      if (node.textContent !== content) node.textContent = content;
       node.classList.toggle('empty', !translated);
     }
     const failed = latest?.status === 'error';

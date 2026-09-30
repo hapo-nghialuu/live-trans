@@ -37,8 +37,8 @@ test('previous translation remains readable during new speech and translation', 
   assert.equal(text('caption-en'), 'Welcome, everyone.');
   assert.equal(nodes.get('caption-progress').hidden, false);
   captions.update({ id: 2, vi: 'Cảm ơn đã đến', en: 'Thank you for joining us.', ja: 'ご参加ありがとうございます。', status: 'done' });
-  assert.equal(text('caption-en'), 'Thank you for joining us.');
-  assert.equal(text('caption-ja'), 'ご参加ありがとうございます。');
+  assert.equal(text('caption-en'), 'Welcome, everyone.\n\nThank you for joining us.');
+  assert.equal(text('caption-ja'), '皆さま、ようこそ。\n\nご参加ありがとうございます。');
   assert.equal(nodes.get('caption-progress').hidden, true);
 });
 
@@ -50,4 +50,16 @@ test('failed translation retains earlier text and displays an audience error', t
   assert.equal(text('caption-ja'), 'ようこそ。');
   assert.match(text('caption-progress'), /Translation temporarily unavailable/);
   assert.equal(nodes.get('caption-progress').hidden, false);
+});
+
+
+test('history stays chronological and updates a sentence without duplication', t => {
+  const { captions, text } = screen(t);
+  captions.reset([{ id: 1, en: 'One', ja: '一' }, { id: 2, en: 'Two', ja: '二' }]);
+  captions.update({ id: 2, en: 'Two updated', ja: '二 更新' });
+  captions.update({ id: 3, en: 'Three', ja: '三' });
+  assert.equal(text('caption-en'), 'One\n\nTwo updated\n\nThree');
+  assert.equal(text('caption-ja'), '一\n\n二 更新\n\n三');
+  captions.reset([{ id: 9, en: 'New room', ja: '新しい部屋' }]);
+  assert.equal(text('caption-en'), 'New room');
 });

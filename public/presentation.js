@@ -43,7 +43,7 @@ export function setupPresentation() {
     reset() { exit(); $('session-tools').hidden = false; $('toggle-setup').setAttribute('aria-expanded', 'true'); },
     status(state) {
       const labels = {
-        listening: ['Live captions', 'リアルタイム字幕'],
+        listening: ['', ''],
         finishing: ['Updating captions…', '字幕を更新しています…'],
         paused: ['Captions paused', '字幕は一時停止中です'],
         disconnected: ['Connection interrupted', '接続が途切れました'],
@@ -53,6 +53,7 @@ export function setupPresentation() {
       $('audience-status').querySelector('[lang="en"]').textContent = en;
       $('audience-status').querySelector('[lang="ja"]').textContent = ja;
       $('audience-status').dataset.state = state;
+      $('audience-status').hidden = state === 'listening';
     },
     connected() { $('session-tools').hidden = true; $('toggle-setup').setAttribute('aria-expanded', 'false'); },
   };

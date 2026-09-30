@@ -17,11 +17,12 @@ giao diện đơn giản và xử lý trên dịch vụ AI, không cần GPU t�
 - Điện thoại xin quyền mic sau khi người dùng bấm bắt đầu; có nút dừng rõ ràng.
 - Server yêu cầu có ít nhất một màn hình web trong phòng trước khi thu âm,
   kể cả khi phòng được tạo từ app điện thoại.
-- Chế độ trình chiếu nền trắng, chữ lớn: Anh phía trên, Nhật phía dưới; ẩn QR,
+- Chế độ trình chiếu nền trắng, chữ lớn: Anh bên trái, Nhật bên phải; ẩn QR,
   điều khiển và lời gốc. Esc/nút thoát đưa về màn hình vận hành. Ghép mic thành
   công tự thu gọn bảng kết nối; có nút mở lại.
-- Giữ bản dịch trước khi có lời mới; trạng thái chờ/lỗi dùng Anh/Nhật. Đoạn dài
-  giảm cỡ chữ tối đa đến 28 px rồi tự chia trang, đổi sau 8–30 giây theo độ dài.
+- Mỗi cột giữ các bản dịch theo thứ tự, tối đa 30 câu theo giới hạn phòng.
+  Có bản dịch mới thì tự cuộn đến cuối; lời đang nhận dạng không kéo vị trí
+  cuộn. Không hiện nhãn “Live captions”; trạng thái chờ/lỗi vẫn dùng Anh/Nhật.
 - Mỗi phòng có một mic, tối đa năm màn hình xem; tối đa ba phòng trên server.
 - Không có tài khoản, cơ sở dữ liệu, lưu âm thanh hay xuất lịch sử.
 
@@ -63,9 +64,10 @@ Mức trễ thực tế phụ thuộc mạng, cách ngắt câu và dịch vụ 
 Mobile có test render cơ bản và test URL dùng URL shim của React Native;
 camera, clipboard, storage và HTTP dùng mock, không kiểm chứng mic/Google thật.
 Đối chiếu ngày 2026-09-30: `npm run check` kiểm tra 24 file JavaScript và
-`npm test` chạy 24 test, đều exit 0. Chrome headless kiểm tra trình chiếu ở
-1920×1080 và 1280×720, bố cục 320/390 px; đoạn mẫu dài được chia trang và cả
-hai ngôn ngữ nằm trong viewport. Đã kiểm tra thoát bằng Esc/nút thoát, ghép
+`npm test` chạy 27 test, đều exit 0. Chrome headless kiểm tra trình chiếu ở
+1920×1080 và 1280×720, bố cục 320/390 px; hai cột nằm trong
+viewport, lịch sử giữ câu cũ và tự cuộn khi có bản dịch mới. Cuộn tay được
+giữ khi chỉ có lời đang nhận dạng. Đã kiểm tra thoát bằng Esc/nút thoát, ghép
 mic thu gọn điều khiển và fallback khi fullscreen không hỗ trợ. Nội dung QA
 là dữ liệu mẫu; chưa kiểm chứng máy chiếu, mic điện thoại hoặc AI thật.
 

@@ -37,10 +37,10 @@ Giao diện web dùng chung `public/styles.css`: `index.html` tạo/xem phiên,
 định cho phiên mới. Mỗi trang giữ ID DOM mà module JavaScript tương ứng dùng;
 đổi bố cục không đổi giao thức phòng hay luồng âm thanh.
 `public/presentation.js` quản lý fullscreen/chế độ người xem;
-`public/projection-captions.js` fit chữ và chia trang riêng từng ngôn ngữ theo
-kích thước thực tế. Bản gốc DOM được giữ cho lịch sử và chế độ vận hành; bản
-trình chiếu cập nhật khi bản dịch thay đổi, không reset trang khi lời mới còn
-đang nhận dạng.
+`public/captions.js` hiển thị tối đa 30 câu dịch theo thứ tự trong hai cột.
+`public/projection-captions.js` cuộn từng cột đến cuối khi bản dịch thay đổi
+hoặc kích thước/chế độ màn hình đổi. Nội dung DOM không bị thay lại nếu chỉ
+có lời đang nhận dạng, nên vị trí cuộn tay được giữ trong lúc đó.
 
 ## Kết nối mobile
 

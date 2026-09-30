@@ -159,23 +159,23 @@ meter::-moz-meter-bar{background:var(--blue)}
 @media(max-width:700px){.session-layout{display:flex;flex-direction:column}.phone-panel{order:-1;width:100%}.phone-panel.is-connected .qr-frame{display:none}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
 
-/* Audience display: two reading lanes, with operator tools outside projection. */
+/* Audience display: parallel scrolling histories, with tools outside projection. */
 .has-session .shell{max-width:none;width:calc(100% - 64px)}
 .has-session .site-header,.has-session .site-footer{display:none}
 .has-session .session{min-height:100dvh;padding:25px 0 36px}
 .has-session .session-heading{align-items:center;margin-bottom:16px}
 .has-session .session-heading h1{font-size:22px;letter-spacing:-.02em;margin:0}
 .has-session .session-layout{display:flex;flex-direction:column;gap:20px}
-.has-session .caption-area{width:100%}
-.has-session .translation-grid{grid-template-columns:1fr;gap:0}
-.has-session .translation-card{min-height:240px;padding:24px 32px;border:0;border-radius:0;background:#fff}
-.has-session .translation-card:first-child{border-radius:16px 16px 0 0;border-bottom:1px solid var(--border)}
-.has-session .translation-card:last-child{border-radius:0 0 16px 16px}
-.has-session .card-label{margin-bottom:16px}
+.has-session .caption-area{width:100%;min-width:0}
+.has-session .translation-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:minmax(0,1fr);gap:0;height:70dvh}
+.has-session .translation-card{min-height:0;min-width:0;padding:24px 32px;border:0;border-radius:0;background:#fff;display:flex;flex-direction:column}
+.has-session .translation-card:first-child{border-radius:16px 0 0 16px;border-right:1px solid var(--border)}
+.has-session .translation-card:last-child{border-radius:0 16px 16px 0}
+.has-session .card-label{margin-bottom:16px;flex:none}
 .has-session .card-label h2{font-size:19px;color:var(--muted);font-weight:650}
-.has-session .translation-text{font-size:clamp(32px,3.6vw,72px);font-weight:600;line-height:1.4;letter-spacing:-.015em}
-.has-session .translation-text[lang="ja"]{line-height:1.5;letter-spacing:0}
-.has-session .translation-text.empty{font-size:clamp(28px,3vw,52px);max-width:none;font-weight:400}
+.has-session .translation-text{flex:1;min-height:0;min-width:0;margin:0;overflow-y:auto;overflow-wrap:anywhere;white-space:pre-wrap;overscroll-behavior:contain;font-size:clamp(28px,2.8vw,54px);font-weight:600;line-height:1.5;letter-spacing:-.015em;scrollbar-width:thin;padding-right:10px}
+.has-session .translation-text[lang="ja"]{letter-spacing:0}
+.has-session .translation-text.empty{font-size:clamp(24px,2.5vw,40px);max-width:none;font-weight:400}
 .audience-status{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin:0 0 18px;color:var(--muted);font-size:14px}
 .audience-status[data-state="disconnected"],.audience-status[data-state="error"]{color:var(--red)}
 .caption-progress{margin:12px 0;color:var(--muted);font-size:14px;text-align:center}
@@ -186,18 +186,13 @@ meter::-moz-meter-bar{background:var(--blue)}
 .has-session .caption-toolbar{max-width:550px;margin:0 auto 12px}
 .is-presenting{background:#fff}
 .is-presenting .shell{width:100%;padding:0 4vw}
-.is-presenting .session{padding:35px 0 25px}
+.is-presenting .session{padding:45px 0 25px}
 .is-presenting .session-heading,.is-presenting .session-tools,.is-presenting .source-details,.is-presenting #notice{display:none}
-.is-presenting .translation-grid{height:calc(100dvh - 160px);grid-template-rows:repeat(2,minmax(0,1fr))}
-.is-presenting .translation-card{min-height:0;padding:20px 0;display:flex;flex-direction:column}
-.projection-text,.projection-page{display:none}
-.is-presenting .translation-card>.translation-text{display:none}
-.is-presenting .projection-text{display:flex;align-items:center;flex:1;min-height:0;margin:0;font-weight:600;line-height:1.4;overflow-wrap:anywhere;white-space:pre-wrap}
-.is-presenting .projection-text[lang="ja"]{line-height:1.5}
-.is-presenting .projection-page{display:block;height:18px;flex:none;color:var(--muted);font-size:12px;text-align:right}
-.is-presenting .translation-text{font-size:clamp(36px,3.9vw,76px)}
+.is-presenting .translation-grid{height:calc(100dvh - 150px)}
+.is-presenting .translation-card{padding:16px 3vw;border-radius:0}
+.is-presenting .translation-card:first-child{padding-left:0}
+.is-presenting .translation-card:last-child{padding-right:0}
 .is-presenting .audience-status{margin-bottom:10px;font-size:15px}
 .exit-presentation{position:fixed;right:12px;top:8px;z-index:10;min-height:36px;padding:6px 10px;border:0;background:transparent;color:var(--muted);font-size:12px}
 .exit-presentation:hover{background:var(--surface-soft)}
-@media(max-width:700px){.has-session .shell{width:calc(100% - 32px)}.has-session .session-heading{flex-direction:column;align-items:start;gap:12px}.has-session .session-actions{justify-content:start;flex-wrap:wrap}.has-session .translation-card{padding:22px 20px;min-height:210px}.has-session .translation-text{font-size:30px}.has-session .session-tools{order:-1}.is-presenting .shell{width:100%;padding:0 20px}.is-presenting .translation-card{padding:24px 0}.is-presenting .translation-text{font-size:32px}}
-@media(max-width:700px){.is-presenting .translation-card{min-height:0;padding:12px 0}.is-presenting .card-label{margin-bottom:8px}.is-presenting .audience-status{font-size:12px}.is-presenting .translation-grid{height:calc(100dvh - 180px)}}
+@media(max-width:700px){.has-session .shell{width:calc(100% - 32px)}.has-session .session-heading{flex-direction:column;align-items:start;gap:12px}.has-session .session-actions{justify-content:start;flex-wrap:wrap}.has-session .translation-card{padding:16px 12px}.has-session .translation-text{font-size:22px;padding-right:5px}.has-session .translation-text.empty{font-size:20px}.has-session .card-label h2{font-size:16px}.has-session .session-tools{order:-1}.is-presenting .shell{width:100%;padding:0 16px}.is-presenting .translation-card{padding:12px}.is-presenting .audience-status{font-size:12px}.is-presenting .translation-grid{height:calc(100dvh - 175px)}}
