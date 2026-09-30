@@ -1,6 +1,6 @@
 import { $, credentials, RoomSocket, showNotice, showStatus } from './shared.js';
 import { Captions } from './captions.js';
-import { setupPresentation } from './presentation.js';
+import { setupPresentation, configureDisplays } from './presentation.js';
 
 const captions = new Captions();
 const presentation = setupPresentation();
@@ -15,7 +15,6 @@ let micUrl = '';
 let ended = false;
 let joined = false;
 let connectionError = '';
-let micConnected = false;
 
 function showPhone(event) {
   if (typeof event.micUrl === 'string') micUrl = event.micUrl;
@@ -31,8 +30,7 @@ function showPhone(event) {
 function updateStatus(event) {
   showStatus(event.status, event.message);
   presentation.status(event.status);
-  if (event.micConnected && !micConnected) presentation.connected();
-  micConnected = Boolean(event.micConnected);
+  presentation.connection(event.micConnected);
   if (event.provider) {
     $('provider-badge').hidden = false;
     $('provider-badge').textContent = event.provider === 'deepgram' ? 'Deepgram' : 'Gemini';
@@ -55,7 +53,14 @@ function backToWelcome(message) {
   $('session').hidden = true;
   $('welcome').hidden = false;
   $('join-code').value = '';
-  if (message) showNotice(message);
+  micUrl = '';
+  $('qr').hidden = true;
+  $('qr-loading').hidden = false;
+  $('session-code').textContent = '··· ···';
+  $('copy-feedback').textContent = '';
+  $('link-fallback').hidden = true;
+  showNotice(message);
+  $('create-button').focus();
   configure();
 }
 
@@ -65,6 +70,7 @@ function onEvent(event) {
     connectionError = '';
     showNotice();
     $('reconnect').hidden = true;
+    $('end-session').disabled = false;
     captions.reset(event.captions, event.interim);
     showPhone(event);
     updateStatus(event);
@@ -76,6 +82,8 @@ function onEvent(event) {
     connectionError = event.message || 'Có lỗi xảy ra. Vui lòng thử lại.';
     if (!joined) return backToWelcome(connectionError);
     showNotice(connectionError);
+    $('controls-error').textContent = connectionError;
+    $('controls-error').hidden = false;
   }
   else if (event.type === 'closed') {
     backToWelcome(event.message || 'Phiên đã kết thúc.');
@@ -85,7 +93,9 @@ function onEvent(event) {
 function openRoom(auth) {
   ended = false;
   joined = false;
-  micConnected = false;
+  presentation.connection(false);
+  $('controls-error').hidden = true;
+  $('end-session').disabled = false;
   document.body.classList.add('has-session');
   $('welcome').hidden = true;
   $('session').hidden = false;
@@ -97,6 +107,7 @@ function openRoom(auth) {
     $('pause-mic').disabled = true;
     if (state === 'disconnected') showNotice(connectionError || 'Mất kết nối với máy chủ. Nhấn Kết nối lại để tiếp tục nhận phụ đề.');
   });
+  configureDisplays(auth);
   peer.connect();
 }
 
@@ -186,9 +197,13 @@ $('reconnect').addEventListener('click', () => { connectionError = ''; peer?.con
 $('pause-mic').addEventListener('click', () => {
   if (peer?.send({ type: 'stop' })) $('pause-mic').disabled = true;
 });
+$('leave-session').addEventListener('click', () => backToWelcome());
 $('end-session').addEventListener('click', () => {
-  if (window.confirm('Kết thúc phiên và ngắt micro trên điện thoại?')) {
-    if (!peer?.send({ type: 'end' })) showNotice('Chưa kết nối với máy chủ. Kết nối lại rồi kết thúc phiên.');
+  if (!window.confirm('Kết thúc phiên cho mọi người? Micro sẽ ngắt và lịch sử phụ đề sẽ bị xóa.')) return;
+  if (peer?.send({ type: 'end' })) $('end-session').disabled = true;
+  else {
+    $('controls-error').textContent = 'Chưa kết nối với máy chủ. Đóng bảng điều khiển và kết nối lại để kết thúc phiên.';
+    $('controls-error').hidden = false;
   }
 });
 window.addEventListener('pagehide', () => peer?.close());

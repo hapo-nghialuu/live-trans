@@ -18,8 +18,9 @@
    `TRANSLATE_FALLBACK_MODEL`). HTTP 429 tạm bỏ qua model theo RetryInfo,
    Retry-After hoặc mặc định 10 phút. Hàng đợi xử lý lần lượt từng câu; một
    request thành công trả cả hai ngôn ngữ.
-6. Kết quả phát về các client bằng WebSocket. `public/captions.js` cập nhật
-   phụ đề, lịch sử và trạng thái câu đang được nhận dạng/dịch.
+6. Kết quả phát về các client bằng WebSocket. `public/display.js` hiển thị
+   một ngôn ngữ trong mỗi cửa sổ khách xem; `public/captions.js` cập nhật
+   bản xem trước trên trang điều khiển.
    `mobile/App.tsx` cũng nhận và hiển thị các sự kiện phụ đề.
 
 ## Ranh giới module
@@ -40,11 +41,16 @@ Giao diện web dùng chung `public/styles.css`: `index.html` tạo/xem phiên,
 định cho phiên mới, `guide.html` hướng dẫn sử dụng. `logo.png`, `favicon.png`
 và `apple-touch-icon.png` là bộ nhận diện web; static server hỗ trợ MIME PNG. Mỗi trang giữ ID DOM mà module JavaScript tương ứng dùng;
 đổi bố cục không đổi giao thức phòng hay luồng âm thanh.
-`public/presentation.js` quản lý fullscreen/chế độ người xem;
-`public/captions.js` hiển thị tối đa 30 câu dịch theo thứ tự trong hai cột.
-`public/projection-captions.js` cuộn từng cột đến cuối khi bản dịch thay đổi
-hoặc kích thước/chế độ màn hình đổi. Nội dung DOM không bị thay lại nếu chỉ
-có lời đang nhận dạng, nên vị trí cuộn tay được giữ trong lúc đó.
+`public/presentation.js` quản lý trạng thái chờ QR, bảng điều khiển phiên và
+mở cửa sổ riêng cho từng ngôn ngữ. Điện thoại kết nối thì trang chính hiện
+nút mở English/日本語; ngắt kết nối thì hiện lại QR.
+`display.html?lang=en|ja#room=…&token=…` cùng `display.js`/`display.css` dùng
+viewer socket độc lập, phù hợp màn dọc. Mỗi cửa sổ giữ tối đa 30 câu, chỉ cuộn
+khi bản dịch thay đổi; có fullscreen và kết nối lại riêng. Không gọi AI thêm.
+Trang điều khiển và hai cửa sổ tính là ba viewer trong giới hạn năm viewer/phòng.
+`public/captions.js` và `public/projection-captions.js` giữ bản xem trước hai
+ngôn ngữ trong mục mở rộng trên trang điều khiển. Rời phiên chỉ đóng viewer
+trên máy này; kết thúc phiên gửi `end`, đóng mọi viewer và xóa lịch sử.
 
 ## Kết nối mobile
 

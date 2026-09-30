@@ -45,17 +45,24 @@
       </section>
       <section id="session" class="session" aria-labelledby="session-title" hidden>
         <div class="session-heading">
-          <h1 id="session-title">Phụ đề trực tiếp</h1>
+          <h1 id="session-title" tabindex="-1">Kết nối điện thoại</h1>
           <div class="session-actions">
-            <button id="toggle-setup" class="secondary" type="button" aria-expanded="true" aria-controls="session-tools">Kết nối &amp; điều khiển</button>
-            <button id="fullscreen" class="primary" type="button" aria-pressed="false">Trình chiếu</button>
+            <button id="session-menu" class="secondary" type="button" aria-haspopup="dialog" aria-controls="session-controls">Điều khiển phiên</button>
           </div>
         </div>
-        <button id="exit-presentation" class="secondary exit-presentation" type="button" hidden>Thoát trình chiếu</button>
-        <p id="audience-status" class="audience-status" role="status"><span lang="en">Waiting for the speaker</span><span aria-hidden="true"> · </span><span lang="ja">開始までお待ちください</span></p>
         <div class="session-layout">
           <div class="caption-area">
-
+            <div class="display-launcher">
+              <p class="eyebrow">MÀN HÌNH KHÁCH XEM</p>
+              <h2>Mỗi ngôn ngữ một cửa sổ</h2>
+              <p>Mở hai cửa sổ, kéo sang hai màn hình bên sân khấu rồi bật toàn màn hình trong từng cửa sổ.</p>
+              <div class="display-options">
+                <a id="open-english" class="display-option" href="#" aria-label="Mở cửa sổ phụ đề tiếng Anh"><span lang="en">English</span><strong>Mở cửa sổ tiếng Anh ↗</strong></a>
+                <a id="open-japanese" class="display-option" href="#" aria-label="Mở cửa sổ phụ đề tiếng Nhật"><span lang="ja">日本語</span><strong>Mở cửa sổ tiếng Nhật ↗</strong></a>
+              </div>
+              <p id="display-feedback" class="helper" role="status">Cả hai cửa sổ cùng theo dõi phiên này và tự cuộn đến bản dịch mới nhất.</p>
+            </div>
+            <details class="caption-preview"><summary>Xem trước phụ đề</summary>
             <div class="translation-grid" aria-live="polite" aria-atomic="true">
               <article class="translation-card"><div class="card-label"><h2 lang="en">English</h2></div><p id="caption-en" class="translation-text empty" lang="en">Waiting for the speaker…</p></article>
               <article class="translation-card japanese"><div class="card-label"><h2 lang="ja">日本語</h2></div><p id="caption-ja" class="translation-text empty" lang="ja">開始までお待ちください…</p></article>
@@ -63,10 +70,22 @@
             <p id="caption-progress" class="caption-progress" role="status" hidden></p>
             <details class="source-details"><summary>Lời gốc tiếng Việt &amp; câu trước</summary><div class="original-card"><div class="original-heading"><span class="language-mark vi-mark" aria-hidden="true">VI</span><h2>Lời gốc tiếng Việt</h2></div><p id="caption-vi">Bắt đầu nói trên điện thoại để thấy lời của bạn.</p><p id="translation-status" class="helper" role="status"></p></div>
             <section id="recent-section" class="recent-section" hidden><h2>Câu vừa nói</h2><div id="recent-captions"></div></section></details>
+            </details>
           </div>
-          <div id="session-tools" class="session-tools"><div class="caption-toolbar"><div class="caption-toolbar-status"><span id="connection-status" class="status" data-state="connecting" role="status">Đang kết nối…</span><span id="provider-badge" class="provider-badge" hidden></span></div><button id="reconnect" class="text-button" type="button" hidden>Kết nối lại</button></div><aside id="phone-panel" class="phone-panel" aria-labelledby="phone-title"><div class="panel-heading"><p class="eyebrow">KẾT NỐI MICRO</p><h2 id="phone-title">Dùng điện thoại để nói</h2><p id="phone-instruction">Quét QR trong app Live Trans hoặc nhập mã phiên bên dưới.</p></div><div class="qr-frame"><img id="qr" width="200" height="200" alt="Mã QR mở micro trên điện thoại" hidden><span id="qr-loading" class="helper">Đang tạo mã QR…</span></div><div class="session-code-block"><span class="eyebrow">MÃ PHIÊN</span><strong id="session-code" class="session-code">··· ···</strong></div><span id="mic-status" class="phone-status">Chưa có điện thoại kết nối</span><button id="copy-link" class="secondary full-width" type="button" disabled>Sao chép liên kết micro</button><p id="copy-feedback" class="helper" role="status"></p><input id="link-fallback" class="link-fallback" aria-label="Liên kết micro; chọn và sao chép" readonly hidden><div class="phone-tip">Giữ màn hình điện thoại sáng trong khi nói. Bạn có thể dừng micro bất cứ lúc nào.</div><button id="pause-mic" class="text-button full-width" type="button" disabled>Dừng thu từ xa</button><button id="end-session" class="text-button danger-button full-width" type="button">Kết thúc phiên</button></aside></div>
+          <div id="session-tools" class="session-tools"><div class="caption-toolbar"><div class="caption-toolbar-status"><span id="connection-status" class="status" data-state="connecting" role="status">Đang kết nối…</span><span id="provider-badge" class="provider-badge" hidden></span></div></div><aside id="phone-panel" class="phone-panel" aria-labelledby="phone-title"><div class="panel-heading"><p class="eyebrow">KẾT NỐI MICRO</p><h2 id="phone-title">Quét QR để kết nối</h2><p id="phone-instruction">Quét QR trong app Live Trans hoặc nhập mã phiên bên dưới.</p></div><div class="qr-frame"><img id="qr" width="360" height="360" alt="Mã QR mở micro trên điện thoại" hidden><span id="qr-loading" class="helper">Đang tạo mã QR…</span></div><div class="session-code-block"><span class="eyebrow">MÃ PHIÊN</span><strong id="session-code" class="session-code">··· ···</strong></div><span id="mic-status" class="phone-status">Chưa có điện thoại kết nối</span><button id="copy-link" class="secondary full-width" type="button" disabled>Sao chép liên kết micro</button><p id="copy-feedback" class="helper" role="status"></p><input id="link-fallback" class="link-fallback" aria-label="Liên kết micro; chọn và sao chép" readonly hidden><div class="phone-tip">Khi điện thoại kết nối, bạn có thể mở riêng cửa sổ phụ đề Anh và Nhật.</div></aside></div>
         </div>
       </section>
+      <dialog id="session-controls" class="session-controls" aria-labelledby="controls-title">
+        <div class="controls-heading"><h2 id="controls-title">Điều khiển phiên</h2><button id="close-controls" class="secondary" type="button">Đóng</button></div>
+        <p id="controls-status" class="helper" role="status">Chờ điện thoại kết nối.</p>
+        <p id="controls-error" class="notice" role="alert" hidden></p>
+        <button id="reconnect" class="primary full-width" type="button" hidden>Kết nối lại</button>
+        <div class="controls-buttons">
+          <button id="pause-mic" class="secondary" type="button" disabled>Dừng thu từ xa</button>
+        </div>
+        <div class="controls-exit"><button id="leave-session" class="secondary" type="button">Rời phiên</button><p class="helper">Về trang chính trên máy này. Phiên vẫn còn để vào lại bằng mã.</p></div>
+        <div class="controls-exit"><button id="end-session" class="text-button danger-button" type="button">Kết thúc phiên cho mọi người</button><p class="helper">Ngắt micro, đóng phiên và xóa lịch sử phụ đề.</p></div>
+      </dialog>
     </main>
     <footer class="site-footer"><span>Tiếng Việt → English · 日本語</span></footer>
   </div>

@@ -228,3 +228,49 @@ meter::-moz-meter-bar{background:var(--blue)}
 .guide-image-phone{max-width:360px;margin-left:auto;margin-right:auto}
 .guide-image figcaption{margin-top:8px;font-size:12px;line-height:1.5;color:var(--muted)}
 @media(max-width:700px){.guide-downloads{padding:20px}.guide-download{width:100%}.guide-steps li:has(.guide-image){padding:20px 18px}.guide-steps li:has(.guide-image) h2{padding-left:46px;min-height:32px}}
+
+/* The session starts with scanning, then makes room for the audience. */
+.is-waiting .session-heading{max-width:640px;margin:0 auto 24px}
+.is-waiting .session-heading h1{font-size:24px}
+.is-waiting .audience-status{display:none}
+.is-waiting .session-layout{min-height:calc(100dvh - 140px);justify-content:center}
+.is-waiting .session-tools{max-width:560px;margin:auto}
+.is-waiting .caption-toolbar{border:0;background:transparent;padding:0;justify-content:center}
+.is-waiting .provider-badge{display:none}
+.is-waiting .phone-panel{display:block;max-width:none;padding:28px 36px;text-align:center}
+.is-waiting .panel-heading h2{font-size:28px}
+.is-waiting .panel-heading p{max-width:380px;margin-left:auto;margin-right:auto}
+.is-waiting .qr-frame{width:fit-content;max-width:100%;min-height:0;margin:24px auto 16px;padding:16px;background:#fff}
+.is-waiting .qr-frame img{width:clamp(220px,36dvh,360px);height:auto;aspect-ratio:1}
+.is-waiting .session-code-block{justify-content:center;gap:20px;border:0;padding:8px 0}
+.is-waiting .session-code{font-size:36px;letter-spacing:4px}
+.is-waiting .phone-status{display:none}
+.is-waiting .phone-tip{margin-bottom:0}
+.exit-presentation{min-height:44px;font-size:13px;padding:10px 14px}
+.session-controls{width:min(480px,calc(100% - 32px));max-height:calc(100dvh - 32px);padding:24px;border:1px solid var(--border);border-radius:20px;background:var(--surface);color:var(--text);box-shadow:0 24px 80px #17243b26;overflow-y:auto}
+.session-controls::backdrop{background:#17243b55}
+.controls-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}
+.controls-heading h2{font-size:22px}
+.controls-heading button{min-height:44px;padding:8px 14px}
+.controls-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}
+.controls-exit{border-top:1px solid var(--border);padding-top:18px;margin-top:18px}
+.controls-exit>button{width:100%;margin-bottom:8px}
+.session-controls .notice{margin-top:12px}
+@media(max-width:700px){.is-waiting .session-heading{flex-direction:row;align-items:center;gap:10px}.is-waiting .session-heading h1{font-size:20px}.is-waiting .session-actions{width:auto}.is-waiting .session-actions button{padding:10px;font-size:12px}.is-waiting .session-layout{min-height:0}.is-waiting .phone-panel{padding:24px 18px}.is-waiting .panel-heading h2{font-size:24px}.is-waiting .qr-frame{padding:12px}.is-waiting .qr-frame img{width:clamp(200px,36dvh,300px)}.session-controls{padding:20px}.controls-buttons{grid-template-columns:1fr}}
+
+.has-mic .audience-status{display:none}
+.has-mic .session-heading{max-width:1000px;margin:0 auto 28px}
+.has-mic .caption-area{max-width:1000px;margin:auto}
+.display-launcher{text-align:center;padding:48px 32px;border:1px solid var(--border);border-radius:24px;background:var(--surface)}
+.display-launcher h2{font-size:clamp(26px,3vw,38px);margin:12px 0 16px}
+.display-launcher>p:not(.eyebrow){max-width:620px;margin:auto;color:var(--muted)}
+.display-options{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:32px 0}
+.display-option{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;min-height:190px;padding:24px;border:1px solid var(--border);border-radius:18px;background:var(--surface-soft);text-decoration:none;color:var(--blue)}
+.display-option:hover{background:var(--blue-soft);border-color:var(--blue)}
+.display-option>span{font-size:40px;font-weight:750;color:var(--text)}
+.display-option>strong{font-size:16px}
+.caption-preview{margin-top:24px}
+.caption-preview>summary{min-height:44px;padding:10px 0;cursor:pointer;color:var(--muted);font-size:14px}
+.has-mic .translation-grid{height:55dvh}
+.controls-buttons{grid-template-columns:1fr}
+@media(max-width:700px){.has-mic .session-heading{flex-direction:row;align-items:center}.has-mic .session-actions{width:auto}.has-mic .session-actions button{font-size:12px;padding:10px}.display-launcher{padding:28px 20px}.display-options{grid-template-columns:1fr;gap:12px;margin:24px 0}.display-option{min-height:140px;padding:20px}.display-option>span{font-size:32px}.display-option>strong{font-size:14px}}

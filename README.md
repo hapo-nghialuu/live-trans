@@ -11,7 +11,7 @@ Không cần GPU hay cài phần mềm trên máy tính trình chiếu.
 - **Hướng dẫn có hình:** [Hướng dẫn sử dụng](https://live.hapo.work/guide.html)
 - **Tải app:** [GitHub Releases](https://github.com/hapo-nghialuu/live-trans/releases)
 
-![Màn hình trình chiếu Anh và Nhật; nội dung minh họa](public/guide-project-captions.png)
+![Mở riêng cửa sổ phụ đề Anh và Nhật](public/guide-project-captions.png)
 
 ## Sử dụng
 
@@ -21,17 +21,25 @@ Không cần GPU hay cài phần mềm trên máy tính trình chiếu.
    **dán liên kết micro**. Nếu không cài app, dùng Camera quét QR để mở trang micro.
 3. Giữ trang phụ đề trên máy tính mở. Trên điện thoại chọn **Bắt đầu** và
    cho phép dùng micro. Nói tiếng Việt, ngắt nhẹ giữa các câu.
-4. Trên máy tính chọn **Trình chiếu**. Tiếng Anh ở cột trái, tiếng Nhật ở cột phải;
-   các câu dịch cũ vẫn hiển thị, mỗi cột tự cuộn xuống khi có bản dịch mới.
+4. Khi chưa có điện thoại kết nối, web ưu tiên QR lớn và mã phiên để dễ quét.
+   Khi điện thoại kết nối, web hiện hai nút mở cửa sổ **English** và **日本語**.
+   Mở từng cửa sổ, kéo sang hai màn hình dọc rồi chọn **Toàn màn hình** trong
+   từng cửa sổ. Mỗi cửa sổ chỉ hiển thị một ngôn ngữ và tự cuộn khi có bản dịch mới.
 5. Chọn **Dừng** trên điện thoại để dừng thu và hoàn tất câu cuối.
-   Chọn **Kết thúc phiên** trên web khi buổi sử dụng kết thúc.
+   Trên web mở **Điều khiển phiên** để dừng thu từ xa, rời phiên hoặc kết thúc
+   phiên cho mọi người (cần xác nhận).
 
 Có thể cuộn lại để đọc câu cũ. Lời nhận dạng tạm thời không kéo vị trí cuộn;
-bản dịch mới sẽ đưa cột về cuối. Lời gốc tiếng Việt nằm trong mục mở rộng của
-màn hình điều khiển. Nhấn **Esc** hoặc **Thoát trình chiếu** để trở lại điều khiển.
+bản dịch mới sẽ đưa cửa sổ về cuối. Nút **Điều khiển phiên** trên trang chính
+mở các thao tác quản lý; nút toàn màn hình nằm riêng trong từng cửa sổ phụ đề. **Rời phiên** chỉ về trang chính
+trên máy này; **Kết thúc phiên cho mọi người** ngắt micro và xóa lịch sử. Nếu điện
+thoại ngắt kết nối, web hiện lại QR; lịch sử vẫn được giữ cho đến khi phiên kết thúc.
 
 Cũng có thể tạo phiên từ app điện thoại, sau đó nhập mã trên web để vào xem.
-Cần có ít nhất một màn hình xem trước khi bắt đầu thu âm.
+Cần có ít nhất một màn hình xem trước khi bắt đầu thu âm. Trang điều khiển và
+hai cửa sổ phụ đề dùng chung phiên, không tạo thêm phiên dịch hay gọi AI riêng.
+Nếu trình duyệt chặn cửa sổ bật lên, cho phép popup hoặc mở liên kết trong tab mới.
+Mỗi cửa sổ tính là một màn hình xem trong giới hạn 5 màn hình/phòng.
 
 ### Cài app điện thoại
 
@@ -248,7 +256,7 @@ thu âm nền, máy chiếu hoặc vận hành liên tục trong buổi thực t
 
 | Thư mục | Nội dung |
 |---|---|
-| `public/` | Trang chính, micro web, cài đặt, hướng dẫn và tài nguyên giao diện. |
+| `public/` | Trang điều khiển, cửa sổ phụ đề một ngôn ngữ (`display.html`), micro web, cài đặt và hướng dẫn. |
 | `server/` | HTTP/WebSocket, phòng, nhận dạng giọng nói và hàng đợi dịch. |
 | `mobile/` | App React Native cho Android/iOS. |
 | `test/`, `scripts/` | Unit test, kiểm tra cú pháp và kiểm tra luồng AI. |

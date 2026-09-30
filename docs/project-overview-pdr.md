@@ -22,12 +22,13 @@ giao diện đơn giản và xử lý trên dịch vụ AI, không cần GPU t�
 - Điện thoại xin quyền mic sau khi người dùng bấm bắt đầu; có nút dừng rõ ràng.
 - Server yêu cầu có ít nhất một màn hình web trong phòng trước khi thu âm,
   kể cả khi phòng được tạo từ app điện thoại.
-- Chế độ trình chiếu nền trắng, chữ lớn: Anh bên trái, Nhật bên phải; ẩn QR,
-  điều khiển và lời gốc. Esc/nút thoát đưa về màn hình vận hành. Ghép mic thành
-  công tự thu gọn bảng kết nối; có nút mở lại.
-- Mỗi cột giữ các bản dịch theo thứ tự, tối đa 30 câu theo giới hạn phòng.
-  Có bản dịch mới thì tự cuộn đến cuối; lời đang nhận dạng không kéo vị trí
-  cuộn. Không hiện nhãn “Live captions”; trạng thái chờ/lỗi vẫn dùng Anh/Nhật.
+- Chờ điện thoại: ưu tiên QR lớn và mã phiên. Điện thoại kết nối: hiện nút
+  mở riêng cửa sổ tiếng Anh và tiếng Nhật, đặt trên hai màn hình dọc.
+- Mỗi cửa sổ phụ đề nền trắng, chữ lớn, chỉ một ngôn ngữ, giữ tối đa 30 câu.
+  Có bản dịch mới thì tự cuộn; lời nhận dạng tạm thời không kéo vị trí cuộn.
+  Fullscreen và kết nối lại nằm trong từng cửa sổ; không hiện nhãn “Live captions”.
+- Trang chính có bảng Điều khiển phiên: dừng từ xa, rời phiên trên máy này,
+  hoặc kết thúc phiên cho mọi người sau xác nhận. Mic ngắt thì hiện lại QR.
 - Mỗi phòng có một mic, tối đa năm màn hình xem; tối đa ba phòng trên server.
 - Không có tài khoản, cơ sở dữ liệu, lưu âm thanh hay xuất lịch sử.
 
@@ -69,15 +70,14 @@ Mức trễ thực tế phụ thuộc mạng, cách ngắt câu và dịch vụ 
 
 Mobile có test render cơ bản và test URL dùng URL shim của React Native;
 camera, clipboard, storage và HTTP dùng mock, không kiểm chứng mic/Google thật.
-Đối chiếu ngày 2026-09-30: `npm run check` kiểm tra 24 file JavaScript và
-`npm test` chạy 28 test, đều exit 0. Chrome headless kiểm tra trình chiếu ở
-1920×1080 và 1280×720, bố cục 320/390 px; hai cột nằm trong
-viewport, lịch sử giữ câu cũ và tự cuộn khi có bản dịch mới. Cuộn tay được
-giữ khi chỉ có lời đang nhận dạng. Đã kiểm tra thoát bằng Esc/nút thoát, ghép
-mic thu gọn điều khiển và fallback khi fullscreen không hỗ trợ. Nội dung QA
-là dữ liệu mẫu; chưa kiểm chứng máy chiếu, mic điện thoại hoặc AI thật.
-Trang vào/hướng dẫn/cài đặt/mic được kiểm tra ở 1440/390/320 px không tràn
-ngang, logo tải được và favicon trả MIME image/png. Chưa build native app.
+Đối chiếu ngày 2026-09-30: `npm run check` kiểm tra 25 file JavaScript và
+`npm test` chạy 28 test, đều exit 0. Chrome headless kiểm tra QR ở 1280/390/320 px;
+hai cửa sổ độc lập ở 600×1000, 1080×1920 và 320×844 không tràn ngang.
+Đã kiểm tra một ngôn ngữ/cửa sổ, 30 câu, cuộn mới/interim, reload lấy lịch sử,
+fullscreen, mất/kết nối lại, rời trang điều khiển vẫn giữ hai cửa sổ, hủy/xác nhận
+kết thúc và xóa phụ đề ở mọi cửa sổ. QA dùng caption mẫu, không gọi provider;
+chưa kiểm chứng màn hình LED, mic điện thoại hoặc AI thật trong lượt này.
+Không build native app trong thay đổi này.
 
 Thay đổi UI ngày 2026-09-30 tập trung vào người xem phụ đề; không thay đổi
 giao thức âm thanh/phòng.
