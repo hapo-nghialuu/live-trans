@@ -6,7 +6,7 @@
   <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#f6f9fd">
   <title>Hướng dẫn — Live Trans</title>
-  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="icon" type="image/png" href="favicon.png?v=rounded">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -20,10 +20,17 @@
     <main id="main" class="guide">
       <h1>Bắt đầu trong 3 bước</h1>
       <p class="hero-description">Một điện thoại làm micro. Một màn hình để mọi người theo dõi.</p>
+      <section class="guide-downloads" aria-labelledby="download-title">
+        <div><h2 id="download-title">Tải app cho điện thoại</h2><p>Mở trang Release, chọn bản mới nhất và xem mục Assets.</p></div>
+        <div class="guide-download-actions"><a class="primary guide-download" href="https://github.com/hapo-nghialuu/live-trans/releases">Mở trang Release</a></div>
+        <p class="helper">Android: tải file <strong>.apk</strong> trong bản mới nhất, mở file và cho phép cài từ nguồn này nếu điện thoại hỏi.</p>
+        <p class="helper">iPhone: quét QR bằng Camera để dùng micro trên Safari, không cần cài app.</p>
+        <details><summary>Bản iOS dành cho người biết cài IPA</summary><p>Trong mục Assets, file <strong>-unsigned.ipa</strong> là bản iOS chưa ký. Cần ký trước khi cài, không cài trực tiếp như APK.</p></details>
+      </section>
       <ol class="guide-steps">
-        <li><h2>Tạo phiên trên máy tính</h2><p>Mở trang chính và chọn <strong>Tạo phiên mới</strong>. Nếu đã có phiên, nhập mã 6 số để vào xem.</p></li>
-        <li><h2>Kết nối điện thoại</h2><p>Mở app Live Trans, quét QR hoặc nhập mã phiên. Chọn <strong>Bắt đầu</strong> và cho phép dùng micro.</p></li>
-        <li><h2>Bật trình chiếu</h2><p>Trên máy tính chọn <strong>Trình chiếu</strong>. Nói tiếng Việt, ngắt nhẹ giữa các câu. Phụ đề Anh/Nhật tự cập nhật và cuộn đến câu mới nhất.</p></li>
+        <li><h2>Tạo phiên trên máy tính</h2><p>Mở trang chính và chọn <strong>Tạo phiên mới</strong>. Nếu đã có phiên, nhập mã 6 số để vào xem.</p><figure class="guide-image"><img src="guide-create-session.png" width="1280" height="720" alt="Trang chính với nút Tạo phiên mới và ô nhập mã để vào xem" loading="lazy"><figcaption>Chọn Tạo phiên mới trên máy tính.</figcaption></figure></li>
+        <li><h2>Kết nối điện thoại</h2><p>Mở app Live Trans, quét QR hoặc nhập mã phiên. Chọn <strong>Bắt đầu</strong> và cho phép dùng micro. Nếu không cài app, quét QR bằng Camera để mở micro trên trình duyệt.</p><figure class="guide-image guide-image-phone"><img src="guide-connect-phone.png" width="550" height="702" alt="Bảng kết nối micro trên web gồm mã QR và mã phiên 6 số" loading="lazy"><figcaption>Ảnh minh họa. Hãy quét QR hoặc nhập mã trong phiên của bạn.</figcaption></figure></li>
+        <li><h2>Bật trình chiếu</h2><p>Trên máy tính chọn <strong>Trình chiếu</strong>. Nói tiếng Việt, ngắt nhẹ giữa các câu. Phụ đề Anh/Nhật tự cập nhật và cuộn đến câu mới nhất.</p><figure class="guide-image"><img src="guide-project-captions.png" width="1280" height="720" alt="Màn hình trình chiếu chia hai cột: phụ đề tiếng Anh bên trái, tiếng Nhật bên phải" loading="lazy"><figcaption>Phụ đề minh họa: tiếng Anh bên trái, tiếng Nhật bên phải.</figcaption></figure></li>
       </ol>
       <div class="guide-notes"><h2>Khi đang sử dụng</h2><p>Nhấn <strong>Esc</strong> hoặc <strong>Thoát trình chiếu</strong> để mở lại điều khiển. Có thể cuộn từng cột để đọc câu cũ; lịch sử giữ tối đa 30 câu.</p><p>Chọn <strong>Dừng</strong> trên điện thoại để tạm ngừng thu. Chọn <strong>Kết thúc phiên</strong> trên web khi hoàn tất.</p><p>Nếu mất kết nối, kiểm tra mạng và quyền micro, rồi kết nối lại. Điện thoại dùng trình duyệt cần mở trang qua HTTPS.</p></div>
       <a class="primary guide-start" href="./">Về trang chính</a>

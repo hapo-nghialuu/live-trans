@@ -45,6 +45,7 @@ Các biến cấu hình:
 | `DEEPGRAM_API_KEY_FILE` | Thay thế key trực tiếp; file phải chứa đúng một key |
 | `TRANSCRIBE_PROVIDER` | Provider mặc định `gemini`/`deepgram`; `settings.html` đổi toàn cục qua `POST /api/provider`, lưu `$SETTINGS_FILE` hoặc `$STATE_DIRECTORY/settings.json` |
 | `DEEPGRAM_MODEL` | Mặc định `nova-3` |
+| `TRANSLATE_FALLBACK_MODEL` | Model dịch dự phòng; mặc định `gemini-3.1-flash-lite` |
 | `APP_ACCESS_KEY` | Tùy chọn — khoá việc tạo phiên (≥24 ký tự); bỏ trống = ai cũng tạo được (đã giới hạn 30 phiên/giờ/IP) |
 | `PUBLIC_URL` | URL HTTPS đầy đủ, gồm base path và dấu `/` cuối |
 | `PUBLIC_ALIASES` | Tên miền HTTPS bổ sung ở đường dẫn gốc, phân cách bằng dấu phẩy |

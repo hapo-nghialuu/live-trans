@@ -9,9 +9,13 @@ giao diện đơn giản và xử lý trên dịch vụ AI, không cần GPU t�
 - Desktop tạo phòng (có thể chọn mã phiên 6 số hoặc để server tự sinh), hiện QR
   và mã phiên để ghép điện thoại hoặc màn hình xem khác.
 - Trang vào chỉ giữ tạo/xem phiên và mô tả ngắn; tự chọn mã phiên nằm trong
-  mục mở rộng. Trang Hướng dẫn cạnh Cài đặt giải thích 3 bước và điều khiển.
+  mục mở rộng. Trang Hướng dẫn cạnh Cài đặt giải thích 3 bước và điều khiển,
+  kèm ảnh chụp minh họa và link GitHub Releases để chọn bản mới nhất. Hướng
+  dẫn tải APK và cài IPA chưa ký được tách trong mục
+  mở rộng; iPhone có thể quét QR để dùng micro trên Safari.
 - Logo hội thoại xanh được dùng chung trên web, favicon, app, icon iOS/Android
-  và launch screen iOS. Giao diện vẫn dùng light theme.
+  và launch screen iOS. Favicon web bo góc với phần ngoài góc trong suốt.
+  Giao diện vẫn dùng light theme.
 - App React Native trong `mobile/` có thể quét QR, nhập mã phiên, dán liên kết
   mic, hoặc tự tạo phòng rồi vào vai trò mic; nó thay thế `mic.html` khi cần app
   cài trên điện thoại.
@@ -66,7 +70,7 @@ Mức trễ thực tế phụ thuộc mạng, cách ngắt câu và dịch vụ 
 Mobile có test render cơ bản và test URL dùng URL shim của React Native;
 camera, clipboard, storage và HTTP dùng mock, không kiểm chứng mic/Google thật.
 Đối chiếu ngày 2026-09-30: `npm run check` kiểm tra 24 file JavaScript và
-`npm test` chạy 27 test, đều exit 0. Chrome headless kiểm tra trình chiếu ở
+`npm test` chạy 28 test, đều exit 0. Chrome headless kiểm tra trình chiếu ở
 1920×1080 và 1280×720, bố cục 320/390 px; hai cột nằm trong
 viewport, lịch sử giữ câu cũ và tự cuộn khi có bản dịch mới. Cuộn tay được
 giữ khi chỉ có lời đang nhận dạng. Đã kiểm tra thoát bằng Esc/nút thoát, ghép

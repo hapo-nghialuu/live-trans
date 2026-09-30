@@ -14,7 +14,10 @@
    VI interim phát ngay về client.
 5. Câu VI hoàn chỉnh vào `TranslationQueue`; `server/translation.js` gọi
    `gemini-3.5-flash-lite` với JSON gồm EN/JA và tối đa ba câu nguồn làm ngữ cảnh.
-   Hàng đợi xử lý lần lượt từng câu; một request trả cả hai ngôn ngữ.
+   Khi gọi model chính lỗi, thử `gemini-3.1-flash-lite` dự phòng (đổi qua
+   `TRANSLATE_FALLBACK_MODEL`). HTTP 429 tạm bỏ qua model theo RetryInfo,
+   Retry-After hoặc mặc định 10 phút. Hàng đợi xử lý lần lượt từng câu; một
+   request thành công trả cả hai ngôn ngữ.
 6. Kết quả phát về các client bằng WebSocket. `public/captions.js` cập nhật
    phụ đề, lịch sử và trạng thái câu đang được nhận dạng/dịch.
    `mobile/App.tsx` cũng nhận và hiển thị các sự kiện phụ đề.
