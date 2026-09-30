@@ -1,116 +1,259 @@
 # Live Trans
 
-Điện thoại thu tiếng Việt; màn hình web hiển thị phụ đề Anh và Nhật.
-Giao diện HTML/CSS/JavaScript thuần, backend Node.js 24. Không cần GPU.
+Thu lời nói tiếng Việt từ điện thoại và hiển thị bản dịch tiếng Anh, tiếng Nhật
+trên web theo thời gian thực. Dùng cho hội nghị, sự kiện và các buổi giao lưu để
+khách nước ngoài theo dõi nội dung người dẫn chương trình đang nói.
 
-Hướng dẫn trên web: [guide.html](public/guide.html).
+Web và app dùng giao diện sáng, tập trung vào thu âm và đọc phụ đề.
+Không cần GPU hay cài phần mềm trên máy tính trình chiếu.
 
-Tài liệu: [tổng quan](docs/project-overview-pdr.md) · [kiến trúc](docs/system-architecture.md).
+- **Mở web:** [live.hapo.work](https://live.hapo.work/)
+- **Hướng dẫn có hình:** [Hướng dẫn sử dụng](https://live.hapo.work/guide.html)
+- **Tải app:** [GitHub Releases](https://github.com/hapo-nghialuu/live-trans/releases)
+
+![Màn hình trình chiếu Anh và Nhật; nội dung minh họa](public/guide-project-captions.png)
 
 ## Sử dụng
 
-1. Trên máy tính mở app chọn **Tạo phiên mới** (có thể tự chọn mã 6 số,
-   để trống thì tự sinh), hoặc tạo ngay từ app điện thoại.
-2. Trên điện thoại, mở app Live Trans → **Quét mã QR** hoặc nhập **mã phiên 6 số**
-   (hiển thị dưới QR). Chọn **Bắt đầu**, cho phép dùng micro.
-3. Giữ màn hình điện thoại mở và nói tiếng Việt, ngắt ngắn giữa các câu.
-4. Trên web bấm **Trình chiếu**: nền trắng, phụ đề Anh bên trái và Nhật bên phải.
-   Mỗi cột giữ tối đa 30 câu dịch và tự cuộn đến câu mới nhất. Có thể cuộn lại
-   để đọc câu cũ; lời đang nhận dạng không kéo vị trí cuộn.
-   Nhấn **Esc** hoặc **Thoát trình chiếu** để trở lại điều khiển.
-   Lời gốc tiếng Việt và câu trước nằm trong mục mở rộng.
-5. **Dừng** tắt mic và hoàn tất câu cuối. **Kết thúc phiên** thu hồi liên kết phòng.
+1. Trên máy tính kết nối máy chiếu, mở web và chọn **Tạo phiên mới**.
+   Mã phiên gồm 6 số được tạo tự động; có thể chọn mã riêng trong phần tùy chọn.
+2. Trên điện thoại, mở app Live Trans, **quét QR**, **nhập mã phiên** hoặc
+   **dán liên kết micro**. Nếu không cài app, dùng Camera quét QR để mở trang micro.
+3. Giữ trang phụ đề trên máy tính mở. Trên điện thoại chọn **Bắt đầu** và
+   cho phép dùng micro. Nói tiếng Việt, ngắt nhẹ giữa các câu.
+4. Trên máy tính chọn **Trình chiếu**. Tiếng Anh ở cột trái, tiếng Nhật ở cột phải;
+   các câu dịch cũ vẫn hiển thị, mỗi cột tự cuộn xuống khi có bản dịch mới.
+5. Chọn **Dừng** trên điện thoại để dừng thu và hoàn tất câu cuối.
+   Chọn **Kết thúc phiên** trên web khi buổi sử dụng kết thúc.
 
-Điện thoại cần HTTPS, trình duyệt có AudioWorklet và quyền micro. Safari/Chrome
-di động hiện đại là đối tượng dự kiến; cần kiểm tra trên thiết bị thực tế.
-Đổi ứng dụng/khóa màn hình sẽ dừng thu; không tự bật lại mic khi kết nối lại.
+Có thể cuộn lại để đọc câu cũ. Lời nhận dạng tạm thời không kéo vị trí cuộn;
+bản dịch mới sẽ đưa cột về cuối. Lời gốc tiếng Việt nằm trong mục mở rộng của
+màn hình điều khiển. Nhấn **Esc** hoặc **Thoát trình chiếu** để trở lại điều khiển.
+
+Cũng có thể tạo phiên từ app điện thoại, sau đó nhập mã trên web để vào xem.
+Cần có ít nhất một màn hình xem trước khi bắt đầu thu âm.
+
+### Cài app điện thoại
+
+Mở [trang Releases](https://github.com/hapo-nghialuu/live-trans/releases), chọn
+bản mới nhất và mở **Assets**:
+
+| Thiết bị | Cách sử dụng |
+|---|---|
+| Android | Tải `LiveTransMic-vX.Y.Z.apk`, cài và cấp quyền micro; cấp quyền camera khi quét QR. APK hiện được build ở chế độ debug. |
+| iPhone | File `LiveTransMic-vX.Y.Z-unsigned.ipa` chưa ký, cần ký trước khi cài lên thiết bị. Có thể dùng Safari qua QR nếu chưa cài app. |
+
+Tại ngày 30/09/2026, bản mới nhất là
+[v0.1.17](https://github.com/hapo-nghialuu/live-trans/releases/tag/v0.1.17), có cả
+APK và IPA chưa ký. Các bản hiện được đánh dấu **Pre-release**, vì vậy dùng
+trang Releases để chọn bản mới nhất.
+
+### Chuẩn bị trước khi trình chiếu
+
+- Máy tính và điện thoại cần mạng ổn định, không bắt buộc cùng Wi-Fi.
+- Đặt điện thoại gần người nói hoặc nguồn âm thanh của MC; thử vài câu có tên
+  riêng, số và giờ trước khi bắt đầu.
+- Trang micro trên trình duyệt cần HTTPS, AudioWorklet và quyền micro.
+  Giữ trang mở, không khóa màn hình hoặc chuyển ứng dụng khi đang thu bằng web.
+- App iOS có cấu hình thu âm nền; khả năng thu khi khóa màn hình cần kiểm tra
+  trên thiết bị thực tế. Build thành công chưa chứng minh thu âm nền hoạt động.
+- Khi mất kết nối, kiểm tra trạng thái rồi bấm **Bắt đầu** lại nếu cần.
+  AI vẫn có thể nhận dạng hoặc dịch sai, nhất là tên riêng và số liệu.
+
+## Luồng xử lý
+
+```text
+Điện thoại / trang micro
+  → PCM16 mono 16 kHz qua WebSocket
+  → Backend nhận dạng tiếng Việt bằng Gemini hoặc Deepgram
+  → Gemini dịch câu hoàn chỉnh sang tiếng Anh và tiếng Nhật
+  → Web cập nhật phụ đề để trình chiếu
+```
+
+| Công đoạn | Mặc định | Thay thế / dự phòng |
+|---|---|---|
+| Nhận dạng giọng nói | `gemini-3.5-transcribe-live` | Deepgram `nova-3`, chọn ở Cài đặt |
+| Dịch Anh và Nhật | `gemini-3.5-flash-lite`, thinking `MINIMAL` | `gemini-3.1-flash-lite` khi model chính lỗi |
+
+Deepgram chỉ thay phần nhận dạng; bản dịch vẫn gọi Gemini và cần Google API key.
+Khi dịch gặp HTTP 429, server tạm bỏ qua model đó theo thời gian chờ từ provider
+(mặc định 10 phút nếu không có), rồi thử model dự phòng. Nếu cả hai không dùng
+được, ứng dụng báo lỗi cho câu đó. Hạn mức thực tế phụ thuộc project/gói API,
+không phải giới hạn cố định của app.
+
+Gemini tự mở kết nối nhận dạng tiếp theo sau khoảng 8,5 phút và chuyển khi
+kết nối mới sẵn sàng. Khi upstream đóng bất ngờ, server thử nối lại tối đa
+3 lần liên tiếp. Phòng vẫn có giới hạn thời gian riêng.
 
 ## Chạy local
 
+Yêu cầu **Node.js 24 trở lên**, npm và Google API key có quyền dùng các model
+đang cấu hình. Backend chỉ lắng nghe ở `127.0.0.1`.
+
 ```sh
 npm ci
-GOOGLE_API_KEY_FILE=/duong-dan/file-key.txt npm start
+GOOGLE_API_KEY_FILE=/duong-dan/gemini-key.txt npm start
 ```
 
-Mở `http://localhost:4317/`. Localhost có thể thu mic; điện thoại không thể dùng
-mic qua một địa chỉ LAN HTTP thông thường. Dùng bản HTTPS trên server.
+Mở `http://localhost:4317/`. Có thể cấu hình bằng biến môi trường hoặc file
+`.env` tại gốc dự án; `npm start` tự đọc file này nếu có. Không commit API key.
 
-Các biến cấu hình:
+Micro trên localhost được trình duyệt cho phép, nhưng địa chỉ LAN HTTP thông
+thường không đủ để điện thoại thu bằng web. Để thử bằng điện thoại, dùng URL
+HTTPS được cấu hình đúng trên backend và reverse proxy.
 
-| Biến | Ý nghĩa |
+### Cấu hình backend
+
+| Biến | Ý nghĩa / mặc định |
 |---|---|
-| `GOOGLE_API_KEY` | Gemini key chỉ dùng trên backend |
-| `GOOGLE_API_KEY_FILE` | Thay thế key trực tiếp; file phải chứa đúng một key |
-| `DEEPGRAM_API_KEY` | Deepgram key chỉ dùng trên backend (provider thay thế) |
-| `DEEPGRAM_API_KEY_FILE` | Thay thế key trực tiếp; file phải chứa đúng một key |
-| `TRANSCRIBE_PROVIDER` | Provider mặc định `gemini`/`deepgram`; `settings.html` đổi toàn cục qua `POST /api/provider`, lưu `$SETTINGS_FILE` hoặc `$STATE_DIRECTORY/settings.json` |
-| `DEEPGRAM_MODEL` | Mặc định `nova-3` |
-| `TRANSLATE_FALLBACK_MODEL` | Model dịch dự phòng; mặc định `gemini-3.1-flash-lite` |
-| `APP_ACCESS_KEY` | Tùy chọn — khoá việc tạo phiên (≥24 ký tự); bỏ trống = ai cũng tạo được (đã giới hạn 30 phiên/giờ/IP) |
-| `PUBLIC_URL` | URL HTTPS đầy đủ, gồm base path và dấu `/` cuối |
-| `PUBLIC_ALIASES` | Tên miền HTTPS bổ sung ở đường dẫn gốc, phân cách bằng dấu phẩy |
-| `PORT` | Cổng loopback, mặc định `4317` |
-| `NODE_ENV` | Đặt `production` khi triển khai |
+| `GOOGLE_API_KEY` | Key Gemini trên backend, dùng nhận dạng và dịch. |
+| `GOOGLE_API_KEY_FILE` | Đọc key từ file thay cho biến trực tiếp; file phải chứa đúng một key. |
+| `DEEPGRAM_API_KEY` | Key nhận dạng Deepgram, tùy chọn. |
+| `DEEPGRAM_API_KEY_FILE` | Đọc Deepgram key từ file thay cho biến trực tiếp. |
+| `TRANSCRIBE_PROVIDER` | `gemini` hoặc `deepgram`; mặc định Gemini nếu có Google key, nếu không là Deepgram. |
+| `DEEPGRAM_MODEL` | Mặc định `nova-3`. |
+| `DEEPGRAM_URL` | Mặc định `wss://api.deepgram.com/v1/listen`. |
+| `TRANSLATE_FALLBACK_MODEL` | Model dịch dự phòng; mặc định `gemini-3.1-flash-lite`. |
+| `APP_ACCESS_KEY` | Tùy chọn, ít nhất 24 ký tự; bảo vệ tạo phiên và đổi provider. Bỏ trống cho phép hai thao tác này công khai. |
+| `PUBLIC_URL` | URL công khai đầy đủ, gồm base path; mặc định `http://localhost:4317/`. |
+| `PUBLIC_ALIASES` | Các URL HTTPS bổ sung ở gốc tên miền, phân cách bằng dấu phẩy. |
+| `PORT` | Cổng backend; mặc định `4317`. |
+| `SETTINGS_FILE` | File lưu provider chọn ở Cài đặt; thư mục chứa phải tồn tại và có quyền ghi. |
+| `STATE_DIRECTORY` | Nếu không đặt `SETTINGS_FILE`, dùng `settings.json` trong thư mục trạng thái đầu tiên. systemd cấp biến này qua `StateDirectory`. |
+| `NODE_ENV` | Đặt `production` khi triển khai. |
 
-## Triển khai hiện tại
+Model nhận dạng Gemini và model dịch chính được đặt trong
+[server/config.js](server/config.js). Cài đặt trên web thay provider mặc định
+cho **phiên mới**; phiên đang chạy giữ provider khi tạo. Provider đã lưu trong
+file settings được ưu tiên khi khởi động nếu key tương ứng còn được cấu hình.
+Nếu không đặt nơi lưu settings, lựa chọn chỉ tồn tại đến khi server khởi động lại.
 
-- SSH: `hapo_gateway_stg`.
-- URL chính: `https://live.hapo.work/`; DNS `A live → 52.221.187.225`.
-- URL ban đầu vẫn dùng được: `https://assistant.hapo.work/live-trans/`.
-- QR tự dùng tên miền đang mở nếu tên miền đã có trong `PUBLIC_ALIASES`.
-- Caddy giữ nguyên các site cũ, thêm route riêng trong `deploy/caddy-snippet.txt`.
-- Release: `/home/ubuntu/live-trans/releases/`; symlink hoạt động: `current`.
-- Service: `live-trans.service`, mẫu trong `deploy/`.
-- Cấu hình: `/etc/live-trans/runtime.env`, quyền `600`, root sở hữu.
-- Cấu hình hiện tại giữ `PUBLIC_URL=https://assistant.hapo.work/live-trans/` và đặt `PUBLIC_ALIASES=https://live.hapo.work/` để cả hai URL hoạt động.
-- Thay hostname/path: cập nhật `PUBLIC_URL` hoặc `PUBLIC_ALIASES`, cấu hình Caddy và khởi động lại service.
+## Phát triển và phát hành app
+
+App trong `mobile/` dùng React Native 0.87.1, chung giao thức với micro web.
+Client vào phòng, đợi `snapshot`, gửi `start` và chỉ truyền audio khi server trả
+`ready`. App nhớ địa chỉ server và mã truy cập tạo phiên bằng AsyncStorage.
 
 ```sh
-ssh hapo_gateway_stg 'sudo systemctl status live-trans --no-pager'
-ssh hapo_gateway_stg 'sudo journalctl -u live-trans -n 30 --no-pager'
-ssh hapo_gateway_stg 'sudo systemctl restart live-trans'
+cd mobile
+npm ci
+npm start
 ```
 
-Rollback: chuyển `current` về release trước, restart `live-trans`, xác nhận
-`https://live.hapo.work/api/health`. Mỗi lần đổi Caddy phải sao lưu, validate rồi reload.
-Restart server kết thúc các phòng trong bộ nhớ.
-
-## Phạm vi và dữ liệu
-
-- Google nhận audio để xử lý; ứng dụng không ghi audio, transcript hay token vào log/file/DB.
-- Transcript giữ trong RAM tối đa 30 câu/phòng. Kết thúc/hết hạn/restart xóa phòng.
-- Liên kết QR chứa quyền thu âm cho phòng đó; không chia sẻ cho người không tham gia.
-- Tối đa 3 phòng, mỗi phòng 1 mic và 5 màn hình, thời hạn 2 giờ.
-- Gemini tự mở kết nối nhận dạng kế tiếp sau khoảng 8,5 phút và chuyển khi sẵn sàng.
-  Nếu upstream đóng bất ngờ, server thử nối lại tối đa 3 lần; phòng vẫn giới hạn 2 giờ.
-- Hàng đợi dịch hữu hạn, lỗi quota/mạng hiển thị rõ; không tạo bản dịch giả.
-- Mất màn hình xem trong 10 giây sẽ dừng nhận âm thanh.
-- Key Gemini/Deepgram không gửi xuống browser. Mã truy cập và token phòng không lưu localStorage.
-- Model: `gemini-3.5-transcribe-live` và `gemini-3.5-flash-lite` (`minimal`); hoặc Deepgram `nova-3` khi chọn provider đó — việc dịch vẫn qua Gemini.
-- Prompt bảo toàn số và ý; vẫn cần đối chiếu các thông tin quan trọng.
-
-## App điện thoại (React Native)
-
-`mobile/` là app React Native thay thế `mic.html`. Ba cách kết nối:
-quét QR trong app (camera), nhập mã phiên 6 số (server tra cứu qua
-`GET /api/join?code=…`, giới hạn 30 lần/phút/IP), hoặc dán liên kết mic
-(`…/mic.html#room=…&token=…`). App stream PCM16 mono 16 kHz qua cùng WebSocket `/socket`
-với giao thức `join/start/stop` như web. iOS đã bật `audio` background mode
-và `NSMicrophoneUsageDescription`; Android có `RECORD_AUDIO`/`WAKE_LOCK`
-nhưng chưa build thử. Chạy: `cd mobile && npm install && (cd ios && pod
-install) && npx react-native run-ios`.
-
-## Kiểm chứng
+Mở terminal khác trong `mobile/`:
 
 ```sh
+# iOS: macOS có Xcode và CocoaPods
+cd ios
+pod install
+cd ..
+npm run ios
+
+# Android: JDK 17 và Android SDK theo mobile/android/build.gradle
+npm run android
+```
+
+Workflow [mobile-builds.yml](.github/workflows/mobile-builds.yml) dùng Node.js 24:
+
+- Tự chạy khi push thay đổi `mobile/**` hoặc chính workflow lên nhánh **`build`**.
+- Có thể chạy thủ công bằng **Run workflow** trong GitHub Actions.
+- Tăng phiên bản patch, build APK debug và IPA Release chưa ký; khi cả hai thành
+  công, xuất bản GitHub Pre-release kèm hai file tải.
+
+Push lên `main` không tự kích hoạt workflow này. Workflow mobile không deploy
+web/backend. Logo và giao diện đóng gói trong app cần cài bản app mới để cập nhật.
+
+## Triển khai web/backend
+
+Kiểm tra ngày 30/09/2026: `live-trans.service` đang chạy, hai URL dưới đây trả
+`{"ok":true}` ở `/api/health`; web đang phục vụ từ release `b52371f` đã có
+trang hướng dẫn bằng hình và favicon bo góc.
+
+| Thành phần | Cấu hình triển khai |
+|---|---|
+| URL chính | `https://live.hapo.work/` |
+| URL tương thích | `https://assistant.hapo.work/live-trans/` |
+| Reverse proxy | Caddy → `127.0.0.1:4317`, mẫu [caddy-snippet.txt](deploy/caddy-snippet.txt). |
+| Thư mục release | `/home/ubuntu/live-trans/releases/`; symlink `current` trỏ bản đang chạy. |
+| Service | `live-trans.service`, mẫu [live-trans.service](deploy/live-trans.service). |
+| Runtime config | `/etc/live-trans/runtime.env`, root sở hữu, quyền `600`. |
+| SSH alias quản trị | `hapo_gateway_stg` |
+
+Quy trình cập nhật: đưa mã và production dependencies vào thư mục release mới,
+kiểm tra cấu hình, chuyển symlink `current`, rồi restart service. Khi đổi tên
+miền/đường dẫn, cập nhật `PUBLIC_URL`/`PUBLIC_ALIASES` và route Caddy; validate
+cấu hình Caddy trước khi reload. QR dùng origin đang mở khi origin đó được
+khai báo trong aliases.
+
+```sh
+ssh hapo_gateway_stg 'systemctl is-active live-trans'
+curl -fsS https://live.hapo.work/api/health
+curl -fsS https://live.hapo.work/api/config
+```
+
+`/api/health` xác nhận HTTP backend hoạt động. `/api/config` chỉ báo key nào đã
+được cấu hình và provider mặc định, không kiểm chứng key còn quota hoặc gọi AI
+thành công. Rollback bằng cách chuyển `current` về release trước rồi restart.
+**Restart server kết thúc toàn bộ phiên đang giữ trong RAM.**
+
+## Giới hạn và dữ liệu
+
+- Tối đa **3 phòng**; mỗi phòng **1 micro**, **5 màn hình xem**, thời hạn **2 giờ**.
+- Giữ tối đa **30 câu** mỗi phòng trong RAM. Không còn micro/kết nối nhận dạng
+  và đã quá 15 phút từ lúc tạo thì phòng được dọn ở lượt kiểm tra tiếp theo.
+- Mất toàn bộ màn hình xem trong **10 giây** sẽ dừng thu âm.
+- Hàng đợi dịch tối đa **6 câu chờ** và một câu đang xử lý; quá tải sẽ báo lỗi.
+- Tạo phiên: tối đa **30 lần/giờ/IP**, **20 lần/phút toàn server**.
+  Tra mã phiên: **30 lần/phút/IP**.
+- Audio gửi tới provider nhận dạng đã chọn; lời Việt và ngữ cảnh gần đây gửi
+  Google để dịch. Ứng dụng không ghi audio, transcript hoặc token vào file/DB/log;
+  chính sách lưu dữ liệu của provider là phần riêng của dịch vụ đó.
+- Kết thúc, hết hạn hoặc restart sẽ xóa phòng và lịch sử. Luồng hiện tại không
+  có chức năng lưu bản ghi hay xuất transcript.
+- API key chỉ nằm trên backend. Web không lưu mã truy cập/token phòng trong
+  localStorage; app có lưu mã truy cập tạo phiên như mô tả ở trên.
+- Mã phiên và QR cho phép tham gia phòng; QR micro chứa quyền thu âm.
+  Chỉ chia sẻ với người tham gia buổi sử dụng.
+
+## Kiểm tra
+
+```sh
+# Backend và JavaScript web
 npm run check
 npm test
+
+# App điện thoại
+cd mobile
+npx tsc --noEmit
+npm run lint
+npm test -- --runInBand
+```
+
+Để kiểm tra luồng AI thực, chạy từ gốc dự án khi backend đã hoạt động:
+
+```sh
 npm run test:live
 ```
 
-`test:live` thực sự gọi Google qua ứng dụng, dùng giọng Linh tiếng Việt của macOS,
-gửi PCM theo thời gian thực và nhận phụ đề bằng WebSocket thứ hai. File tạm được
-xóa sau kiểm tra. Linux có thể cấp file PCM16 mono16kHz qua `PCM_FILE`.
-Đổi đích bằng `LIVE_TRANS_URL`; truyền mã tạo phòng qua `LIVE_TRANS_ACCESS_KEY`.
-Các unit test queue dùng hàm kiểm soát thời điểm hoàn tất; không chứng minh model.
-Giọng tổng hợp qua hai client không thay thế kiểm tra mic trên điện thoại vật lý.
+Lệnh này tiêu thụ quota API: dùng giọng Linh trên macOS tạo âm thanh tiếng Việt,
+gửi PCM theo thời gian thực qua WebSocket và kiểm tra bản dịch trên client xem
+thứ hai. Linux hoặc máy không có giọng Linh có thể truyền `PCM_FILE` là file
+PCM16 mono 16 kHz thô. Đổi đích bằng `LIVE_TRANS_URL`; truyền mã tạo phiên qua
+`LIVE_TRANS_ACCESS_KEY` nếu server yêu cầu. File tạm được xóa sau kiểm tra.
+
+Unit test và giọng tổng hợp không thay thế kiểm tra micro/camera trên điện thoại,
+thu âm nền, máy chiếu hoặc vận hành liên tục trong buổi thực tế.
+
+## Cấu trúc dự án
+
+| Thư mục | Nội dung |
+|---|---|
+| `public/` | Trang chính, micro web, cài đặt, hướng dẫn và tài nguyên giao diện. |
+| `server/` | HTTP/WebSocket, phòng, nhận dạng giọng nói và hàng đợi dịch. |
+| `mobile/` | App React Native cho Android/iOS. |
+| `test/`, `scripts/` | Unit test, kiểm tra cú pháp và kiểm tra luồng AI. |
+| `deploy/` | Mẫu systemd và Caddy. |
+| `.github/workflows/` | Build và phát hành app điện thoại. |
+
+Tài liệu kỹ thuật: [Tổng quan](docs/project-overview-pdr.md) ·
+[Kiến trúc](docs/system-architecture.md).
