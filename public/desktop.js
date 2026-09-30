@@ -107,7 +107,7 @@ async function configure() {
     const config = await response.json();
     $('access-field').hidden = !config.requiresAccess || Boolean(accessKey);
     $('create-button').disabled = !config.ready;
-    $('config-note').textContent = config.ready ? 'Một phiên mới. Một cuộc trò chuyện bắt đầu.' : 'Máy chủ chưa sẵn sàng. Vui lòng kiểm tra cấu hình dịch vụ.';
+    $('config-note').textContent = config.ready ? '' : 'Máy chủ chưa sẵn sàng. Vui lòng kiểm tra cấu hình dịch vụ.';
   } catch (error) {
     $('config-note').textContent = 'Không kết nối được. Tải lại trang để thử lại.';
     showNotice(error.message);

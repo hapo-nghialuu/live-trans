@@ -3,6 +3,8 @@
 Điện thoại thu tiếng Việt; màn hình web hiển thị phụ đề Anh và Nhật.
 Giao diện HTML/CSS/JavaScript thuần, backend Node.js 24. Không cần GPU.
 
+Hướng dẫn trên web: [guide.html](public/guide.html).
+
 Tài liệu: [tổng quan](docs/project-overview-pdr.md) · [kiến trúc](docs/system-architecture.md).
 
 ## Sử dụng
@@ -78,7 +80,8 @@ Restart server kết thúc các phòng trong bộ nhớ.
 - Transcript giữ trong RAM tối đa 30 câu/phòng. Kết thúc/hết hạn/restart xóa phòng.
 - Liên kết QR chứa quyền thu âm cho phòng đó; không chia sẻ cho người không tham gia.
 - Tối đa 3 phòng, mỗi phòng 1 mic và 5 màn hình, thời hạn 2 giờ.
-- Với Gemini, mỗi lượt thu dừng sau 9 phút (giới hạn upstream 10 phút); Deepgram không giới hạn lượt thu (chỉ còn giới hạn phiên 2 giờ). Bấm bắt đầu để tiếp tục.
+- Gemini tự mở kết nối nhận dạng kế tiếp sau khoảng 8,5 phút và chuyển khi sẵn sàng.
+  Nếu upstream đóng bất ngờ, server thử nối lại tối đa 3 lần; phòng vẫn giới hạn 2 giờ.
 - Hàng đợi dịch hữu hạn, lỗi quota/mạng hiển thị rõ; không tạo bản dịch giả.
 - Mất màn hình xem trong 10 giây sẽ dừng nhận âm thanh.
 - Key Gemini/Deepgram không gửi xuống browser. Mã truy cập và token phòng không lưu localStorage.

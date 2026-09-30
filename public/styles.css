@@ -196,3 +196,24 @@ meter::-moz-meter-bar{background:var(--blue)}
 .exit-presentation{position:fixed;right:12px;top:8px;z-index:10;min-height:36px;padding:6px 10px;border:0;background:transparent;color:var(--muted);font-size:12px}
 .exit-presentation:hover{background:var(--surface-soft)}
 @media(max-width:700px){.has-session .shell{width:calc(100% - 32px)}.has-session .session-heading{flex-direction:column;align-items:start;gap:12px}.has-session .session-actions{justify-content:start;flex-wrap:wrap}.has-session .translation-card{padding:16px 12px}.has-session .translation-text{font-size:22px;padding-right:5px}.has-session .translation-text.empty{font-size:20px}.has-session .card-label h2{font-size:16px}.has-session .session-tools{order:-1}.is-presenting .shell{width:100%;padding:0 16px}.is-presenting .translation-card{padding:12px}.is-presenting .audience-status{font-size:12px}.is-presenting .translation-grid{height:calc(100dvh - 175px)}}
+
+/* Keep the entry screen focused on starting or joining a session. */
+.brand-logo{display:block;width:42px;height:42px;border-radius:12px;object-fit:contain}
+.header-link[aria-current="page"]{color:var(--blue);background:var(--blue-soft)}
+.welcome .hero-copy h1{font-size:clamp(40px,4vw,64px)}
+.welcome .action-heading{min-height:auto;margin-bottom:24px}
+.welcome .action-heading h2{margin-top:0}
+.welcome .card-icon{margin-bottom:18px}
+.custom-code{margin-bottom:18px;color:var(--muted);font-size:13px}
+.custom-code>summary{cursor:pointer;min-height:44px;padding:12px 0}
+.custom-code .field{margin-top:8px}
+.guide{max-width:880px;margin:auto;padding:56px 0 72px}
+.guide>h1{font-size:clamp(32px,4vw,48px);letter-spacing:-.04em;margin-bottom:14px}
+.guide-steps{list-style:none;counter-reset:steps;display:grid;gap:16px;margin:32px 0;padding:0}
+.guide-steps li{counter-increment:steps;position:relative;padding:24px 24px 24px 76px;background:var(--surface);border:1px solid var(--border);border-radius:18px}
+.guide-steps li:before{content:counter(steps);position:absolute;left:24px;top:24px;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--blue-soft);color:var(--blue);font-weight:750}
+.guide h2{font-size:19px;margin-bottom:8px}
+.guide p{color:var(--muted);line-height:1.7}
+.guide-notes p+p{margin-top:12px}
+.guide-start{display:inline-flex;align-items:center;justify-content:center;min-height:48px;margin-top:28px;padding:12px 22px;border-radius:12px;text-decoration:none;font-weight:700}
+@media(max-width:700px){.header-nav{gap:0}.header-link{padding:0 8px;font-size:12px}.site-header{flex-wrap:wrap;padding:16px 0;gap:12px}.guide{padding:32px 0 48px}.guide-steps li{padding:20px 18px 20px 64px}.guide-steps li:before{left:18px;top:20px}}

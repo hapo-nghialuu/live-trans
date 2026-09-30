@@ -6,6 +6,8 @@
   <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#f6f9fd">
   <title>Live Trans — Phụ đề trực tiếp</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="stylesheet" href="styles.css">
   <script type="module" src="desktop.js"></script>
 </head>
@@ -13,30 +15,30 @@
   <a class="skip-link" href="#main">Đến nội dung chính</a>
   <div class="shell">
     <header class="site-header">
-      <a class="brand" href="./" aria-label="Live Trans, trang chủ"><span class="brand-mark" aria-hidden="true">≋</span><span>live trans<span class="brand-dot">.</span></span></a>
-      <nav class="header-nav" aria-label="Điều hướng chính"><span class="language-pill">VI <span aria-hidden="true">→</span> EN · JA</span><a class="header-link" href="settings.html">Cài đặt</a></nav>
+      <a class="brand" href="./" aria-label="Live Trans, trang chủ"><img class="brand-logo" src="logo.png" width="42" height="42" alt=""><span>live trans<span class="brand-dot">.</span></span></a>
+      <nav class="header-nav" aria-label="Điều hướng chính"><a class="header-link" href="guide.html">Hướng dẫn</a><a class="header-link" href="settings.html">Cài đặt</a></nav>
     </header>
     <main id="main">
       <div id="notice" class="notice" role="alert" hidden></div>
       <section id="welcome" class="welcome" aria-labelledby="welcome-title">
         <div class="hero-copy">
-          <p class="eyebrow">PHỤ ĐỀ TRỰC TIẾP · TIẾNG VIỆT → ANH &amp; NHẬT</p>
-          <h1 id="welcome-title">Phụ đề rõ ràng.<br><span>Cùng nhau theo dõi.</span></h1>
-          <p class="hero-description">Kết nối micro, mở màn hình trình chiếu. Khách xem có thể đọc tiếng Anh và tiếng Nhật trong khi người nói tiếp tục.</p>
-          <div class="hero-steps" aria-label="Cách sử dụng"><span><b>1</b> Tạo phiên</span><span><b>2</b> Kết nối điện thoại</span><span><b>3</b> Bắt đầu nói</span></div>
+
+          <h1 id="welcome-title">Nói tiếng Việt.<br><span>Cùng hiểu nhau.</span></h1>
+          <p class="hero-description">Phụ đề tiếng Anh và tiếng Nhật cho người nghe.</p>
+
         </div>
         <div class="welcome-actions">
           <form id="create-form" class="action-card create-form">
             <span class="card-icon" aria-hidden="true">＋</span>
-            <div class="action-heading"><p class="eyebrow">BẮT ĐẦU MỚI</p><h2>Tạo phiên phụ đề</h2><p>Mở màn hình xem và kết nối điện thoại bằng QR hoặc mã 6 số.</p></div>
+            <div class="action-heading"><h2>Tạo phiên mới</h2></div>
             <div id="access-field" class="field" hidden><label for="access-key">Mã truy cập</label><input id="access-key" type="password" autocomplete="off" placeholder="Nhập mã truy cập" spellcheck="false"></div>
-            <div class="field"><label for="session-code-pick">Mã phiên tùy chọn</label><input id="session-code-pick" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="Để trống để tự tạo mã" autocomplete="off" spellcheck="false"><p class="field-hint">Nếu tự chọn, hãy nhập đúng 6 chữ số.</p></div>
+            <details class="custom-code"><summary>Tự chọn mã phiên</summary><div class="field"><label for="session-code-pick">Mã phiên tùy chọn</label><input id="session-code-pick" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="Để trống để tự tạo mã" autocomplete="off" spellcheck="false"></div></details>
             <button id="create-button" class="primary full-width" type="submit" disabled>Tạo phiên mới</button>
             <p id="config-note" class="helper" role="status">Đang kiểm tra kết nối…</p>
           </form>
           <form id="join-form" class="action-card join-form" aria-label="Xem phiên đang diễn ra bằng mã">
             <span class="card-icon card-icon-soft" aria-hidden="true">↗</span>
-            <div class="action-heading"><p class="eyebrow">ĐÃ CÓ MÃ PHIÊN?</p><h2>Vào xem phụ đề</h2><p>Nhập mã từ màn hình của người tạo phiên để theo dõi cùng nhau.</p></div>
+            <div class="action-heading"><h2>Vào xem phụ đề</h2></div>
             <div class="field"><label for="join-code">Mã phiên 6 số</label><div class="join-row"><input id="join-code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="123 456" autocomplete="off" spellcheck="false"><button id="join-button" class="secondary" type="submit">Xem phiên</button></div></div>
           </form>
         </div>
@@ -66,7 +68,7 @@
         </div>
       </section>
     </main>
-    <footer class="site-footer"><span>Live Trans · Từ tiếng Việt đến nhiều người hơn.</span><span>Phụ đề trực tiếp EN · JA</span></footer>
+    <footer class="site-footer"><span>Tiếng Việt → English · 日本語</span></footer>
   </div>
 </body>
 </html>

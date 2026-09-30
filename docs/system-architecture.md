@@ -34,7 +34,8 @@
 
 Giao diện web dùng chung `public/styles.css`: `index.html` tạo/xem phiên,
 `mic.html` điều khiển micro trên trình duyệt, `settings.html` đổi provider mặc
-định cho phiên mới. Mỗi trang giữ ID DOM mà module JavaScript tương ứng dùng;
+định cho phiên mới, `guide.html` hướng dẫn sử dụng. `logo.png`, `favicon.png`
+và `apple-touch-icon.png` là bộ nhận diện web; static server hỗ trợ MIME PNG. Mỗi trang giữ ID DOM mà module JavaScript tương ứng dùng;
 đổi bố cục không đổi giao thức phòng hay luồng âm thanh.
 `public/presentation.js` quản lý fullscreen/chế độ người xem;
 `public/captions.js` hiển thị tối đa 30 câu dịch theo thứ tự trong hai cột.
@@ -69,7 +70,9 @@ quá tải trả lỗi rõ ràng. Request dịch timeout sau 12 giây.
 Server yêu cầu ít nhất một viewer trước khi bắt đầu thu. Dọn phòng chạy mỗi
 30 giây; điều kiện 15 phút tính từ lúc tạo phòng, không phải lúc ngắt mic.
 
-Lượt thu Gemini dừng sau chín phút; Deepgram không áp dụng giới hạn lượt này. Stop kết thúc audio đầu vào, cho ASR tối đa
+Gemini mở upstream kế tiếp sau khoảng 8,5 phút, chuyển khi upstream mới
+sẵn sàng. Upstream đóng bất ngờ được thử nối lại tối đa 3 lần trước khi báo
+tạm dừng. Stop kết thúc audio đầu vào, cho ASR tối đa
 3,5 giây hoàn tất trước khi đóng; bản dịch đã xếp hàng có thể hoàn tất sau đó.
 Mất toàn bộ viewer trong mười giây sẽ dừng thu. Kết thúc phòng hủy hàng đợi,
 đóng ASR và WebSocket. Restart service xóa mọi phòng trong RAM.

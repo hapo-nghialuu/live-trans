@@ -8,9 +8,10 @@ giao diện đơn giản và xử lý trên dịch vụ AI, không cần GPU t�
 
 - Desktop tạo phòng (có thể chọn mã phiên 6 số hoặc để server tự sinh), hiện QR
   và mã phiên để ghép điện thoại hoặc màn hình xem khác.
-- Web dùng giao diện sáng đồng nhất với app mobile: trang chính tách rõ tạo/xem
-  phiên, màn hình phiên ưu tiên phụ đề và hướng dẫn ghép micro, trang mic có
-  nút bắt đầu/dừng nổi bật, trang cài đặt cho nhập mã truy cập ngay tại chỗ.
+- Trang vào chỉ giữ tạo/xem phiên và mô tả ngắn; tự chọn mã phiên nằm trong
+  mục mở rộng. Trang Hướng dẫn cạnh Cài đặt giải thích 3 bước và điều khiển.
+- Logo hội thoại xanh được dùng chung trên web, favicon, app, icon iOS/Android
+  và launch screen iOS. Giao diện vẫn dùng light theme.
 - App React Native trong `mobile/` có thể quét QR, nhập mã phiên, dán liên kết
   mic, hoặc tự tạo phòng rồi vào vai trò mic; nó thay thế `mic.html` khi cần app
   cài trên điện thoại.
@@ -55,8 +56,9 @@ hay app đã phát hành trên App Store/Google Play.
 Repo có kiểm tra cú pháp, test HTTP/WebSocket và bộ resample. Script
 `npm run test:live` gửi giọng Việt tổng hợp thật qua hai client tới Gemini.
 Các kiểm tra này không thay thế thử mic trên điện thoại vật lý, đổi mạng hay
-phiên thu kéo dài. Với Gemini, phiên thu tự dừng sau chín phút; cần bấm bắt đầu để tiếp tục.
-Deepgram không có giới hạn lượt thu này; phòng vẫn hết hạn sau hai giờ.
+phiên thu kéo dài. Gemini tự nối upstream kế tiếp sau khoảng 8,5 phút;
+đóng bất ngờ được thử nối lại tối đa 3 lần. Cấu hình này không chứng minh phiên
+thu thực tế liền mạch; phòng vẫn hết hạn sau hai giờ.
 Phòng chờ không có mic hay lượt thu trong 15 phút sẽ bị đóng sớm; phòng đang
 hoạt động vẫn hết hạn sau hai giờ.
 Mức trễ thực tế phụ thuộc mạng, cách ngắt câu và dịch vụ AI.
@@ -70,6 +72,8 @@ viewport, lịch sử giữ câu cũ và tự cuộn khi có bản dịch mới.
 giữ khi chỉ có lời đang nhận dạng. Đã kiểm tra thoát bằng Esc/nút thoát, ghép
 mic thu gọn điều khiển và fallback khi fullscreen không hỗ trợ. Nội dung QA
 là dữ liệu mẫu; chưa kiểm chứng máy chiếu, mic điện thoại hoặc AI thật.
+Trang vào/hướng dẫn/cài đặt/mic được kiểm tra ở 1440/390/320 px không tràn
+ngang, logo tải được và favicon trả MIME image/png. Chưa build native app.
 
 Thay đổi UI ngày 2026-09-30 tập trung vào người xem phụ đề; không thay đổi
 giao thức âm thanh/phòng.
