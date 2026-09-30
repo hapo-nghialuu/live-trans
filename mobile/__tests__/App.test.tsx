@@ -35,3 +35,15 @@ test('shows quick join first and reveals optional mic link on demand', async () 
   });
   expect(screen!.root.findAllByProps({ accessibilityLabel: 'Liên kết mic' }).length).toBeGreaterThan(0);
 });
+
+test('keeps create options behind an explicit control', async () => {
+  let screen: ReactTestRenderer.ReactTestRenderer;
+  await ReactTestRenderer.act(async () => { screen = ReactTestRenderer.create(<App />); });
+  expect(screen!.root.findAllByProps({ accessibilityLabel: 'Mã phiên tùy chọn, để trống để tự tạo' })).toHaveLength(0);
+  await ReactTestRenderer.act(async () => {
+    screen!.root.findAllByProps({ accessibilityLabel: 'Tùy chọn tạo phiên mới' })
+      .find(node => typeof node.props.onPress === 'function')!.props.onPress();
+  });
+  expect(screen!.root.findAllByProps({ accessibilityLabel: 'Mã phiên tùy chọn, để trống để tự tạo' }).length).toBeGreaterThan(0);
+  await ReactTestRenderer.act(async () => { screen!.unmount(); });
+});

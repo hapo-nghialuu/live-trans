@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Animated, FlatList, Image, KeyboardAvoidingView, Modal, Platform, Pressable,
-  ScrollView, StatusBar, StyleSheet, Text, TextInput, View,
+  Alert, Animated, Image, KeyboardAvoidingView, Modal, Platform, Pressable,
+  StatusBar, StyleSheet, Text, View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -10,9 +10,12 @@ import { Camera, useCameraPermission, useObjectOutput, isScannedCode, type Scann
 import { parseMicLink, baseFromLink, normalizeBase, lookupMicLink, createSessionOnServer, RoomSocket, MicLink } from './src/protocol';
 import { createAudioStreamer, AudioStreamer } from './src/audio';
 import { C, styles } from './src/app-styles';
+import { AppIcon } from './src/app-icon';
+import { ConnectionScreen } from './src/connection-screen';
+import { MicrophoneScreen, type Caption } from './src/microphone-screen';
+import { ServerSettings } from './src/server-settings';
 
 type Phase = 'idle' | 'starting' | 'recording' | 'finishing';
-type Caption = { id: number; vi: string; en: string; ja: string; status: string; error?: string };
 
 const STATUS_LABEL: Record<string, string> = {
   waiting: 'Chờ điện thoại', ready: 'Sẵn sàng', connecting: 'Đang kết nối…',
@@ -24,29 +27,6 @@ const STATUS_TONE: Record<string, string> = {
   ready: C.ok, connecting: C.warn, listening: C.live, finishing: C.warn,
   paused: C.muted, error: C.live, closed: C.muted, waiting: C.muted,
 };
-
-function MicGlyph({ color }: { color: string }) {
-  return (
-    <View style={glyphStyles.wrap} accessibilityElementsHidden>
-      <View style={[glyphStyles.capsule, { backgroundColor: color }]} />
-      <View style={[glyphStyles.arc, { borderColor: color }]} />
-      <View style={[glyphStyles.stem, { backgroundColor: color }]} />
-      <View style={[glyphStyles.base, { backgroundColor: color }]} />
-    </View>
-  );
-}
-
-const glyphStyles = StyleSheet.create({
-  wrap: { alignItems: 'center' },
-  capsule: { width: 16, height: 26, borderRadius: 8 },
-  arc: {
-    width: 32, height: 18, marginTop: -4,
-    borderWidth: 2.5, borderTopColor: 'transparent',
-    borderBottomLeftRadius: 16, borderBottomRightRadius: 16,
-  },
-  stem: { width: 2.5, height: 9 },
-  base: { width: 18, height: 2.5, borderRadius: 1.5 },
-});
 
 export default function App() {
   const [linkText, setLinkText] = useState('');
@@ -60,6 +40,8 @@ export default function App() {
   const [scanning, setScanning] = useState(false);
   const [showLinkOptions, setShowLinkOptions] = useState(false);
   const [showServerOptions, setShowServerOptions] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
+  const [showCaptions, setShowCaptions] = useState(false);
   const [link, setLink] = useState<MicLink>();
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
@@ -74,7 +56,6 @@ export default function App() {
   const audioRef = useRef<AudioStreamer | undefined>(undefined);
   const lastNotice = useRef('');
   const finishTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const listRef = useRef<FlatList<Caption>>(null);
   const pulse = useRef(new Animated.Value(0)).current;
   const active = phase === 'starting' || phase === 'recording';
 
@@ -139,6 +120,7 @@ export default function App() {
         break;
       case 'closed':
         setEnded(true); setConnected(false); setStatus('closed'); setSessionCode('');
+        setShowCaptions(false); setCaptions([]); setInterim('');
         halt(event.message || 'Phiên đã kết thúc. Tạo phiên mới trên màn hình chính.');
         socketRef.current?.close();
         break;
@@ -305,16 +287,26 @@ export default function App() {
     return () => loop.stop();
   }, [phase, pulse]);
 
-  const recording = phase === 'recording';
   const tone = STATUS_TONE[status] || C.muted;
   const statusBackground = status === 'listening' ? C.liveSoft
     : ['connecting', 'finishing'].includes(status) ? C.warnSoft
     : ['ready', 'paused'].includes(status) ? C.okSoft : C.surface2;
   const ringScale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.9] });
   const ringOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.45, 0] });
-  const micLabel = recording ? 'Đang thu — chạm để dừng'
-    : phase === 'starting' ? 'Đang kết nối dịch vụ…'
-    : phase === 'finishing' ? 'Đang hoàn tất…' : 'Chạm để bắt đầu nói';
+  const leave = () => {
+    const close = () => {
+      stopAudio(); audioRef.current?.dispose(); socketRef.current?.close();
+      setConnected(false); setConnecting(false); setLink(undefined); setPhase('idle');
+      setStatus('idle'); setEnded(false); setSessionCode(''); setLinkText('');
+      setCode(''); setCaptions([]); setInterim(''); setShowCaptions(false); note('');
+    };
+    if (active || phase === 'finishing') Alert.alert('Rời phiên?', 'Micro sẽ dừng. Phiên trên màn hình xem vẫn còn.', [
+      { text: 'Ở lại', style: 'cancel' }, { text: 'Rời phiên', style: 'destructive', onPress: close },
+    ]);
+    else close();
+  };
+  const micDisabled = phase === 'starting' || phase === 'finishing'
+    || (!active && ['connecting', 'listening', 'finishing'].includes(status));
 
   return (
     <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
@@ -322,201 +314,41 @@ export default function App() {
       <View style={styles.header}>
         <View style={styles.brandRow}>
           <Image source={require('./assets/logo-mark.png')} style={styles.logo} accessibilityLabel="Live Trans" />
-          <View>
-            <Text style={styles.brand}>Live Trans</Text>
-            <Text style={styles.brandSub}>Phụ đề trực tiếp</Text>
-          </View>
+          <Text style={styles.brand}>Live Trans</Text>
         </View>
-        {connected && (
-          <View style={[styles.pill, { backgroundColor: statusBackground }]}>
-            <View style={[styles.dot, { backgroundColor: tone }]} />
-            <Text style={[styles.pillText, { color: tone }]}>{STATUS_LABEL[status] || 'Đã kết nối'}</Text>
-          </View>
-        )}
+        <Pressable style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}
+          onPress={connected ? leave : () => setShowServerOptions(true)} disabled={connecting || creating}
+          accessibilityRole="button" accessibilityLabel={connected ? 'Rời phiên' : 'Mở cài đặt'}>
+          <AppIcon name={connected ? 'exit' : 'settings'} />
+        </Pressable>
       </View>
-
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        {!connected ? (
-          <ScrollView contentContainerStyle={styles.welcomeContent} keyboardShouldPersistTaps="handled">
-            <View style={styles.intro}>
-              <Text style={styles.eyebrow}>DỊCH GIỌNG NÓI TRỰC TIẾP</Text>
-              <Text style={styles.title}>Nói tiếng Việt.{'\n'}Cả phòng cùng hiểu.</Text>
-              <Text style={styles.description}>Dùng điện thoại làm micro. Phụ đề tiếng Việt, Anh và Nhật hiện trên màn hình của mọi người.</Text>
-            </View>
-
-            {!!message && (
-              <Animated.View style={[styles.notice, noticeError && styles.noticeError, { opacity: flash }]} accessibilityLiveRegion="polite">
-                <Text style={[styles.noticeText, noticeError && styles.noticeErrorText]}>{message}</Text>
-              </Animated.View>
-            )}
-
-            {!!link && !ended && !connecting && (
-              <Pressable style={({ pressed }) => [styles.retryButton, pressed && styles.pressed]} onPress={reconnect} accessibilityRole="button">
-                <Text style={styles.retryText}>Kết nối lại phiên vừa mở</Text>
-              </Pressable>
-            )}
-
-            <View style={styles.card}>
-              <Text style={styles.sectionTitle}>Tham gia phiên</Text>
-              <Text style={styles.sectionHint}>Quét mã QR trên màn hình xem để kết nối nhanh nhất.</Text>
-              <Pressable style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]} onPress={openScanner} accessibilityRole="button" accessibilityLabel="Quét mã QR để vào phiên">
-                <Text style={styles.primaryBtnText}>Quét mã QR</Text>
-              </Pressable>
-              <Text style={styles.fieldLabel}>Hoặc nhập mã phiên 6 số</Text>
-              <View style={styles.inputRow}>
-                <TextInput style={[styles.input, styles.codeInput]} value={code}
-                  onChangeText={v => setCode(v.replace(/\D/g, '').slice(0, 6))}
-                  placeholder="000000" placeholderTextColor={C.muted} keyboardType="number-pad"
-                  maxLength={6} editable={!connecting} accessibilityLabel="Mã phiên 6 số" />
-                <Pressable style={({ pressed }) => [styles.smallAction, (connecting || pressed) && styles.pressed]}
-                  onPress={() => joinByCode(code)} disabled={connecting} accessibilityRole="button" accessibilityLabel="Vào phiên bằng mã">
-                  <Text style={styles.smallActionText}>{connecting ? 'Đang vào…' : 'Vào phiên'}</Text>
-                </Pressable>
-              </View>
-
-              <Pressable style={styles.disclosure} onPress={() => setShowLinkOptions(value => !value)} accessibilityRole="button" accessibilityLabel="Tùy chọn liên kết mic" accessibilityState={{ expanded: showLinkOptions }}>
-                <Text style={styles.disclosureText}>Dùng liên kết mic</Text>
-                <Text style={styles.disclosureChevron}>{showLinkOptions ? '−' : '+'}</Text>
-              </Pressable>
-              {showLinkOptions && (
-                <View style={styles.disclosureBody}>
-                  <Text style={styles.fieldLabel}>Liên kết từ màn hình xem</Text>
-                  <View style={styles.inputRow}>
-                    <TextInput style={styles.input} value={linkText} onChangeText={setLinkText}
-                      placeholder="Dán liên kết mic" placeholderTextColor={C.muted}
-                      autoCapitalize="none" autoCorrect={false} editable={!connecting}
-                      accessibilityLabel="Liên kết mic" />
-                    <Pressable style={({ pressed }) => [styles.outlineAction, pressed && styles.pressed]}
-                      onPress={paste} accessibilityRole="button" accessibilityLabel="Dán liên kết từ bộ nhớ tạm">
-                      <Text style={styles.outlineActionText}>Dán</Text>
-                    </Pressable>
-                  </View>
-                  <Pressable style={({ pressed }) => [styles.secondaryBtn, (connecting || pressed) && styles.pressed]}
-                    onPress={connect} disabled={connecting} accessibilityRole="button">
-                    <Text style={styles.secondaryBtnText}>{connecting ? 'Đang kết nối…' : 'Kết nối bằng liên kết'}</Text>
-                  </Pressable>
-                </View>
-              )}
-            </View>
-
-            <View style={styles.card}>
-              <Text style={styles.sectionTitle}>Bắt đầu phiên mới</Text>
-              <Text style={styles.sectionHint}>Tạo mã phiên rồi gửi mã cho người xem nhập trên web.</Text>
-              <Text style={styles.fieldLabel}>Mã 6 số tùy chọn</Text>
-              <TextInput style={[styles.input, styles.createCodeInput]} value={customCode}
-                onChangeText={v => setCustomCode(v.replace(/\D/g, '').slice(0, 6))}
-                placeholder="Để trống để tự tạo" placeholderTextColor={C.muted}
-                keyboardType="number-pad" maxLength={6} editable={!creating}
-                accessibilityLabel="Mã phiên tùy chọn, để trống để tự tạo" />
-              {needsKey && (
-                <>
-                  <Text style={styles.fieldLabel}>Mã truy cập máy chủ</Text>
-                  <TextInput style={styles.input} value={accessKey} onChangeText={setAccessKey}
-                    placeholder="Nhập mã truy cập" placeholderTextColor={C.muted}
-                    autoCapitalize="none" autoCorrect={false} secureTextEntry editable={!creating}
-                    accessibilityLabel="Mã truy cập máy chủ" />
-                </>
-              )}
-              <Pressable style={({ pressed }) => [styles.secondaryBtn, (creating || pressed) && styles.pressed]}
-                onPress={createNewSession} disabled={creating} accessibilityRole="button">
-                <Text style={styles.secondaryBtnText}>{creating ? 'Đang tạo phiên…' : 'Tạo phiên mới'}</Text>
-              </Pressable>
-            </View>
-
-            <View style={styles.settingsCard}>
-              <Pressable style={styles.settingsHeader} onPress={() => setShowServerOptions(value => !value)} accessibilityRole="button" accessibilityState={{ expanded: showServerOptions }}>
-                <Text style={styles.settingsLabel}>Địa chỉ máy chủ</Text>
-                <Text style={styles.settingsValue}>{showServerOptions ? 'Đóng' : 'Thay đổi'}</Text>
-              </Pressable>
-              {showServerOptions && (
-                <TextInput style={[styles.input, styles.serverInput]} value={serverBase} onChangeText={setServerBase}
-                  onBlur={() => { try { setServerBase(normalizeBase(serverBase)); } catch {} }}
-                  autoCapitalize="none" autoCorrect={false} keyboardType="url"
-                  editable={!connecting} accessibilityLabel="Địa chỉ máy chủ" />
-              )}
-            </View>
-          </ScrollView>
-        ) : (
-          <View style={styles.sessionContent}>
-            {!!sessionCode && (
-              <View style={styles.codeBanner}>
-                <View>
-                  <Text style={styles.codeBannerLabel}>MÃ PHIÊN ĐỂ NGƯỜI XEM THAM GIA</Text>
-                  <Text style={styles.codeBannerValue}>{sessionCode.slice(0, 3)} {sessionCode.slice(3)}</Text>
-                </View>
-                <View style={styles.codeBadge}><Text style={styles.codeBadgeText}>WEB</Text></View>
-              </View>
-            )}
-
-            <View style={[styles.sessionNotice, noticeError && styles.noticeError]} accessibilityLiveRegion="polite">
-              <Text style={[styles.sessionNoticeText, noticeError && styles.noticeErrorText]}>{message}</Text>
-            </View>
-
-            <View style={styles.micPanel}>
-              <Text style={styles.micTitle}>{recording ? 'Đang thu tiếng Việt'
-                : phase === 'starting' ? 'Đang chuẩn bị micro'
-                : phase === 'finishing' ? 'Đang hoàn tất câu cuối' : 'Micro đã sẵn sàng'}</Text>
-              <Text style={styles.micSubtitle}>{recording ? 'Nói tự nhiên, ngắt ngắn giữa các câu.'
-                : phase === 'starting' ? 'Đợi dịch vụ nhận giọng nói sẵn sàng.'
-                : phase === 'finishing' ? 'Phụ đề cuối sẽ xuất hiện sau ít giây.'
-                : 'Mở màn hình phụ đề cho người xem, rồi bắt đầu nói.'}</Text>
-              <View style={styles.micWrap}>
-                {recording && (
-                  <Animated.View style={[styles.ring, { transform: [{ scale: ringScale }], opacity: ringOpacity }]} />
-                )}
-                <Pressable style={({ pressed }) => [styles.micButton, recording && styles.micButtonLive,
-                  (pressed || phase === 'finishing' || phase === 'starting') && styles.pressed]}
-                  disabled={phase === 'finishing' || (!active && ['connecting', 'listening', 'finishing'].includes(status))}
-                  onPress={() => (active ? stop() : start())} accessibilityRole="button"
-                  accessibilityLabel={recording ? 'Dừng thu âm' : 'Bắt đầu thu âm'}
-                  accessibilityState={{ disabled: phase === 'finishing' || (!active && ['connecting', 'listening', 'finishing'].includes(status)) }}>
-                  {recording ? <View style={styles.stopSquare} /> : <MicGlyph color="#FFFFFF" />}
-                </Pressable>
-              </View>
-              <Text style={styles.micLabel}>{micLabel}</Text>
-            </View>
-
-            <View style={styles.transcriptHeader}>
-              <Text style={styles.sectionTitle}>Phụ đề</Text>
-              <Text style={styles.transcriptHint}>VI · EN · JA</Text>
-            </View>
-            {!!interim && (
-              <View style={styles.interimCard}>
-                <Text style={styles.interimTag}>TIẾNG VIỆT · ĐANG NGHE</Text>
-                <Text style={styles.interim}>{interim}</Text>
-              </View>
-            )}
-            <FlatList ref={listRef} style={styles.captions} data={captions}
-              keyExtractor={item => String(item.id)} contentContainerStyle={styles.captionList}
-              onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: true })}
-              ListEmptyComponent={<View style={styles.emptyCard}><Text style={styles.emptyTitle}>Phụ đề sẽ xuất hiện ở đây</Text><Text style={styles.empty}>Bấm nút micro và bắt đầu nói khi màn hình xem đã mở.</Text></View>}
-              renderItem={({ item }) => (
-                <View style={styles.caption}>
-                  <Text style={styles.captionVi}>{item.vi}</Text>
-                  {item.status === 'done' ? (
-                    <>
-                      <View style={styles.langRow}><Text style={[styles.langTag, { color: C.en }]}>EN</Text><Text style={styles.captionLang}>{item.en}</Text></View>
-                      <View style={styles.langRow}><Text style={[styles.langTag, { color: C.ja }]}>JA</Text><Text style={styles.captionLang}>{item.ja}</Text></View>
-                    </>
-                  ) : <Text style={[styles.captionPending, item.status === 'error' && styles.captionError]}>{item.status === 'error' ? `Chưa dịch được: ${item.error}` : 'Đang dịch…'}</Text>}
-                </View>
-              )} />
-          </View>
-        )}
+        {!connected ? <ConnectionScreen
+          code={code} setCode={setCode} linkText={linkText} setLinkText={setLinkText}
+          customCode={customCode} setCustomCode={setCustomCode} accessKey={accessKey} setAccessKey={setAccessKey}
+          connecting={connecting} creating={creating} needsKey={needsKey}
+          message={message} noticeError={noticeError} flash={flash}
+          canReconnect={!!link && !ended} showLink={showLinkOptions} toggleLink={() => setShowLinkOptions(v => !v)}
+          showCreate={showCreate} toggleCreate={() => setShowCreate(v => !v)}
+          scan={openScanner} join={() => joinByCode(code)} connect={connect} paste={paste}
+          create={createNewSession} reconnect={reconnect} />
+          : <MicrophoneScreen phase={phase} disabled={micDisabled} sessionCode={sessionCode}
+            message={message} noticeError={noticeError} statusLabel={STATUS_LABEL[status] || 'Sẵn sàng'}
+            tone={tone} statusBackground={statusBackground} ringScale={ringScale} ringOpacity={ringOpacity}
+            interim={interim} captions={captions} showCaptions={showCaptions}
+            toggleCaptions={() => setShowCaptions(v => !v)} onMic={() => active ? stop() : start()}
+            copyCode={() => { Clipboard.setString(sessionCode); note('Đã sao chép mã phiên.'); }} />}
       </KeyboardAvoidingView>
-
+      <ServerSettings visible={showServerOptions} close={() => setShowServerOptions(false)}
+        serverBase={serverBase} setServerBase={setServerBase} accessKey={accessKey} setAccessKey={setAccessKey} />
       <Modal visible={scanning} animationType="slide" onRequestClose={() => setScanning(false)}>
         <View style={styles.scannerRoot}>
-          <Camera
-            style={StyleSheet.absoluteFill} device="back"
-            isActive={scanning} outputs={[objectOutput]}
-          />
+          <Camera style={StyleSheet.absoluteFill} device="back" isActive={scanning} outputs={[objectOutput]} />
           <View style={styles.scanFrame} />
-          <Text style={styles.scanHint}>Đưa mã QR trên màn hình xem vào khung</Text>
-          <Pressable
-            style={({ pressed }) => [styles.scanClose, pressed && styles.pressed]}
-            onPress={() => setScanning(false)} accessibilityLabel="Đóng camera">
-            <Text style={styles.scanCloseText}>Đóng</Text>
+          <Text style={styles.scanHint}>Đưa mã QR vào khung để kết nối</Text>
+          <Pressable style={({ pressed }) => [styles.scanClose, pressed && styles.pressed]}
+            onPress={() => setScanning(false)} accessibilityRole="button" accessibilityLabel="Đóng camera">
+            <AppIcon name="close" size={20} /><Text style={styles.scanCloseText}>Đóng</Text>
           </Pressable>
         </View>
       </Modal>

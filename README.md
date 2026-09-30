@@ -139,6 +139,9 @@ Nếu không đặt nơi lưu settings, lựa chọn chỉ tồn tại đến kh
 ## Phát triển và phát hành app
 
 App trong `mobile/` dùng React Native 0.87.1, chung giao thức với micro web.
+Giao diện ưu tiên quét QR/nhập mã; tạo phiên và liên kết nằm trong mục mở rộng.
+Cài đặt nằm ở nút bánh răng. Trong phiên, nút micro lớn dùng bắt đầu/dừng,
+phụ đề mở riêng qua **Xem phụ đề**; nút rời phiên xác nhận nếu đang thu.
 Client vào phòng, đợi `snapshot`, gửi `start` và chỉ truyền audio khi server trả
 `ready`. App nhớ địa chỉ server và mã truy cập tạo phiên bằng AsyncStorage.
 

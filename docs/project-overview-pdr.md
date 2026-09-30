@@ -19,6 +19,9 @@ giao diện đơn giản và xử lý trên dịch vụ AI, không cần GPU t�
 - App React Native trong `mobile/` có thể quét QR, nhập mã phiên, dán liên kết
   mic, hoặc tự tạo phòng rồi vào vai trò mic; nó thay thế `mic.html` khi cần app
   cài trên điện thoại.
+- App ưu tiên QR/mã phiên, thu gọn tạo phiên/liên kết; cài đặt mở riêng.
+  Nút micro lớn với icon bắt đầu/dừng, phụ đề nằm trong màn mở rộng.
+  Rời phiên khi đang thu cần xác nhận; icon trang trí không thêm vào accessibility.
 - Điện thoại xin quyền mic sau khi người dùng bấm bắt đầu; có nút dừng rõ ràng.
 - Server yêu cầu có ít nhất một màn hình web trong phòng trước khi thu âm,
   kể cả khi phòng được tạo từ app điện thoại.
