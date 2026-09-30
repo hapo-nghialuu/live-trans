@@ -30,10 +30,19 @@ export class Captions {
     const listening = Boolean(this.interim);
     for (const lang of ['en', 'ja']) {
       const node = $(`caption-${lang}`);
-      const translated = !listening && latest?.[lang];
-      node.textContent = listening ? 'Đang nghe câu tiếp theo…' : translated || (latest?.status === 'error' ? 'Chưa dịch được câu này.' : latest ? 'Đang dịch…' : `Phụ đề tiếng ${lang === 'en' ? 'Anh' : 'Nhật'} sẽ hiện ở đây.`);
+      // Keep the last available translation visible while the next sentence arrives.
+      const translated = this.items.findLast(item => item[lang])?.[lang];
+      const empty = lang === 'en' ? 'Waiting for the speaker…' : '開始までお待ちください…';
+      const pending = lang === 'en' ? 'Preparing captions…' : '字幕を準備しています…';
+      const error = lang === 'en' ? 'Translation temporarily unavailable.' : '翻訳は一時的に利用できません。';
+      node.textContent = translated || (latest?.status === 'error' ? error : latest || listening ? pending : empty);
       node.classList.toggle('empty', !translated);
     }
+    const failed = latest?.status === 'error';
+    $('caption-progress').hidden = !failed && !listening && latest?.status !== 'translating';
+    $('caption-progress').textContent = failed
+      ? 'Translation temporarily unavailable · 翻訳は一時的に利用できません'
+      : 'Updating captions… · 字幕を更新しています…';
     $('translation-status').textContent = listening ? 'Bản dịch sẽ hiện khi câu đang nói hoàn tất.' : latest?.status === 'error' ? 'Dịch chưa thành công. Lời gốc tiếng Việt vẫn được giữ lại.' : latest?.status === 'translating' ? 'Đang chuyển lời của bạn sang hai ngôn ngữ…' : '';
     this.renderOriginal();
     const recent = (listening ? this.items.slice(-3) : this.items.slice(-4, -1)).reverse();

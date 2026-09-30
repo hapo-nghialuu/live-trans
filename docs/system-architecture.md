@@ -9,8 +9,9 @@
    hoặc viewer (`role=viewer`) mà không để token trong mã phiên.
 3. `public/audio-capture.js`/AudioWorklet hoặc `mobile/src/audio.ts` lấy âm
    thanh, thành PCM16 mono 16 kHz rồi gửi WebSocket theo frame khoảng 100 ms.
-4. `server/transcriber.js` truyền PCM tới Gemini Live, model cấu hình trong
-   `server/config.js`: `gemini-3.5-transcribe-live`. VI interim phát ngay về client.
+4. `server/transcriber.js` truyền PCM tới Gemini Live (`gemini-3.5-transcribe-live`),
+   hoặc `server/deepgram.js` tới Deepgram (`nova-3`) theo provider của phòng.
+   VI interim phát ngay về client.
 5. Câu VI hoàn chỉnh vào `TranslationQueue`; `server/translation.js` gọi
    `gemini-3.5-flash-lite` với JSON gồm EN/JA và tối đa ba câu nguồn làm ngữ cảnh.
    Hàng đợi xử lý lần lượt từng câu; một request trả cả hai ngôn ngữ.
@@ -35,6 +36,11 @@ Giao diện web dùng chung `public/styles.css`: `index.html` tạo/xem phiên,
 `mic.html` điều khiển micro trên trình duyệt, `settings.html` đổi provider mặc
 định cho phiên mới. Mỗi trang giữ ID DOM mà module JavaScript tương ứng dùng;
 đổi bố cục không đổi giao thức phòng hay luồng âm thanh.
+`public/presentation.js` quản lý fullscreen/chế độ người xem;
+`public/projection-captions.js` fit chữ và chia trang riêng từng ngôn ngữ theo
+kích thước thực tế. Bản gốc DOM được giữ cho lịch sử và chế độ vận hành; bản
+trình chiếu cập nhật khi bản dịch thay đổi, không reset trang khi lời mới còn
+đang nhận dạng.
 
 ## Kết nối mobile
 
@@ -49,9 +55,9 @@ và chỉ bật stream mic sau sự kiện `ready` từ server. Kết nối sock
 12 giây; lỗi đóng có mã/reason khi runtime cung cấp. Lỗi server được hiển thị
 và dừng mic; kết nối lại cần bấm bắt đầu.
 
-Ở backend, Gemini và Deepgram chờ tối đa 20 giây để nhận tín hiệu sẵn sàng từ
-dịch vụ nhận giọng nói; thời gian này nằm dưới giới hạn khởi động 25 giây ở
-trang mic.
+Ở backend, thời hạn khởi động upstream là 20 giây, dưới giới hạn 25 giây ở
+trang mic. Deepgram sẵn sàng ngay khi WebSocket mở, không chờ Metadata; khi
+không gửi audio ít nhất bốn giây, gửi KeepAlive mỗi bốn giây.
 
 ## Giới hạn và vòng đời
 
@@ -63,7 +69,7 @@ quá tải trả lỗi rõ ràng. Request dịch timeout sau 12 giây.
 Server yêu cầu ít nhất một viewer trước khi bắt đầu thu. Dọn phòng chạy mỗi
 30 giây; điều kiện 15 phút tính từ lúc tạo phòng, không phải lúc ngắt mic.
 
-Mỗi lượt thu dừng sau chín phút. Stop kết thúc audio đầu vào, cho ASR tối đa
+Lượt thu Gemini dừng sau chín phút; Deepgram không áp dụng giới hạn lượt này. Stop kết thúc audio đầu vào, cho ASR tối đa
 3,5 giây hoàn tất trước khi đóng; bản dịch đã xếp hàng có thể hoàn tất sau đó.
 Mất toàn bộ viewer trong mười giây sẽ dừng thu. Kết thúc phòng hủy hàng đợi,
 đóng ASR và WebSocket. Restart service xóa mọi phòng trong RAM.

@@ -1,7 +1,7 @@
 # Tổng quan Live Trans
 
-Prototype cá nhân: điện thoại thu tiếng Việt, màn hình web hiển thị tiếng Việt
-đang nói và phụ đề tiếng Anh/tiếng Nhật khi câu hoàn tất. Ưu tiên độ trễ thấp,
+Dùng điện thoại thu lời MC tiếng Việt và chiếu phụ đề Anh/Nhật lên màn hình
+để khách nước ngoài theo dõi nội dung. Lời gốc tiếng Việt dành cho người vận hành. Ưu tiên độ trễ thấp,
 giao diện đơn giản và xử lý trên dịch vụ AI, không cần GPU tại máy người dùng.
 
 ## Phạm vi hiện tại
@@ -17,7 +17,11 @@ giao diện đơn giản và xử lý trên dịch vụ AI, không cần GPU t�
 - Điện thoại xin quyền mic sau khi người dùng bấm bắt đầu; có nút dừng rõ ràng.
 - Server yêu cầu có ít nhất một màn hình web trong phòng trước khi thu âm,
   kể cả khi phòng được tạo từ app điện thoại.
-- Hai bản dịch xuất hiện cùng câu nguồn, kèm trạng thái chờ hoặc lỗi dịch.
+- Chế độ trình chiếu nền trắng, chữ lớn: Anh phía trên, Nhật phía dưới; ẩn QR,
+  điều khiển và lời gốc. Esc/nút thoát đưa về màn hình vận hành. Ghép mic thành
+  công tự thu gọn bảng kết nối; có nút mở lại.
+- Giữ bản dịch trước khi có lời mới; trạng thái chờ/lỗi dùng Anh/Nhật. Đoạn dài
+  giảm cỡ chữ tối đa đến 28 px rồi tự chia trang, đổi sau 8–30 giây theo độ dài.
 - Mỗi phòng có một mic, tối đa năm màn hình xem; tối đa ba phòng trên server.
 - Không có tài khoản, cơ sở dữ liệu, lưu âm thanh hay xuất lịch sử.
 
@@ -50,18 +54,23 @@ hay app đã phát hành trên App Store/Google Play.
 Repo có kiểm tra cú pháp, test HTTP/WebSocket và bộ resample. Script
 `npm run test:live` gửi giọng Việt tổng hợp thật qua hai client tới Gemini.
 Các kiểm tra này không thay thế thử mic trên điện thoại vật lý, đổi mạng hay
-phiên thu kéo dài. Phiên thu tự dừng sau chín phút; cần bấm bắt đầu để tiếp tục.
+phiên thu kéo dài. Với Gemini, phiên thu tự dừng sau chín phút; cần bấm bắt đầu để tiếp tục.
+Deepgram không có giới hạn lượt thu này; phòng vẫn hết hạn sau hai giờ.
 Phòng chờ không có mic hay lượt thu trong 15 phút sẽ bị đóng sớm; phòng đang
 hoạt động vẫn hết hạn sau hai giờ.
 Mức trễ thực tế phụ thuộc mạng, cách ngắt câu và dịch vụ AI.
 
 Mobile có test render cơ bản và test URL dùng URL shim của React Native;
 camera, clipboard, storage và HTTP dùng mock, không kiểm chứng mic/Google thật.
-Đối chiếu ngày 2026-09-29: `npm run check` kiểm tra 21 file JavaScript và
-`npm test` chạy 20 test, đều exit 0. Chrome headless kiểm tra giao diện web ở
-desktop 1440 px và mobile 320/390 px không tràn ngang; tạo phiên và đổi
-provider với mã truy cập giả hoạt động trên server local. Lần này chưa chạy
-test mobile, gọi AI thật hoặc kiểm tra server triển khai trực tiếp.
+Đối chiếu ngày 2026-09-30: `npm run check` kiểm tra 24 file JavaScript và
+`npm test` chạy 24 test, đều exit 0. Chrome headless kiểm tra trình chiếu ở
+1920×1080 và 1280×720, bố cục 320/390 px; đoạn mẫu dài được chia trang và cả
+hai ngôn ngữ nằm trong viewport. Đã kiểm tra thoát bằng Esc/nút thoát, ghép
+mic thu gọn điều khiển và fallback khi fullscreen không hỗ trợ. Nội dung QA
+là dữ liệu mẫu; chưa kiểm chứng máy chiếu, mic điện thoại hoặc AI thật.
+
+Thay đổi UI ngày 2026-09-30 tập trung vào người xem phụ đề; không thay đổi
+giao thức âm thanh/phòng.
 
 Kiến trúc: [system-architecture.md](system-architecture.md).
 `.sync_hash` ghi revision mã nguồn đã đối chiếu với tài liệu, không phải bằng

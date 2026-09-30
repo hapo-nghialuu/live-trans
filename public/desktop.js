@@ -1,7 +1,9 @@
 import { $, credentials, RoomSocket, showNotice, showStatus } from './shared.js';
 import { Captions } from './captions.js';
+import { setupPresentation } from './presentation.js';
 
 const captions = new Captions();
+const presentation = setupPresentation();
 const hash = new URLSearchParams(location.hash.slice(1));
 let accessKey = hash.get('access') || '';
 if (hash.has('access')) {
@@ -13,6 +15,7 @@ let micUrl = '';
 let ended = false;
 let joined = false;
 let connectionError = '';
+let micConnected = false;
 
 function showPhone(event) {
   if (typeof event.micUrl === 'string') micUrl = event.micUrl;
@@ -27,6 +30,9 @@ function showPhone(event) {
 
 function updateStatus(event) {
   showStatus(event.status, event.message);
+  presentation.status(event.status);
+  if (event.micConnected && !micConnected) presentation.connected();
+  micConnected = Boolean(event.micConnected);
   if (event.provider) {
     $('provider-badge').hidden = false;
     $('provider-badge').textContent = event.provider === 'deepgram' ? 'Deepgram' : 'Gemini';
@@ -41,6 +47,8 @@ function updateStatus(event) {
 }
 
 function backToWelcome(message) {
+  presentation.reset();
+  document.body.classList.remove('has-session');
   ended = true;
   peer?.close();
   history.replaceState(null, '', `${location.pathname}${location.search}`);
@@ -64,6 +72,7 @@ function onEvent(event) {
   else if (event.type === 'caption') captions.update(event.caption);
   else if (event.type === 'interim') captions.setInterim(event.text);
   else if (event.type === 'error') {
+    presentation.status('error');
     connectionError = event.message || 'Có lỗi xảy ra. Vui lòng thử lại.';
     if (!joined) return backToWelcome(connectionError);
     showNotice(connectionError);
@@ -74,11 +83,16 @@ function onEvent(event) {
 }
 
 function openRoom(auth) {
+  ended = false;
+  joined = false;
+  micConnected = false;
+  document.body.classList.add('has-session');
   $('welcome').hidden = true;
   $('session').hidden = false;
   peer = new RoomSocket('viewer', auth, onEvent, (state) => {
     if (ended) return;
     showStatus(state);
+    presentation.status(state);
     $('reconnect').hidden = state !== 'disconnected';
     $('pause-mic').disabled = true;
     if (state === 'disconnected') showNotice(connectionError || 'Mất kết nối với máy chủ. Nhấn Kết nối lại để tiếp tục nhận phụ đề.');
@@ -176,15 +190,6 @@ $('end-session').addEventListener('click', () => {
   if (window.confirm('Kết thúc phiên và ngắt micro trên điện thoại?')) {
     if (!peer?.send({ type: 'end' })) showNotice('Chưa kết nối với máy chủ. Kết nối lại rồi kết thúc phiên.');
   }
-});
-$('fullscreen').addEventListener('click', async () => {
-  try {
-    if (document.fullscreenElement) await document.exitFullscreen();
-    else await document.documentElement.requestFullscreen();
-  } catch { showNotice('Trình duyệt này không hỗ trợ toàn màn hình. Bạn vẫn có thể xem phụ đề bình thường.'); }
-});
-document.addEventListener('fullscreenchange', () => {
-  $('fullscreen').textContent = document.fullscreenElement ? 'Thoát toàn màn hình' : 'Toàn màn hình';
 });
 window.addEventListener('pagehide', () => peer?.close());
 window.addEventListener('pageshow', (event) => { if (event.persisted && peer && !ended) peer.connect(); });
