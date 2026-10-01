@@ -11,7 +11,7 @@ const labels = {
     ready: 'Waiting for the speaker', waiting: 'Waiting for the microphone',
     closed: 'This session has ended.', error: 'Unable to connect. Please try again.',
     disconnected: 'Connection lost. Please reconnect.', invalid: 'Invalid display link or expired session.',
-    full: 'Full screen', exit: 'Exit full screen', reconnect: 'Reconnect',
+    controls: 'Controls', full: 'Full screen', exit: 'Exit full screen', reconnect: 'Reconnect',
     fullscreenError: 'Full screen is unavailable. You can keep using this window.',
   },
   ja: {
@@ -22,7 +22,7 @@ const labels = {
     ready: '開始までお待ちください', waiting: 'マイクの接続をお待ちください',
     closed: 'このセッションは終了しました。', error: '接続できません。もう一度お試しください。',
     disconnected: '接続が切れました。再接続してください。', invalid: 'リンクが無効か、セッションの有効期限が切れています。',
-    full: '全画面表示', exit: '全画面表示を終了', reconnect: '再接続',
+    controls: '操作', full: '全画面表示', exit: '全画面表示を終了', reconnect: '再接続',
     fullscreenError: '全画面表示を利用できません。このウィンドウで引き続きご覧いただけます。',
   },
 }[lang];
@@ -32,6 +32,7 @@ $('language-title').textContent = labels.title;
 $('caption-scroll').setAttribute('aria-label', labels.captions);
 $('reconnect').textContent = labels.reconnect;
 $('fullscreen').textContent = labels.full;
+$('controls-label').textContent = labels.controls;
 
 const auth = credentials();
 const validLink = ['en', 'ja'].includes(requested) && /^[\w-]{12}$/.test(auth.room || '')
@@ -42,6 +43,7 @@ let peer;
 function status(state) {
   $('connection-status').textContent = labels[state] || labels.waiting;
   $('connection-status').dataset.state = state;
+  document.body.classList.toggle('connection-problem', ['error', 'invalid', 'disconnected', 'closed'].includes(state));
   $('reconnect').hidden = !validLink || ended || !['error', 'invalid', 'disconnected'].includes(state);
 }
 
@@ -64,6 +66,7 @@ function render() {
   const latest = items.at(-1);
   const failed = latest?.status === 'error';
   $('caption-progress').hidden = ended || (!failed && !interim && latest?.status !== 'translating');
+  $('caption-progress').dataset.state = failed ? 'error' : 'updating';
   $('caption-progress').textContent = failed ? labels.translationError : labels.updating;
   // Chỉ bản dịch thay đổi mới đưa màn hình tới câu mới nhất.
   if (translations && translations !== previous) $('caption-scroll').scrollTop = $('caption-scroll').scrollHeight;
@@ -125,8 +128,17 @@ $('fullscreen').addEventListener('click', async () => {
     $('fullscreen-error').hidden = false;
   }
   fullscreenState();
+  if ($('fullscreen-error').hidden) $('display-controls').open = false;
 });
 document.addEventListener('fullscreenchange', fullscreenState);
 render();
 if (validLink) connect();
 else status('invalid');
+
+// Reserve the actual controls/error height so the newest lines stay readable.
+new ResizeObserver(([entry]) => {
+  const scroll = $('caption-scroll');
+  const atBottom = scroll.scrollHeight - scroll.scrollTop - scroll.clientHeight < 2;
+  document.documentElement.style.setProperty('--controls-space', `${Math.ceil(entry.target.getBoundingClientRect().height)}px`);
+  if (atBottom) scroll.scrollTop = scroll.scrollHeight;
+}).observe(document.querySelector('.display-footer'));

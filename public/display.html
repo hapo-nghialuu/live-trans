@@ -11,21 +11,21 @@
 </head>
 <body>
   <main class="display">
-    <header class="display-heading">
-      <span class="brand">Live Trans</span>
-      <h1 id="language-title">English</h1>
-    </header>
+    <h1 id="language-title" class="sr-only">English</h1>
     <section id="caption-scroll" class="caption-scroll" aria-label="English captions" tabindex="0">
       <p id="captions" class="captions empty">Waiting for the speaker…</p>
     </section>
     <footer class="display-footer">
       <p id="caption-progress" class="caption-progress" role="status" hidden></p>
       <p id="connection-status" class="connection-status" role="status">Connecting…</p>
-      <div class="display-actions">
-        <button id="reconnect" type="button" hidden>Reconnect</button>
-        <button id="fullscreen" type="button" aria-pressed="false">Full screen</button>
-      </div>
-      <p id="fullscreen-error" class="fullscreen-error" role="status" hidden></p>
+      <details id="display-controls" class="display-controls">
+        <summary id="controls-label">Controls</summary>
+        <div class="display-actions">
+          <button id="reconnect" type="button" hidden>Reconnect</button>
+          <button id="fullscreen" type="button" aria-pressed="false">Full screen</button>
+        </div>
+        <p id="fullscreen-error" class="fullscreen-error" role="status" hidden></p>
+      </details>
     </footer>
   </main>
 </body>

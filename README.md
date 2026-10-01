@@ -4,7 +4,8 @@ Thu lời nói tiếng Việt từ điện thoại và hiển thị bản dịch
 trên web theo thời gian thực. Dùng cho hội nghị, sự kiện và các buổi giao lưu để
 khách nước ngoài theo dõi nội dung người dẫn chương trình đang nói.
 
-Web và app dùng giao diện sáng, tập trung vào thu âm và đọc phụ đề.
+Trang điều khiển và app dùng giao diện sáng. Cửa sổ phụ đề sân khấu dùng nền
+xám đậm, chữ trắng căn trái, không logo/tiêu đề lớn để tập trung đọc nội dung.
 Không cần GPU hay cài phần mềm trên máy tính trình chiếu.
 
 - **Mở web:** [live.hapo.work](https://live.hapo.work/)
@@ -24,7 +25,7 @@ Không cần GPU hay cài phần mềm trên máy tính trình chiếu.
 4. Khi chưa có điện thoại kết nối, web ưu tiên QR lớn và mã phiên để dễ quét.
    Khi điện thoại kết nối, web hiện hai nút mở cửa sổ **English** và **日本語**.
    Mở từng cửa sổ, kéo sang hai màn hình dọc rồi chọn **Toàn màn hình** trong
-   từng cửa sổ. Mỗi cửa sổ chỉ hiển thị một ngôn ngữ và tự cuộn khi có bản dịch mới.
+   từng cửa sổ (mở mục **Controls** / **操作** ở góc dưới). Mỗi cửa sổ chỉ hiển thị một ngôn ngữ và tự cuộn khi có bản dịch mới.
 5. Chọn **Dừng** trên điện thoại để dừng thu và hoàn tất câu cuối.
    Trên web mở **Điều khiển phiên** để dừng thu từ xa, rời phiên hoặc kết thúc
    phiên cho mọi người (cần xác nhận).

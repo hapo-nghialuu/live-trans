@@ -45,7 +45,8 @@ và `apple-touch-icon.png` là bộ nhận diện web; static server hỗ trợ 
 mở cửa sổ riêng cho từng ngôn ngữ. Điện thoại kết nối thì trang chính hiện
 nút mở English/日本語; ngắt kết nối thì hiện lại QR.
 `display.html?lang=en|ja#room=…&token=…` cùng `display.js`/`display.css` dùng
-viewer socket độc lập, phù hợp màn dọc. Mỗi cửa sổ giữ tối đa 30 câu, chỉ cuộn
+viewer socket độc lập, phù hợp màn dọc: nền xám đậm, chữ trắng căn trái,
+không logo/tiêu đề lớn, điều khiển thu gọn ở góc dưới. Mỗi cửa sổ giữ tối đa 30 câu, chỉ cuộn
 khi bản dịch thay đổi; có fullscreen và kết nối lại riêng. Không gọi AI thêm.
 Trang điều khiển và hai cửa sổ tính là ba viewer trong giới hạn năm viewer/phòng.
 `public/captions.js` và `public/projection-captions.js` giữ bản xem trước hai
