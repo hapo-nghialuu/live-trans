@@ -9,6 +9,11 @@
    hoặc viewer (`role=viewer`) mà không để token trong mã phiên.
 3. `public/audio-capture.js`/AudioWorklet hoặc `mobile/src/audio.ts` lấy âm
    thanh, thành PCM16 mono 16 kHz rồi gửi WebSocket theo frame khoảng 100 ms.
+   Trên web, `public/audio-source.js` dựng ràng buộc `getUserMedia` theo thiết bị
+   đã chọn và chế độ nguồn mixer (tắt echo cancellation, noise suppression, AGC),
+   tự quay về micro mặc định khi thiết bị không còn, và đo RMS/đỉnh trên mọi frame.
+   `public/source-panel-state.js` giữ lựa chọn trong `localStorage` và logic kiểm
+   tra tín hiệu; kiểm tra chỉ mở micro cục bộ, không gửi `start` hay âm thanh.
 4. `server/transcriber.js` truyền PCM tới Gemini Live (`gemini-3.5-transcribe-live`),
    hoặc `server/deepgram.js` tới Deepgram (`nova-3`) theo provider của phòng.
    VI interim phát ngay về client.

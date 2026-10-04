@@ -36,6 +36,13 @@ mở các thao tác quản lý; nút toàn màn hình nằm riêng trong từng 
 trên máy này; **Kết thúc phiên cho mọi người** ngắt micro và xóa lịch sử. Nếu điện
 thoại ngắt kết nối, web hiện lại QR; lịch sử vẫn được giữ cho đến khi phiên kết thúc.
 
+**Lấy tiếng từ bàn mixer:** ở hội trường có hệ thống âm thanh, nối cổng AUX/REC OUT
+của mixer vào card âm thanh USB trên laptop rồi mở liên kết micro trên trình duyệt
+của laptop. Mở mục **Nguồn âm thanh** dưới thanh âm lượng: chọn card USB, bật
+**Nguồn từ mixer** để tắt lọc vọng, lọc ồn và tự chỉnh âm lượng, rồi bấm
+**Kiểm tra tín hiệu** để xem mức âm mà chưa gửi gì lên máy chủ. Trang cảnh báo khi
+tín hiệu quá mức hoặc quá nhỏ. Lựa chọn được nhớ trên trình duyệt đó.
+
 Cũng có thể tạo phiên từ app điện thoại, sau đó nhập mã trên web để vào xem.
 Cần có ít nhất một màn hình xem trước khi bắt đầu thu âm. Trang điều khiển và
 hai cửa sổ phụ đề dùng chung phiên, không tạo thêm phiên dịch hay gọi AI riêng.
