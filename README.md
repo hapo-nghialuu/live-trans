@@ -198,8 +198,19 @@ trang hướng dẫn bằng hình và favicon bo góc.
 | Runtime config | `/etc/live-trans/runtime.env`, root sở hữu, quyền `600`. |
 | SSH alias quản trị | `hapo_gateway_stg` |
 
-Quy trình cập nhật: đưa mã và production dependencies vào thư mục release mới,
-kiểm tra cấu hình, chuyển symlink `current`, rồi restart service. Khi đổi tên
+Cập nhật bằng một lệnh, sau khi đã commit và push lên `main`:
+
+```sh
+scripts/deploy.sh          # hỏi xác nhận trước khi restart
+scripts/deploy.sh --yes    # bỏ qua câu hỏi
+```
+
+Script lấy đúng nội dung commit `HEAD` (`git archive`) vào `releases/<sha 7 ký tự>`,
+chạy `npm ci --omit=dev`, `npm run check` và `npm test` ngay trên server, chuyển
+symlink `current`, restart và chờ `/api/health`. Nếu service không khoẻ, script tự
+trỏ `current` về release trước. Cuối cùng kiểm tra URL công khai, giữ 5 release mới
+nhất (`DEPLOY_KEEP`) và in lệnh rollback. Script từ chối chạy khi còn thay đổi chưa
+commit hoặc `HEAD` chưa được push. Khi đổi tên
 miền/đường dẫn, cập nhật `PUBLIC_URL`/`PUBLIC_ALIASES` và route Caddy; validate
 cấu hình Caddy trước khi reload. QR dùng origin đang mở khi origin đó được
 khai báo trong aliases.
