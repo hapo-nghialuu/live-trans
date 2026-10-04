@@ -1,4 +1,5 @@
 import { createResampler, floatToPcm16 } from './resampler.js';
+import { createLevelReporter } from './audio-source.js';
 
 class PcmProcessor extends AudioWorkletProcessor {
   constructor() {
@@ -7,7 +8,7 @@ class PcmProcessor extends AudioWorkletProcessor {
     this.resampler = createResampler(sampleRate);
     this.chunk = new Float32Array(1600);
     this.count = 0;
-    this.levelFrames = 0;
+    this.level = createLevelReporter();
     this.port.onmessage = ({ data }) => {
       if (data.type === 'record') {
         this.enabled = data.enabled;
@@ -31,12 +32,8 @@ class PcmProcessor extends AudioWorkletProcessor {
   process(inputs) {
     const input = inputs[0]?.[0];
     if (!input) return true;
-    if (++this.levelFrames >= 12) {
-      let sum = 0;
-      for (const value of input) sum += value * value;
-      this.port.postMessage({ type: 'level', rms: Math.sqrt(sum / input.length) });
-      this.levelFrames = 0;
-    }
+    const level = this.level.push(input);
+    if (level) this.port.postMessage({ type: 'level', rms: level.rms, peak: level.peak });
     if (this.enabled) {
       for (const value of this.resampler.push(input)) {
         this.chunk[this.count++] = value;

@@ -27,6 +27,17 @@
           <span id="mic-button-label">Bắt đầu nói</span>
         </button>
         <div class="audio-level"><span>Âm lượng micro</span><meter id="audio-level" min="0" max="1" value="0" aria-label="Âm lượng micro"></meter></div>
+        <p id="signal-hint" class="signal-hint" role="status"></p>
+        <details id="source-panel" class="source-panel">
+          <summary>Nguồn âm thanh</summary>
+          <div class="source-body">
+            <label for="audio-device">Thiết bị đầu vào</label>
+            <select id="audio-device"><option value="">Micro mặc định</option></select>
+            <label class="source-toggle" for="mixer-mode"><input type="checkbox" id="mixer-mode"><span>Nguồn từ mixer (tắt xử lý âm thanh)</span></label>
+            <button id="signal-check" class="secondary" type="button" aria-pressed="false">Kiểm tra tín hiệu</button>
+            <p class="helper">Dùng khi cắm card âm thanh nối từ bàn mixer. Kiểm tra tín hiệu chỉ đo mức âm trên máy này, không gửi âm thanh lên máy chủ.</p>
+          </div>
+        </details>
         <p id="mic-guidance" class="helper">Cho phép truy cập micro khi trình duyệt hỏi.</p>
         <button id="reconnect" class="secondary" type="button" hidden>Kết nối lại</button>
       </div>

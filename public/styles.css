@@ -136,6 +136,15 @@ meter::-webkit-meter-optimum-value{border-radius:6px;background:var(--blue)}
 meter::-moz-meter-bar{background:var(--blue)}
 .mic-control>.helper{margin-top:12px}
 .mic-control>.secondary{margin-top:15px}
+.signal-hint{min-height:18px;margin-top:8px;color:var(--red);font-size:12px;font-weight:700;text-align:center}
+.signal-hint:empty{min-height:0;margin-top:0}
+.source-panel{width:100%;max-width:340px;margin-top:14px;text-align:left}
+.source-panel>summary{cursor:pointer;min-height:44px;padding:10px 0;color:var(--muted);font-size:14px;text-align:center}
+.source-body{display:grid;gap:10px;padding-top:4px}
+.source-body>label{color:var(--muted);font-size:13px;font-weight:700}
+.source-toggle{display:flex;align-items:center;gap:10px;min-height:44px;color:var(--text);font-size:14px}
+.source-toggle input{width:20px;min-height:20px;height:20px;margin:0;padding:0;accent-color:var(--blue)}
+.source-body .secondary{width:100%}
 .mic-preview{text-align:left;padding:21px 23px;border:1px solid var(--border);border-radius:18px;background:var(--surface)}
 .mic-preview>p{margin-top:13px;font-size:17px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
 .mic-notes{margin:20px 5px;text-align:left;color:var(--muted);font-size:13px;line-height:1.6}

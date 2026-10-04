@@ -1,25 +1,28 @@
+import { openStream } from './audio-source.js';
+
 export class AudioCapture {
-  constructor({ onAudio, onLevel, onError, onWake }) {
-    Object.assign(this, { onAudio, onLevel, onError, onWake });
+  constructor({ onAudio, onLevel, onError, onWake, onNotice }) {
+    Object.assign(this, { onAudio, onLevel, onError, onWake, onNotice });
     this.version = 0;
     this.recording = false;
   }
 
-  async open() {
+  async open(options = {}) {
     if (!isSecureContext || !navigator.mediaDevices?.getUserMedia) {
       throw new Error('Micro cần kết nối HTTPS. Hãy mở liên kết HTTPS trên điện thoại.');
     }
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     if (!AudioContextClass) throw new Error('Trình duyệt chưa hỗ trợ thu âm. Hãy dùng Safari hoặc Chrome mới.');
+    // A previous run that was never closed must not keep its stream or context alive.
+    if (this.context || this.stream) void this.close();
     const version = ++this.version;
     const context = new AudioContextClass();
     this.context = context;
     // Resume from the user's click, before waiting for the permission prompt.
     await context.resume();
     if (version !== this.version) return false;
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: {
-      channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true,
-    } });
+    // Wrapped so getUserMedia keeps navigator.mediaDevices as its receiver.
+    const stream = await openStream((constraints) => navigator.mediaDevices.getUserMedia(constraints), options, this.onNotice);
     if (version !== this.version) {
       stream.getTracks().forEach((track) => track.stop());
       return false;
@@ -32,7 +35,7 @@ export class AudioCapture {
     this.processor = node;
     node.port.onmessage = ({ data }) => {
       if (data.type === 'chunk') this.onAudio(data.pcm);
-      else if (data.type === 'level') this.onLevel(data.rms);
+      else if (data.type === 'level') this.onLevel(data.rms, data.peak);
     };
     node.onprocessorerror = () => this.onError('Bộ thu âm bị gián đoạn. Nhấn bắt đầu để thử lại.');
     this.source = context.createMediaStreamSource(stream);
@@ -45,7 +48,7 @@ export class AudioCapture {
     context.onstatechange = () => {
       if (this.recording && context.state !== 'running') this.onError('Thu âm đã bị hệ thống tạm dừng. Nhấn bắt đầu để tiếp tục.');
     };
-    this.requestWake(version);
+    if (options.wake !== false) this.requestWake(version);
     return true;
   }
 
@@ -94,6 +97,6 @@ export class AudioCapture {
     processor?.disconnect();
     silence?.disconnect();
     if (context && context.state !== 'closed') await context.close().catch(() => {});
-    if (version === this.version) { this.onLevel(0); this.onWake(''); }
+    if (version === this.version) { this.onLevel(0, 0); this.onWake(''); }
   }
 }
