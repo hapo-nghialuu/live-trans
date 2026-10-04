@@ -46,7 +46,7 @@ echo "3/4 Chuyển sang $SHA và restart"
 ssh "$HOST" "set -euo pipefail; cd $ROOT
   PORT=\$(sudo -n grep -E '^PORT=' /etc/live-trans/runtime.env | cut -d= -f2 || true)
   ln -sfn $RELEASE current && sudo -n systemctl restart live-trans
-  for i in 1 2 3 4 5 6 7 8 9 10; do curl -fsS -o /dev/null http://127.0.0.1:\${PORT:-4317}/api/health && exit 0; sleep 1; done
+  for i in 1 2 3 4 5 6 7 8 9 10; do curl -fsS -o /dev/null http://127.0.0.1:\${PORT:-4317}/api/health 2>/dev/null && exit 0; sleep 1; done
   echo 'Service không khoẻ, rollback về ${CURRENT##*/}' >&2
   ln -sfn $CURRENT current && sudo -n systemctl restart live-trans
   sudo -n journalctl -u live-trans --since '-1 min' --no-pager | tail -15 >&2
