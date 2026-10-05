@@ -280,10 +280,12 @@ async function fakeDeepgramRoom(t, options = {}) {
 }
 test('upstream reconnects after unexpected close without pausing the room', async t => {
   const { conns, room, mic } = await fakeDeepgramRoom(t);
-  assert.ok(mic.events.some(e => e.type === 'ready' && e.maxMinutes === 0));
+  // The server marks the room listening before the ready message reaches the mic socket.
+  await until(() => mic.events.some(e => e.type === 'ready' && e.maxMinutes === 0));
   conns[0].terminate();
   await until(() => conns.length === 2);   // retry ~800ms
-  await until(() => room.session?.asr && !room.session.asr.closed);
+  // failures resets in the ready callback, which fires on the client's open event — wait for it.
+  await until(() => room.session?.asr?.ready && !room.session.asr.closed);
   assert.equal(room.session.failures, 0);  // reset sau ready
   assert.equal(room.status, 'listening');
   assert.ok(!mic.events.some(e => e.status === 'paused'));
