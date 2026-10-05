@@ -44,7 +44,7 @@ img{max-width:100%}
 .action-card.create-form{border-color:#d1d5db}
 .card-icon{display:grid;place-items:center;width:43px;height:43px;margin-bottom:24px;border-radius:13px;background:var(--accent);color:#fff;font-size:25px;font-weight:400;line-height:1}
 .card-icon-soft{background:var(--accent-soft);color:var(--accent)}
-.action-heading{min-height:151px}
+.action-heading{min-height:0;margin-bottom:12px}
 .action-heading h2{margin:8px 0 9px;font-size:23px;font-weight:800;letter-spacing:-.03em}
 .action-heading>p:last-child{max-width:36ch;color:var(--muted);font-size:14px;line-height:1.55}
 .field{margin:0 0 16px}
@@ -225,8 +225,14 @@ meter::-moz-meter-bar{background:var(--brand)}
 .welcome .action-heading{min-height:auto;margin-bottom:24px}
 .welcome .action-heading h2{margin-top:0}
 .welcome .card-icon{margin-bottom:18px}
-.custom-code{margin-bottom:18px;color:var(--muted);font-size:13px}
-.custom-code>summary{cursor:pointer;min-height:44px;padding:12px 0}
+/* Both home cards share one rhythm: a 44px label row, an 8px gap, then a 50px control row. */
+.custom-code{margin-bottom:8px;color:var(--muted);font-size:13px}
+.custom-code>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;gap:6px;padding:0}
+.custom-code>summary{list-style:none}
+.custom-code>summary::-webkit-details-marker{display:none}
+.custom-code>summary::before{content:"";width:0;height:0;border-style:solid;border-width:4px 0 4px 6px;border-color:transparent transparent transparent currentColor;transition:transform .15s}
+.custom-code[open]>summary::before{transform:rotate(90deg)}
+@media(prefers-reduced-motion:reduce){.custom-code>summary::before{transition:none}}
 .custom-code .field{margin-top:8px}
 .guide{max-width:880px;margin:auto;padding:56px 0 72px}
 .guide>h1{font-size:clamp(32px,4vw,48px);letter-spacing:-.04em;margin-bottom:14px}
