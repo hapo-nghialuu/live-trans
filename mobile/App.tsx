@@ -313,7 +313,8 @@ export default function App() {
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
         <View style={styles.brandRow}>
-          <Image source={require('./assets/logo-mark.png')} style={styles.logo} accessibilityLabel="Live Trans" />
+          <Image source={require('./assets/haposoft-logo.png')} style={styles.logo} accessibilityLabel="Haposoft" />
+          <View style={styles.brandDivider} />
           <Text style={styles.brand}>Live Trans</Text>
         </View>
         <Pressable style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}

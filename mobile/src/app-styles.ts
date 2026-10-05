@@ -1,11 +1,12 @@
 import { StyleSheet } from 'react-native';
 
 // Shared light palette keeps status, text, and controls consistent across screens.
+// Colors follow the Haposoft 10-year event site on a white background.
 export const C = {
-  bg: '#F6F9FD', surface: '#FFFFFF', surface2: '#F0F5FB', border: '#DCE5F0',
-  text: '#17243B', muted: '#52647B', accent: '#2157C7', accentSoft: '#EAF1FF',
+  bg: '#FFFFFF', surface: '#FFFFFF', surface2: '#F3FBF7', border: '#DCEFE5',
+  text: '#06241C', muted: '#4B6159', accent: '#008557', accentSoft: '#E8F7EF',
   live: '#C93643', liveSoft: '#FFF0F1', ok: '#176A4C', okSoft: '#EAF7F1',
-  warn: '#956000', warnSoft: '#FFF7E5', en: '#2157C7', ja: '#7046A5',
+  warn: '#956000', warnSoft: '#FFF7E5', en: '#008557', ja: '#7046A5',
 };
 
 export const styles = StyleSheet.create({
@@ -14,7 +15,8 @@ export const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 20, paddingTop: 10, paddingBottom: 12, backgroundColor: C.bg },
   brandRow: { flexDirection: 'row', alignItems: 'center', flexShrink: 1 },
-  logo: { width: 42, height: 42, marginRight: 10, borderRadius: 12 },
+  logo: { width: 110, height: 20, resizeMode: 'contain' },
+  brandDivider: { width: 1, height: 22, backgroundColor: C.border, marginHorizontal: 10 },
   brand: { color: C.text, fontSize: 19, fontWeight: '800' },
   pill: { minHeight: 34, maxWidth: '100%', flexDirection: 'row', alignItems: 'center',
     borderRadius: 20, paddingHorizontal: 10, marginLeft: 8 },
