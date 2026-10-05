@@ -18,6 +18,10 @@ body { margin: 0; }
   scrollbar-width: none;
 }
 .caption-scroll::-webkit-scrollbar { display: none; }
+.caption-scroll.is-scrolled {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 72px);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 72px);
+}
 .captions {
   margin: 0; padding-bottom: var(--controls-space, 64px);
   font-size: clamp(28px, 4.8vw, 64px);

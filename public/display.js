@@ -30,6 +30,10 @@ document.documentElement.lang = lang;
 document.title = `Live Trans · ${labels.title}`;
 $('language-title').textContent = labels.title;
 $('caption-scroll').setAttribute('aria-label', labels.captions);
+// Fade the top edge only once older lines scroll out, so the first line is never dimmed.
+$('caption-scroll').addEventListener('scroll', () => {
+  $('caption-scroll').classList.toggle('is-scrolled', $('caption-scroll').scrollTop > 4);
+}, { passive: true });
 $('reconnect').textContent = labels.reconnect;
 $('fullscreen').textContent = labels.full;
 $('controls-label').textContent = labels.controls;

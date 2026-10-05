@@ -27,7 +27,7 @@ giao diện đơn giản và xử lý trên dịch vụ AI, không cần GPU t�
   kể cả khi phòng được tạo từ app điện thoại.
 - Chờ điện thoại: ưu tiên QR lớn và mã phiên. Điện thoại kết nối: hiện nút
   mở riêng cửa sổ tiếng Anh và tiếng Nhật, đặt trên hai màn hình dọc.
-- Mỗi cửa sổ phụ đề nền xám đậm, chữ trắng căn trái, chỉ một ngôn ngữ, giữ tối đa 30 câu.
+- Mỗi cửa sổ phụ đề nền xanh rêu, chữ sáng căn trái, chỉ một ngôn ngữ, giữ tối đa 30 câu.
   Có bản dịch mới thì tự cuộn; lời nhận dạng tạm thời không kéo vị trí cuộn.
   Fullscreen và kết nối lại nằm trong mục Controls/操作 ở góc dưới mỗi cửa sổ; không hiện nhãn “Live captions”.
 - Trang chính có bảng Điều khiển phiên: dừng từ xa, rời phiên trên máy này,

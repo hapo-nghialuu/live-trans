@@ -45,6 +45,7 @@ export function setupPresentation() {
       document.body.classList.toggle('has-mic', connected);
       document.body.classList.toggle('is-waiting', !connected);
       $('session-tools').hidden = connected;
+      $('session-live').hidden = !connected;
       document.querySelector('.caption-area').hidden = !connected;
       $('session-title').textContent = connected ? 'Màn hình trình chiếu' : 'Kết nối điện thoại';
       // Keep keyboard focus on a visible control when the waiting screen disappears.
@@ -52,8 +53,13 @@ export function setupPresentation() {
         (connected ? $('open-english') : $('session-menu')).focus();
       }
     },
-    status() {
-      $('controls-status').textContent = $('connection-status').textContent;
+    status(state) {
+      const text = $('connection-status').textContent;
+      $('controls-status').textContent = text;
+      $('session-live').textContent = text;
+      // Open the caption preview once each time recording starts, so the operator sees live text.
+      if (state === 'listening' && $('session-live').dataset.state !== 'listening') document.querySelector('.caption-preview').open = true;
+      $('session-live').dataset.state = state;
     },
   };
 }

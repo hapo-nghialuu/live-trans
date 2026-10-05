@@ -184,6 +184,7 @@ function onEvent(event) {
   } else if (event.type === 'ready' && phase === 'starting') {
     clearTimeout(startupTimer);
     phase = 'recording';
+    $('source-panel').open = false;
     capture.record();
     showStatus('listening');
     if (event.maxMinutes) limitTimer = setTimeout(() => halt(`Đã đủ ${event.maxMinutes} phút. Micro đã dừng; nhấn Bắt đầu nói để mở lượt thu tiếp theo.`, true, true), event.maxMinutes * 60000);

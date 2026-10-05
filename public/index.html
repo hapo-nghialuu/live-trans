@@ -46,7 +46,11 @@
       </section>
       <section id="session" class="session" aria-labelledby="session-title" hidden>
         <div class="session-heading">
-          <h1 id="session-title" tabindex="-1">Kết nối điện thoại</h1>
+          <div class="session-title-group">
+            <img class="session-logo" src="haposoft-logo.svg" width="99" height="18" alt="Haposoft">
+            <h1 id="session-title" tabindex="-1">Kết nối điện thoại</h1>
+            <span id="session-live" class="status session-live" data-state="connecting" role="status" hidden></span>
+          </div>
           <div class="session-actions">
             <button id="session-menu" class="secondary" type="button" aria-haspopup="dialog" aria-controls="session-controls">Điều khiển phiên</button>
           </div>

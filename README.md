@@ -5,7 +5,7 @@ trên web theo thời gian thực. Dùng cho hội nghị, sự kiện và các 
 khách nước ngoài theo dõi nội dung người dẫn chương trình đang nói.
 
 Trang điều khiển và app dùng giao diện sáng. Cửa sổ phụ đề sân khấu dùng nền
-xám đậm, chữ trắng căn trái, không logo/tiêu đề lớn để tập trung đọc nội dung.
+xanh rêu theo màu sự kiện Haposoft 10 năm, chữ sáng căn trái, không logo/tiêu đề lớn để tập trung đọc nội dung.
 Không cần GPU hay cài phần mềm trên máy tính trình chiếu.
 
 - **Mở web:** [live.hapo.work](https://live.hapo.work/)
