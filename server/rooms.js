@@ -2,6 +2,7 @@ import { randomBytes, randomInt, timingSafeEqual } from 'node:crypto';
 import QRCode from 'qrcode';
 import { Transcriber } from './transcriber.js';
 import { DeepgramTranscriber } from './deepgram.js';
+import { createSentenceCommitter } from './sentence-commit.js';
 import { translate, TranslationQueue } from './translation.js';
 
 const token = () => randomBytes(24).toString('base64url');
@@ -102,7 +103,8 @@ export class Rooms {
   start(room) {
     if (room.session || !room.mic) return;
     if (!room.viewers.size) return send(room.mic, { type: 'error', message: 'Hãy mở màn hình phụ đề trước khi thu âm.' });
-    const identity = { chain: 0, announced: false, failures: 0, stopping: false };
+    // Sentences are captioned as soon as they are complete, not when the ASR closes the turn.
+    const identity = { chain: 0, announced: false, failures: 0, stopping: false, committer: createSentenceCommitter() };
     room.session = identity; room.interim = '';
     room.audioBytes = 0; room.audioWindow = Date.now();
     this.status(room, 'connecting', 'Đang kết nối nhận giọng nói…');
@@ -123,6 +125,9 @@ export class Rooms {
         if (!current()) return asr.close();
         if (identity.pending === asr) {
           const prev = identity.asr;
+          // The old upstream's unfinished turn will never close; caption what it heard so far.
+          clearTimeout(identity.settleTimer);
+          for (const sentence of identity.committer.flush()) this.final(room, sentence);
           identity.asr = asr; identity.pending = null;
           prev?.close();
           console.log(`[room ${room.code}] asr chained #${++identity.chain}`);
@@ -140,10 +145,19 @@ export class Rooms {
       },
       interim: text => {
         if (!current() || identity.asr !== asr) return;
-        room.interim = text.slice(0, 4000);
-        this.broadcast(room, { type: 'interim', text: room.interim });
+        for (const sentence of identity.committer.interim(text)) this.final(room, sentence);
+        this.showPending(room, identity);
+        // Without further speech the last sentence commits once the transcript stops changing.
+        clearTimeout(identity.settleTimer);
+        identity.settleTimer = setTimeout(() => {
+          if (!current() || identity.asr !== asr) return;
+          const sentences = identity.committer.settle();
+          if (!sentences.length) return;
+          for (const sentence of sentences) this.final(room, sentence);
+          this.showPending(room, identity);
+        }, 750).unref();
       },
-      final: text => { if (current() && identity.asr === asr) this.final(room, text); },
+      final: text => { if (current() && identity.asr === asr) this.closeTurn(room, identity, text); },
       error: message => { identity.lastError = message; },
       closed: () => {
         if (!current()) return;
@@ -154,7 +168,7 @@ export class Rooms {
         }
         if (identity.asr !== asr) return;
         identity.asr = null;
-        clearTimeout(identity.rotate);
+        clearTimeout(identity.rotate); clearTimeout(identity.settleTimer);
         const pause = message => {
           room.session = null; room.interim = '';
           this.broadcast(room, { type: 'interim', text: '' });
@@ -185,6 +199,14 @@ export class Rooms {
     s.pending?.close();
     if (s.asr) s.asr.stop();
     else { room.session = null; this.status(room, 'paused', 'Đã dừng thu âm. Có thể bấm bắt đầu để tiếp tục.'); }
+  }
+  closeTurn(room, identity, text) {
+    clearTimeout(identity.settleTimer);
+    for (const sentence of identity.committer.final(text)) this.final(room, sentence);
+  }
+  showPending(room, identity) {
+    room.interim = identity.committer.pending().slice(0, 4000);
+    this.broadcast(room, { type: 'interim', text: room.interim });
   }
   final(room, text) {
     const vi = text.trim();

@@ -292,6 +292,19 @@ test('upstream reconnects after unexpected close without pausing the room', asyn
   mic.ws.send(Buffer.alloc(320, 1));
   await until(() => conns[1].received.some(d => Buffer.isBuffer(d) && d.length === 320));
 });
+test('long speech is captioned sentence by sentence before the turn closes', async t => {
+  const { conns, room, viewer } = await fakeDeepgramRoom(t);
+  room.queue.run = async () => ({ en: 'en', ja: 'ja' });   // no network in tests
+  const results = (transcript, isFinal = false) => conns[0].send(JSON.stringify({ type: 'Results', is_final: isFinal,
+    speech_final: isFinal, channel: { alternatives: [{ transcript }] } }));
+  results('Kính thưa quý vị. Mười năm trước chúng tôi');
+  await until(() => room.captions.length === 1);
+  assert.equal(room.captions[0].vi, 'Kính thưa quý vị.');   // committed while the speaker is still talking
+  await until(() => viewer.events.some(e => e.type === 'interim' && e.text === 'Mười năm trước chúng tôi'));
+  results('Kính thưa quý vị. Mười năm trước chúng tôi bắt đầu.', true);
+  await until(() => room.captions.length === 2);
+  assert.deepEqual(room.captions.map(c => c.vi), ['Kính thưa quý vị.', 'Mười năm trước chúng tôi bắt đầu.']);
+});
 test('asr rotation swaps upstream connections without re-announcing to the mic', async t => {
   const { conns, room, mic, rooms } = await fakeDeepgramRoom(t);
   const first = room.session.asr;
