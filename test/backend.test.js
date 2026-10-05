@@ -42,6 +42,9 @@ test('room creation needs valid access key AND allowed origin; path cannot read 
   assert.ok(room.qr.startsWith('data:image/png;base64,'));
   assert.ok(room.micUrl.startsWith('https://test.example/live-trans/mic.html#'));
   assert.equal((await fetch(origin + '/%2e%2e%2f.env')).status, 404);
+  const font = await fetch(origin + '/fonts/be-vietnam-pro-400-vietnamese.woff2');
+  assert.equal(font.status, 200);
+  assert.equal(font.headers.get('content-type'), 'font/woff2');
   const publicConfig = await (await fetch(origin + '/api/config')).json();
   assert.deepEqual(publicConfig, { ready: true, requiresAccess: true,
     providers: { gemini: true, deepgram: false } });

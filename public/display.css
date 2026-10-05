@@ -1,9 +1,12 @@
+/* Projection palette follows the Haposoft 10-year event site: deep green ground, mint text, bright green accent. */
 :root {
   color-scheme: dark;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --ground: #0b3a2c; --panel: #06241c; --raised: #134a39; --raised-hover: #1b5e48; --line: #2f6b55;
+  --ink: #e8fff4; --ink-soft: #bfe6d2; --brand: #05c47c; --warn: #ffc45c;
+  font-family: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
   font-synthesis: none;
-  color: #f6f6f7;
-  background: #303034;
+  color: var(--ink);
+  background: var(--ground);
 }
 * { box-sizing: border-box; }
 body { margin: 0; }
@@ -21,36 +24,36 @@ body { margin: 0; }
   font-weight: 400; line-height: 1.6; letter-spacing: 0;
   text-align: left; white-space: pre-wrap; overflow-wrap: anywhere;
 }
-.captions.empty { color: #d0d0d5; }
+.captions.empty { color: var(--ink-soft); }
 .display-footer {
   position: fixed; left: 0; right: 0; bottom: 0;
   padding: 12px clamp(20px, 4vw, 52px); pointer-events: none;
 }
 .connection-status, .caption-progress, .fullscreen-error {
   margin: 0; font-size: clamp(14px, 2vw, 22px); line-height: 1.45;
-  color: #ffe2a8;
+  color: var(--warn);
 }
 .connection-status, .caption-progress { display: none; }
 .connection-problem .connection-status, .caption-progress[data-state="error"] {
-  display: block; background: #303034; padding: 8px 0;
+  display: block; background: var(--ground); padding: 8px 0;
 }
 .display-controls { pointer-events: auto; width: fit-content; margin-left: auto; max-width: 100%; }
 .display-controls summary {
   list-style: none; cursor: pointer; min-height: 44px; padding: 10px 14px;
-  border-radius: 8px; color: #dedee3; font-size: 14px;
-  background: #303034; opacity: .65; transition: opacity .2s;
+  border-radius: 8px; color: var(--ink-soft); font-size: 14px;
+  background: var(--ground); opacity: .65; transition: opacity .2s;
 }
 .display-controls summary::-webkit-details-marker { display: none; }
 .display-controls:hover summary, .display-controls:focus-within summary,
 .display-controls[open] summary, .connection-problem summary { opacity: 1; }
-.display-controls[open] { padding: 8px; background: #242428; border: 1px solid #66666d; border-radius: 10px; }
+.display-controls[open] { padding: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
 .display-actions { display: flex; gap: 8px; flex-wrap: wrap; padding-top: 8px; }
 button {
-  border: 1px solid #73737c; border-radius: 8px;
-  background: #3c3c42; color: #fff; padding: 10px 14px;
+  border: 1px solid var(--line); border-radius: 8px;
+  background: var(--raised); color: var(--ink); padding: 10px 14px;
   font: inherit; font-size: 15px; min-height: 44px; cursor: pointer;
 }
-button:hover { background: #505059; }
-button:focus-visible, summary:focus-visible, .caption-scroll:focus-visible { outline: 2px solid #f6f6f7; outline-offset: 3px; }
+button:hover { background: var(--raised-hover); }
+button:focus-visible, summary:focus-visible, .caption-scroll:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 .fullscreen-error { max-width: 420px; margin-top: 8px; }
 @media (prefers-reduced-motion: reduce) { .display-controls summary { transition: none; } }
