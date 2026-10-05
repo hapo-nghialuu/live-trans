@@ -27,7 +27,7 @@ const labels = {
   },
 }[lang];
 document.documentElement.lang = lang;
-document.title = `Live Trans · ${labels.title}`;
+document.title = `${labels.title} · Haposoft 10 năm`;
 $('language-title').textContent = labels.title;
 $('caption-scroll').setAttribute('aria-label', labels.captions);
 // Fade the top edge only once older lines scroll out, so the first line is never dimmed.
