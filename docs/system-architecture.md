@@ -43,8 +43,9 @@
 
 Giao diện web dùng chung `public/styles.css`: `index.html` tạo/xem phiên,
 `mic.html` điều khiển micro trên trình duyệt, `settings.html` đổi provider mặc
-định cho phiên mới, `guide.html` hướng dẫn sử dụng. `logo.png`, `favicon.png`
-và `apple-touch-icon.png` là bộ nhận diện web; static server hỗ trợ MIME PNG. Mỗi trang giữ ID DOM mà module JavaScript tương ứng dùng;
+định cho phiên mới, `guide.html` hướng dẫn sử dụng. `haposoft-logo.svg`, `favicon.png`
+và `apple-touch-icon.png` là bộ nhận diện web (lấy từ trang Haposoft 10 năm); `fonts/` tự host
+Bricolage Grotesque và Be Vietnam Pro; static server hỗ trợ MIME PNG. Mỗi trang giữ ID DOM mà module JavaScript tương ứng dùng;
 đổi bố cục không đổi giao thức phòng hay luồng âm thanh.
 `public/presentation.js` quản lý trạng thái chờ QR, bảng điều khiển phiên và
 mở cửa sổ riêng cho từng ngôn ngữ. Điện thoại kết nối thì trang chính hiện
