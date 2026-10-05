@@ -33,6 +33,90 @@
         <li><h2>Kết nối điện thoại</h2><p>Mở app Live Trans, quét QR hoặc nhập mã phiên. Chọn <strong>Bắt đầu</strong> và cho phép dùng micro. Nếu không cài app, quét QR bằng Camera để mở micro trên trình duyệt.</p><figure class="guide-image guide-image-phone"><img src="guide-connect-phone.png" width="576" height="689" alt="Bảng kết nối micro trên web gồm mã QR và mã phiên 6 số" loading="lazy"><figcaption>Ảnh minh họa. Hãy quét QR hoặc nhập mã trong phiên của bạn.</figcaption></figure></li>
         <li><h2>Mở hai màn hình phụ đề</h2><p>Khi điện thoại kết nối, mở riêng cửa sổ <strong>English</strong> và <strong>日本語</strong>. Kéo mỗi cửa sổ sang một màn hình bên sân khấu, rồi mở <strong>Controls</strong> / <strong>操作</strong> ở góc dưới để bật toàn màn hình. Nếu trình duyệt chặn cửa sổ mới, cho phép cửa sổ bật lên hoặc mở liên kết trong tab mới. Nói tiếng Việt, ngắt nhẹ giữa các câu; phụ đề tự cập nhật và cuộn xuống.</p><figure class="guide-image"><img src="guide-project-captions.png" width="1280" height="720" alt="Trang điều khiển có hai nút mở riêng cửa sổ phụ đề tiếng Anh và tiếng Nhật" loading="lazy"><figcaption>Mở từng cửa sổ và đặt vào màn hình tương ứng.</figcaption></figure></li>
       </ol>
+      <section class="guide-section" aria-labelledby="connect-title">
+        <h2 id="connect-title">Các cách kết nối điện thoại</h2>
+        <p>Mỗi phiên có một mã QR và một mã 6 số trên trang chính. Chọn cách phù hợp với thiết bị đang cầm micro.</p>
+        <div class="guide-table-wrap"><table class="guide-table">
+          <thead><tr><th scope="col">Cách</th><th scope="col">Làm thế nào</th><th scope="col">Phù hợp khi</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">App · quét QR</th><td>Mở app Live Trans, chọn quét QR và hướng camera vào mã trên màn hình.</td><td>Điện thoại Android đã cài app.</td></tr>
+            <tr><th scope="row">App · nhập mã</th><td>Nhập mã 6 số đang hiện trên màn hình, ví dụ <strong>123 456</strong>.</td><td>Không quét được QR, hoặc màn hình ở xa.</td></tr>
+            <tr><th scope="row">Liên kết micro</th><td>Trên trang chính chọn <strong>Sao chép liên kết micro</strong>, gửi qua chat rồi mở trên điện thoại.</td><td>Người cầm micro ở chỗ khác.</td></tr>
+            <tr><th scope="row">Trình duyệt</th><td>Quét QR bằng app Camera, trang micro mở trên Safari hoặc Chrome. Cho phép dùng micro khi được hỏi.</td><td>iPhone, hoặc không muốn cài app.</td></tr>
+            <tr><th scope="row">Laptop + mixer</th><td>Mở liên kết micro trên laptop có card âm thanh USB nối từ bàn mixer. Xem phần bên dưới.</td><td>Hội trường có hệ thống âm thanh.</td></tr>
+          </tbody>
+        </table></div>
+        <p>Khi kết nối thành công, trang chính chuyển sang <strong>Màn hình trình chiếu</strong> và hiện nhãn trạng thái cạnh tiêu đề:</p>
+        <ul class="guide-list">
+          <li><strong>Điện thoại đã kết nối. Bấm bắt đầu trên điện thoại.</strong> Điện thoại đã vào phiên, chưa thu.</li>
+          <li><strong>Đang nghe tiếng Việt</strong> (chấm xanh nhấp nháy). Micro đang thu, phụ đề sẽ xuất hiện.</li>
+          <li><strong>Đã dừng · Sẵn sàng khi bạn muốn</strong>. Người nói đã bấm dừng; bấm lại để tiếp tục.</li>
+          <li><strong>Mất kết nối</strong>. Điện thoại hoặc mạng bị ngắt; trang chính hiện lại QR để kết nối lại.</li>
+        </ul>
+        <p>Trang micro cần mở qua HTTPS. Giữ trang và màn hình điện thoại mở khi nói: nếu khóa màn hình hoặc chuyển ứng dụng, micro sẽ dừng.</p>
+      </section>
+      <section class="guide-section" aria-labelledby="mixer-title">
+        <h2 id="mixer-title">Lấy tiếng từ bàn mixer</h2>
+        <div class="guide-split">
+          <div>
+            <p>Ở hội trường có hệ thống âm thanh, lấy tiếng trực tiếp từ mixer cho phụ đề chính xác hơn hẳn đặt điện thoại giữa phòng.</p>
+            <ol class="guide-numbered">
+              <li>Xin đội âm thanh một đường <strong>AUX</strong> chỉ có micro người nói, không có nhạc nền.</li>
+              <li>Nối AUX vào card âm thanh USB, cắm card vào laptop.</li>
+              <li>Trên laptop, mở liên kết micro bằng Chrome, mở mục <strong>Nguồn âm thanh</strong>.</li>
+              <li>Chọn card USB ở <strong>Thiết bị đầu vào</strong> và bật <strong>Nguồn từ mixer</strong> để tắt lọc vọng, lọc ồn và tự chỉnh âm lượng.</li>
+              <li>Bấm <strong>Kiểm tra tín hiệu</strong>: thanh âm lượng phải chạy khi người nói thử. Bước này chưa gửi gì lên máy chủ.</li>
+            </ol>
+            <p>Nếu hiện <strong>Tín hiệu quá mức</strong>, giảm mức AUX trên mixer. Nếu hiện <strong>Tín hiệu quá nhỏ hoặc không có</strong> sau 3 giây, kiểm tra dây, kênh và mức AUX. Lựa chọn thiết bị được nhớ trên trình duyệt đó.</p>
+          </div>
+          <figure class="guide-image guide-image-phone">
+            <img src="guide-mixer-source.png" width="416" height="900" alt="Trang micro với mục Nguồn âm thanh: chọn thiết bị đầu vào, công tắc Nguồn từ mixer và nút Kiểm tra tín hiệu" loading="lazy">
+            <figcaption>Mục Nguồn âm thanh trên trang micro.</figcaption>
+          </figure>
+        </div>
+      </section>
+      <section class="guide-section" aria-labelledby="result-title">
+        <h2 id="result-title">Kết quả thực tế</h2>
+        <p>Thử nghiệm ngày 05/10/2026 với dịch vụ nhận giọng nói mặc định (Gemini). Đoạn nói mẫu khoảng 13 giây do giọng đọc tiếng Việt của máy tính đọc, gửi vào phiên đúng như một điện thoại.</p>
+        <div class="guide-table-wrap"><table class="guide-table">
+          <tbody>
+            <tr><th scope="row">Lời nói</th><td>Xin chào quý vị và các bạn. Chào mừng mọi người đến với buổi kỷ niệm 10 năm thành lập công ty. Xin cảm ơn các đối tác đến từ Nhật Bản đã đồng hành cùng chúng tôi trong suốt chặng đường vừa qua.</td></tr>
+            <tr><th scope="row">English</th><td lang="en">Hello everyone. Welcome to the company's 10th anniversary celebration. Thank you to our partners from Japan for accompanying us throughout the past journey.</td></tr>
+            <tr><th scope="row">日本語</th><td lang="ja">皆様こんにちは。会社の設立10周年記念式典へようこそお越しくださいました。これまでの道のりを共に歩んでくださった日本のパートナーの皆様に感謝いたします。</td></tr>
+          </tbody>
+        </table></div>
+        <div class="guide-stats">
+          <div><strong>~0,7 giây</strong><span>từ lúc bấm bắt đầu tới khi sẵn sàng nghe</span></div>
+          <div><strong>Gần như ngay</strong><span>chữ tạm tiếng Việt hiện trong lúc đang nói</span></div>
+          <div><strong>~1,6 giây</strong><span>sau khi dứt câu: câu tiếng Việt hoàn chỉnh</span></div>
+          <div><strong>~3 giây</strong><span>sau khi dứt câu: bản dịch tiếng Anh và tiếng Nhật</span></div>
+        </div>
+        <div class="guide-results">
+          <figure class="guide-image"><img src="guide-result-english.png" width="1280" height="720" alt="Cửa sổ phụ đề tiếng Anh hiển thị bản dịch của đoạn nói mẫu" loading="lazy"><figcaption>Cửa sổ English.</figcaption></figure>
+          <figure class="guide-image"><img src="guide-result-japanese.png" width="1280" height="720" alt="Cửa sổ phụ đề tiếng Nhật hiển thị bản dịch của đoạn nói mẫu" loading="lazy"><figcaption>Cửa sổ 日本語.</figcaption></figure>
+        </div>
+        <h3>Lưu ý về độ chính xác</h3>
+        <ul class="guide-list">
+          <li><strong>Tên riêng dễ bị nghe sai.</strong> Trong cùng thử nghiệm, “Haposoft” được nhận thành “Hatsusut” và “HARPO shop”, và bản dịch giữ nguyên tên sai. Với lời phát biểu quan trọng, MC nên nói rõ tên riêng hoặc chuẩn bị sẵn câu dẫn.</li>
+          <li><strong>Nói thành câu, ngắt nhẹ giữa các câu.</strong> Phụ đề dịch theo câu hoàn chỉnh; câu dài không ngắt sẽ hiện chậm hơn.</li>
+          <li><strong>Micro gần người nói, không lẫn nhạc.</strong> Tiếng vang và nhạc nền làm giảm độ chính xác rõ rệt.</li>
+          <li><strong>Dịch vụ nhận giọng nói.</strong> Đổi trong <a href="settings.html">Cài đặt</a>. Trong thử nghiệm này Gemini nhận đủ cả đoạn; Deepgram nhận nhanh hơn nhưng bỏ sót một số từ.</li>
+        </ul>
+      </section>
+      <section class="guide-section" aria-labelledby="trouble-title">
+        <h2 id="trouble-title">Khi gặp sự cố</h2>
+        <div class="guide-table-wrap"><table class="guide-table">
+          <thead><tr><th scope="col">Thông báo</th><th scope="col">Cách xử lý</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Chưa được phép dùng micro…</th><td>Mở cài đặt trang trong trình duyệt, cho phép Micro rồi bấm bắt đầu lại.</td></tr>
+            <tr><th scope="row">Thiết bị âm thanh đang bị ứng dụng khác dùng…</th><td>Đóng ứng dụng đang giữ card âm thanh (phần mềm ghi âm, họp trực tuyến) rồi thử lại.</td></tr>
+            <tr><th scope="row">Không thấy thiết bị đã chọn, đang dùng micro mặc định.</th><td>Card USB bị rút hoặc đổi cổng. Cắm lại rồi chọn lại trong Nguồn âm thanh.</td></tr>
+            <tr><th scope="row">Mạng không theo kịp âm thanh…</th><td>Mạng yếu. Dùng mạng ổn định hơn (dây LAN, 4G/5G riêng) rồi bắt đầu lại.</td></tr>
+            <tr><th scope="row">Mất kết nối</th><td>Trên trang chính quét lại QR; trong cửa sổ phụ đề mở Controls và chọn kết nối lại.</td></tr>
+            <tr><th scope="row">Cửa sổ phụ đề không mở</th><td>Trình duyệt chặn cửa sổ bật lên. Cho phép cửa sổ bật lên cho trang này, hoặc mở liên kết trong tab mới.</td></tr>
+          </tbody>
+        </table></div>
+      </section>
       <div class="guide-notes"><h2>Khi đang sử dụng</h2><p>Mỗi cửa sổ hiển thị một ngôn ngữ, nền xanh rêu và chữ sáng căn trái. Nhấn <strong>Esc</strong> để thoát toàn màn hình; có thể cuộn lại để đọc tối đa 30 câu gần nhất.</p><p>Chọn <strong>Dừng</strong> trên điện thoại để tạm ngừng thu. Trên trang chính, mở <strong>Điều khiển phiên</strong>: <strong>Rời phiên</strong> chỉ rời trên máy này; <strong>Kết thúc phiên cho mọi người</strong> ngắt micro và xóa lịch sử sau khi xác nhận.</p><p>Nếu điện thoại ngắt kết nối, trang chính hiện lại QR. Nếu cửa sổ phụ đề mất kết nối máy chủ, chọn kết nối lại trong cửa sổ đó. Kiểm tra mạng và quyền micro khi cần. Điện thoại dùng trình duyệt cần mở trang qua HTTPS.</p></div>
       <a class="primary guide-start" href="./">Về trang chính</a>
     </main>
