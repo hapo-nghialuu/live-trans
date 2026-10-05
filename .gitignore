@@ -20,3 +20,6 @@ node_modules/
 !.env.example
 .runtime/
 *.log
+
+# macOS
+.DS_Store
