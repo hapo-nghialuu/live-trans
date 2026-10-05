@@ -33,14 +33,14 @@
             <span class="card-icon" aria-hidden="true">＋</span>
             <div class="action-heading"><h2>Tạo phiên mới</h2></div>
             <div id="access-field" class="field" hidden><label for="access-key">Mã truy cập</label><input id="access-key" type="password" autocomplete="off" placeholder="Nhập mã truy cập" spellcheck="false"></div>
-            <details class="custom-code"><summary>Tự chọn mã phiên</summary><div class="field"><label for="session-code-pick">Mã phiên tùy chọn</label><input id="session-code-pick" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="Để trống để tự tạo mã" autocomplete="off" spellcheck="false"></div></details>
+            <details class="custom-code"><summary>Tự chọn mã phiên</summary><div class="field"><label for="session-code-pick">Mã phiên tùy chọn</label><input id="session-code-pick" autocomplete="off" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="Để trống để tự tạo mã" autocomplete="off" spellcheck="false"></div></details>
             <button id="create-button" class="primary full-width" type="submit" disabled>Tạo phiên mới</button>
             <p id="config-note" class="helper" role="status">Đang kiểm tra kết nối…</p>
           </form>
           <form id="join-form" class="action-card join-form" aria-label="Xem phiên đang diễn ra bằng mã">
             <span class="card-icon card-icon-soft" aria-hidden="true">↗</span>
             <div class="action-heading"><h2>Vào xem phụ đề</h2></div>
-            <div class="field"><label for="join-code">Mã phiên 6 số</label><div class="join-row"><input id="join-code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="123 456" autocomplete="off" spellcheck="false"><button id="join-button" class="secondary" type="submit">Xem phiên</button></div></div>
+            <div class="field"><label for="join-code">Mã phiên 6 số</label><div class="join-row"><input id="join-code" autocomplete="off" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="123 456" autocomplete="off" spellcheck="false"><button id="join-button" class="secondary" type="submit">Xem phiên</button></div></div>
           </form>
         </div>
       </section>

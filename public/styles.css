@@ -16,7 +16,9 @@ img{max-width:100%}
 [hidden]{display:none!important}
 .skip-link{position:absolute;top:-100px;left:16px;z-index:20;background:var(--text);color:#fff;padding:12px 16px;border-radius:10px}
 .skip-link:focus{top:12px}
-.shell{width:min(100% - 64px,1440px);margin:auto}
+/* Full-viewport page: header at the top edge, footer at the bottom edge, main fills the middle. */
+.shell{width:min(100% - 64px,1440px);margin:auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+.shell>main{flex:1;display:flex;flex-direction:column}
 .site-header{min-height:88px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--border)}
 .brand{display:inline-flex;align-items:center;gap:11px;min-height:44px;text-decoration:none;font-size:22px;font-weight:800;letter-spacing:-.7px;white-space:nowrap}
 .brand-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:var(--accent);color:#fff;font-size:31px;font-weight:600;line-height:1;letter-spacing:-6px;padding-right:5px}
@@ -29,7 +31,7 @@ img{max-width:100%}
 .eyebrow{color:var(--accent);font-size:12px;font-weight:800;letter-spacing:1.3px}
 .helper,.field-hint{color:var(--muted);font-size:13px;line-height:1.5}
 .notice{margin:20px 0 0;padding:14px 17px;border:1px solid #f3c6cc;border-radius:14px;background:var(--red-soft);color:#8d1d2b;font-size:14px;overflow-wrap:anywhere}
-.welcome{min-height:min(calc(100dvh - 155px),720px);display:grid;grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr);align-items:center;gap:clamp(40px,5vw,100px);padding:48px 0 56px}
+.welcome{flex:1;display:grid;grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr);align-items:center;gap:clamp(40px,5vw,100px);padding:48px 0 56px}
 .hero-copy{align-self:center}
 .hero-copy h1{margin:22px 0;font-size:clamp(44px,4.7vw,76px);font-weight:800;letter-spacing:-.055em}
 .hero-copy h1 span{color:var(--accent)}
@@ -152,7 +154,7 @@ meter::-moz-meter-bar{background:var(--brand)}
 .mic-notes p+p{margin-top:8px}
 .mic-notes strong{color:var(--text)}
 .mic-footer{padding-top:18px;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:12px}
-.settings-layout{min-height:calc(100dvh - 155px);display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1fr);align-items:center;gap:clamp(40px,7vw,120px);padding:65px 0 90px}
+.settings-layout{flex:1;display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1fr);align-items:center;gap:clamp(40px,7vw,120px);padding:65px 0 90px}
 .settings-layout .hero-copy h1{font-size:clamp(42px,4.3vw,68px)}
 .settings-content{display:grid;gap:14px}
 .settings-card .action-heading{min-height:auto;margin-bottom:23px}
