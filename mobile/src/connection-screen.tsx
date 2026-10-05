@@ -21,6 +21,7 @@ export function ConnectionScreen(p: Props) {
   return (
     <ScrollView contentContainerStyle={styles.welcomeContent} keyboardShouldPersistTaps="handled">
       <View style={styles.intro}>
+        <Text style={styles.eventTag}>HAPOSOFT 10 NĂM · MAKING IT POSSIBLE</Text>
         <Text style={styles.title}>Kết nối phiên</Text>
         <Text style={styles.description}>Quét QR trên màn hình để dùng điện thoại làm micro.</Text>
       </View>

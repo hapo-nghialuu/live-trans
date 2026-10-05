@@ -9,7 +9,7 @@ export type IconName =
 type AppIconProps = {name: IconName; color?: string; size?: number};
 
 /** All glyphs share a 24-point canvas and two-point rounded strokes. */
-export function AppIcon({name, color = '#008557', size = 24}: AppIconProps) {
+export function AppIcon({name, color = '#007A50', size = 24}: AppIconProps) {
   const line = (x1: number, y1: number, x2: number, y2: number, key?: string) => {
     const length = Math.hypot(x2 - x1, y2 - y1);
     return <View key={key} style={[styles.stroke, {

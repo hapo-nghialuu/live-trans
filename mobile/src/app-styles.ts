@@ -4,9 +4,9 @@ import { StyleSheet } from 'react-native';
 // Colors follow the Haposoft 10-year event site on a white background.
 export const C = {
   bg: '#FFFFFF', surface: '#FFFFFF', surface2: '#F3FBF7', border: '#DCEFE5',
-  text: '#06241C', muted: '#4B6159', accent: '#008557', accentSoft: '#E8F7EF',
+  text: '#06241C', muted: '#4B6159', accent: '#007A50', accentSoft: '#E8F7EF',
   live: '#C93643', liveSoft: '#FFF0F1', ok: '#176A4C', okSoft: '#EAF7F1',
-  warn: '#956000', warnSoft: '#FFF7E5', en: '#008557', ja: '#7046A5',
+  warn: '#956000', warnSoft: '#FFF7E5', en: '#007A50', ja: '#7046A5',
 };
 
 export const styles = StyleSheet.create({
@@ -25,6 +25,7 @@ export const styles = StyleSheet.create({
 
   welcomeContent: { paddingHorizontal: 20, paddingBottom: 32, width: '100%', maxWidth: 560, alignSelf: 'center' },
   intro: { paddingTop: 18, paddingBottom: 20 },
+  eventTag: { color: C.accent, fontSize: 12, fontWeight: '800', letterSpacing: 1.2, marginBottom: 10 },
   title: { color: C.text, fontSize: 29, fontWeight: '800', lineHeight: 35, letterSpacing: -0.8 },
   description: { color: C.muted, fontSize: 15, lineHeight: 22, marginTop: 12 },
   notice: { padding: 14, borderRadius: 14, backgroundColor: C.accentSoft, marginBottom: 16 },
