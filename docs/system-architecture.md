@@ -17,7 +17,10 @@
 4. `server/transcriber.js` truyền PCM tới Gemini Live (`gemini-3.5-transcribe-live`),
    hoặc `server/deepgram.js` tới Deepgram (`nova-3`) theo provider của phòng.
    VI interim phát ngay về client.
-5. Câu VI hoàn chỉnh vào `TranslationQueue`; `server/translation.js` gọi
+5. `server/sentence-commit.js` chốt từng câu ngay khi chữ tạm có câu hoàn chỉnh (người nói
+   đã nói tiếp, hoặc câu cuối giữ nguyên 0,7 giây, hoặc quá ~220 ký tự thì cắt ở dấu phẩy), nên
+   MC nói dài vẫn có phụ đề theo từng câu; bản chốt cuối của lượt nói chỉ thêm phần còn thiếu.
+   Câu VI hoàn chỉnh vào `TranslationQueue`; `server/translation.js` gọi
    `gemini-3.5-flash-lite` với JSON gồm EN/JA và tối đa ba câu nguồn làm ngữ cảnh.
    Khi gọi model chính lỗi, thử `gemini-3.1-flash-lite` dự phòng (đổi qua
    `TRANSLATE_FALLBACK_MODEL`). HTTP 429 tạm bỏ qua model theo RetryInfo,
