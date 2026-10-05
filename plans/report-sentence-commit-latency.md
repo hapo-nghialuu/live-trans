@@ -82,3 +82,38 @@ vẫn đang nói. Câu cuối hiện 2,9 giây sau khi MC dừng.
 - `test/backend.test.js` › `long speech is captioned sentence by sentence before the turn closes`:
   phụ đề được tạo trước khi lượt nói kết thúc. Test này fail với code cũ (đã chạy kiểm chứng).
 - `npm test`: 48/48, ổn định qua 3 lần chạy liên tiếp.
+
+## Thử nghiệm dài: bài phát biểu 9,3 phút
+
+Ngày 05/10/2026, sau khi đã có phụ đề theo từng câu. Bài phát biểu kỷ niệm 10 năm gồm 88 câu,
+mỗi câu do giọng đọc Linh tạo riêng (nghỉ 0,35 giây giữa các câu) để biết chính xác thời điểm
+kết thúc từng câu. Audio gửi vào server đúng tốc độ thời gian thực qua WebSocket của điện thoại,
+dịch vụ Gemini. Phiên vượt mốc xoay kết nối Gemini ở phút 8,5 (`asr chained #1`).
+
+| Chỉ số | Kết quả |
+|---|---|
+| Số câu nguồn / số khối phụ đề | 88 / 87 |
+| Khối phụ đề lỗi dịch | 0 |
+| Câu tiếng Việt hiện sau khi câu nói kết thúc | trung vị 1,2 s · 90% ≤ 1,4 s · chậm nhất 2,1 s |
+| **Bản dịch EN/JA hiện sau khi câu nói kết thúc** | **trung vị 2,3 s · 90% ≤ 2,6 s · chậm nhất 3,3 s** |
+| Độ trễ trung vị theo từng phút (phút 0 → 9) | 2,5 · 2,3 · 2,3 · 2,2 · 2,3 · 2,3 · 2,3 · 2,2 · 2,2 · 2,3 s |
+| Tỷ lệ lỗi nhận dạng theo âm tiết | 0,6% (11 âm tiết thay thế, 0 bị lặp, 0 bị mất) |
+| Lỗi / tạm dừng trong phiên | không có |
+
+Độ trễ không tăng theo thời gian, và không có câu nào bị lặp hay mất, kể cả quanh mốc xoay kết
+nối Gemini.
+
+Chi tiết 11 âm tiết sai:
+
+- 1 lỗi nhận dạng thật: "theo một tiêu chuẩn" → "theo mục tiêu chuẩn". Bản dịch vẫn đúng
+  ("new standards").
+- 5 chỗ hai chữ bị dính, mất dấu cách: "cáckhóa", "mộtmôi", "việccởi", "mộtbuổi", "vàý". Bản dịch
+  EN/JA của các câu này đều đúng (ví dụ "mộtmôi trường làm việccởi mở" → "an open working
+  environment"), nên chỉ ảnh hưởng chữ tiếng Việt ở phần xem trước của người điều hành và điện
+  thoại, không ảnh hưởng màn chiếu.
+
+Lỗi dính chữ xảy ra ngẫu nhiên phía Gemini: chạy lại đoạn 77 giây chứa các câu đó thì không
+tái hiện. Có dấu hiệu chữ tạm của Gemini hay thiếu dấu cách hơn bản chốt cuối (ví dụ "các bạn.Chào"
+ở chữ tạm, "các bạn. Chào" ở bản chốt), nên việc dựng phụ đề từ chữ tạm có thể làm lộ lỗi này
+nhiều hơn trước. Hướng cải thiện nếu cần: khi Gemini chốt lượt nói, thay chữ tiếng Việt của các
+khối đã hiện bằng bản chốt (không đổi bản dịch).
